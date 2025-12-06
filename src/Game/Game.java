@@ -5,7 +5,7 @@ import javax.swing.*;
 public class Game extends JFrame {
     public Game(int numPlayers, int numBots, String mode, String type) {
         setTitle("Trio Game");
-        setSize(800, 800);
+        setSize(700, 750);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Close only this window
         setLocationRelativeTo(null);
 
