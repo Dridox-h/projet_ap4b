@@ -10,15 +10,11 @@ import model.User;
 
 public class MenuGUI extends JFrame {
 
-    private User currentUser;
-    private int nbplayers = 0;
-    private int currentBots = 0;
-    private String currentMode = "Simple";
-    private String currentType = "Individual";
+    // Use Menu object to handle all game logic
+    private Menu menu;
 
     // UI Components
     private JSlider playerSlider;
-    private JButton modeButton;
     private JButton typeButton;
 
     // Chess.com Blue Theme Colors
@@ -35,27 +31,54 @@ public class MenuGUI extends JFrame {
     private static final Color BORDER_COLOR = new Color(62, 82, 105);
 
     private void startGame() {
-        nbplayers = playerSlider.getValue();
-        currentMode = modeButton.getText().replace("Mode: ", "");
-        currentType = typeButton.getText().replace("Type: ", "");
-        // currentBots = configureBots();
-        Game.Game game = new Game.Game(nbplayers, currentBots, currentMode, currentType);
+        menu.setNbPlayers(playerSlider.getValue());
+        menu.setType(typeButton.getText().replace("Type: ", ""));
+
+        // Validation from Menu.java
+        if (menu.getNbPlayers() == 0 || menu.getNbBots() == 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a number of players and configure bots first.",
+                    "Configuration Required",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (menu.getType() == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a type.",
+                    "Configuration Required",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (menu.getNbPlayers() > 6) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a number of players equal or less than 6.",
+                    "Invalid Configuration",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Start the game
+        System.out.println(
+                "Starting the game with " + menu.getNbPlayers() + " players and " + menu.getNbBots() + " bots" + " in "
+                        + menu.getType() + " type");
+        Game.Game game = new Game.Game(menu.getNbPlayers(), menu.getNbBots(), menu.getType());
         game.setVisible(true);
     }
 
     private int configureBots() {
-        int totalPlayers = playerSlider.getValue();
-        currentBots = totalPlayers - 1;
+        menu.setNbPlayers(playerSlider.getValue());
+        menu.completewithBots(menu.getNbPlayers());
 
-        System.out.println("Bots configured: " + currentBots);
+        System.out.println("Bots configured: " + menu.getNbBots());
 
-        JOptionPane pane = new JOptionPane(
-                "Bots set to: " + currentBots,
+        JOptionPane.showMessageDialog(this,
+                String.format("Game will be completed with %d bots.\nTotal players: %d | Bots: %d",
+                        menu.getNbBots(), menu.getNbPlayers(), menu.getNbBots()),
+                "Bot Configuration",
                 JOptionPane.INFORMATION_MESSAGE);
-        JDialog dialog = pane.createDialog(this, "Bot Configuration");
-        dialog.getContentPane().setBackground(BACKGROUND_MEDIUM);
-        dialog.setVisible(true);
-        return currentBots;
+        return menu.getNbBots();
     }
 
     /**
@@ -268,19 +291,35 @@ public class MenuGUI extends JFrame {
     }
 
     public int getNbPlayers() {
-        return nbplayers;
+        return menu.getNbPlayers();
     }
 
-    public int getBots() {
-        return currentBots;
+    public int getNbBots() {
+        return menu.getNbBots();
     }
 
-    public String getMode() {
-        return currentMode;
+    public String getGameType() {
+        return menu.getType();
     }
 
-    public String gettype() {
-        return currentType;
+    public User getCurrentUser() {
+        return menu.getCurrentUser();
+    }
+
+    public void setCurrentUser(User currentUser) {
+        menu.setCurrentUser(currentUser);
+    }
+
+    public void setNbPlayers(int nbplayers) {
+        menu.setNbPlayers(nbplayers);
+    }
+
+    public void setNbBots(int currentBots) {
+        menu.setNbBots(currentBots);
+    }
+
+    public void setGameType(String currentType) {
+        menu.setType(currentType);
     }
 
     // Custom rounded button with Chess.com styling
@@ -331,6 +370,9 @@ public class MenuGUI extends JFrame {
     }
 
     public MenuGUI() {
+        // Initialize the Menu object
+        menu = new Menu();
+
         // Window setup
         setTitle("Game Menu");
         setSize(700, 750);
@@ -351,7 +393,39 @@ public class MenuGUI extends JFrame {
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainContainer.add(titleLabel);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 40)));
+        mainContainer.add(Box.createRigidArea(new Dimension(0, 30)));
+
+        // --- User Info Card (if user is logged in) ---
+        if (menu.getCurrentUser() != null) {
+            JPanel userCard = createCard();
+            userCard.setLayout(new BoxLayout(userCard, BoxLayout.Y_AXIS));
+
+            JLabel userTitleLabel = new JLabel("Current User");
+            userTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            userTitleLabel.setForeground(TEXT_SECONDARY);
+            userTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel userNameLabel = new JLabel(menu.getCurrentUser().getName());
+            userNameLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+            userNameLabel.setForeground(ACCENT_BLUE);
+            userNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel victoriesLabel = new JLabel("Victories: " + menu.getCurrentUser().getNBVictoire());
+            victoriesLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            victoriesLabel.setForeground(TEXT_PRIMARY);
+            victoriesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            userCard.add(userTitleLabel);
+            userCard.add(Box.createRigidArea(new Dimension(0, 8)));
+            userCard.add(userNameLabel);
+            userCard.add(Box.createRigidArea(new Dimension(0, 5)));
+            userCard.add(victoriesLabel);
+
+            mainContainer.add(userCard);
+            mainContainer.add(Box.createRigidArea(new Dimension(0, 25)));
+        }
+
+        mainContainer.add(Box.createRigidArea(new Dimension(0, 10)));
 
         // --- Player Slider Card ---
         JPanel sliderCard = createCard();
@@ -362,7 +436,7 @@ public class MenuGUI extends JFrame {
         sliderLabel.setForeground(TEXT_PRIMARY);
         sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        playerSlider = new JSlider(JSlider.HORIZONTAL, 3, 6, 3);
+        playerSlider = new JSlider(JSlider.HORIZONTAL, 1, 6, 1);
         playerSlider.setMajorTickSpacing(1);
         playerSlider.setPaintTicks(true);
         playerSlider.setPaintLabels(true);
@@ -405,28 +479,71 @@ public class MenuGUI extends JFrame {
         mainContainer.add(sliderCard);
         mainContainer.add(Box.createRigidArea(new Dimension(0, 25)));
 
-        // --- Settings Card (Mode and Type) ---
-        JPanel settingsCard = createCard();
-        settingsCard.setLayout(new GridLayout(1, 2, 15, 0));
+        // --- Current Settings Display Card ---
+        JPanel settingsDisplayCard = createCard();
+        settingsDisplayCard.setLayout(new BoxLayout(settingsDisplayCard, BoxLayout.Y_AXIS));
 
-        // Mode Button
-        modeButton = createDropdownButton("Mode: Simple");
-        JPopupMenu modePopup = createStyledPopup();
-        modePopup.add(createPopupItem("Simple")).addActionListener(e -> modeButton.setText("Mode: Simple"));
-        modePopup.add(createPopupItem("Picante")).addActionListener(e -> modeButton.setText("Mode: Picante"));
-        modeButton.addActionListener(e -> modePopup.show(modeButton, 0, modeButton.getHeight()));
+        JLabel settingsTitle = new JLabel("Current Settings");
+        settingsTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        settingsTitle.setForeground(TEXT_SECONDARY);
+        settingsTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Type Button
+        JLabel settingsInfo = new JLabel(String.format(
+                "Players: %d | Bots: %d | Type: %s",
+                menu.getNbPlayers(), menu.getNbBots(), menu.getType()));
+        settingsInfo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        settingsInfo.setForeground(TEXT_PRIMARY);
+        settingsInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        settingsDisplayCard.add(settingsTitle);
+        settingsDisplayCard.add(Box.createRigidArea(new Dimension(0, 8)));
+        settingsDisplayCard.add(settingsInfo);
+
+        // Update settings display when slider changes
+        playerSlider.addChangeListener(e -> {
+            menu.setNbPlayers(playerSlider.getValue());
+            settingsInfo.setText(String.format(
+                    "Players: %d | Bots: %d | Type: %s",
+                    menu.getNbPlayers(), menu.getNbBots(), menu.getType()));
+        });
+
+        mainContainer.add(settingsDisplayCard);
+        mainContainer.add(Box.createRigidArea(new Dimension(0, 25)));
+
+        // --- Type Button ---
+        JPanel typeCard = createCard();
+        typeCard.setLayout(new BoxLayout(typeCard, BoxLayout.Y_AXIS));
+
+        JLabel typeLabel = new JLabel("Game Type");
+        typeLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        typeLabel.setForeground(TEXT_PRIMARY);
+        typeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         typeButton = createDropdownButton("Type: Individual");
+        typeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        typeButton.setMaximumSize(new Dimension(300, 50));
         JPopupMenu typePopup = createStyledPopup();
-        typePopup.add(createPopupItem("Individual")).addActionListener(e -> typeButton.setText("Type: Individual"));
-        typePopup.add(createPopupItem("Team")).addActionListener(e -> typeButton.setText("Type: Team"));
+        typePopup.add(createPopupItem("Individual")).addActionListener(e -> {
+            typeButton.setText("Type: Individual");
+            menu.setType("Individual");
+            settingsInfo.setText(String.format(
+                    "Players: %d | Bots: %d | Type: %s",
+                    menu.getNbPlayers(), menu.getNbBots(), menu.getType()));
+        });
+        typePopup.add(createPopupItem("Team")).addActionListener(e -> {
+            typeButton.setText("Type: Team");
+            menu.setType("Team");
+            settingsInfo.setText(String.format(
+                    "Players: %d | Bots: %d | Type: %s",
+                    menu.getNbPlayers(), menu.getNbBots(), menu.getType()));
+        });
         typeButton.addActionListener(e -> typePopup.show(typeButton, 0, typeButton.getHeight()));
 
-        settingsCard.add(modeButton);
-        settingsCard.add(typeButton);
+        typeCard.add(typeLabel);
+        typeCard.add(Box.createRigidArea(new Dimension(0, 15)));
+        typeCard.add(typeButton);
 
-        mainContainer.add(settingsCard);
+        mainContainer.add(typeCard);
         mainContainer.add(Box.createRigidArea(new Dimension(0, 35)));
 
         // --- Action Buttons ---
@@ -440,7 +557,12 @@ public class MenuGUI extends JFrame {
         botsButton.setPreferredSize(new Dimension(580, 55));
         botsButton.setMaximumSize(new Dimension(580, 55));
         botsButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        botsButton.addActionListener(e -> configureBots());
+        botsButton.addActionListener(e -> {
+            configureBots();
+            settingsInfo.setText(String.format(
+                    "Players: %d | Bots: %d | Type: %s",
+                    menu.getNbPlayers(), menu.getNbBots(), menu.getType()));
+        });
 
         ChessButton createUserButton = new ChessButton("Create New User", BUTTON_SECONDARY, BUTTON_SECONDARY_HOVER);
         createUserButton.setPreferredSize(new Dimension(580, 55));
@@ -449,8 +571,8 @@ public class MenuGUI extends JFrame {
         createUserButton.addActionListener(e -> {
             User newUser = createNewUser();
             if (newUser != null) {
-                currentUser = newUser;
-                System.out.println("Current user set to: " + currentUser.getName());
+                menu.setCurrentUser(newUser);
+                System.out.println("Current user set to: " + menu.getCurrentUser().getName());
             }
         });
 
@@ -478,9 +600,8 @@ public class MenuGUI extends JFrame {
 
         add(mainContainer, BorderLayout.CENTER);
 
-        nbplayers = playerSlider.getValue();
-        currentMode = modeButton.getText().replace("Mode: ", "");
-        currentType = typeButton.getText().replace("Type: ", "");
+        menu.setNbPlayers(playerSlider.getValue());
+        menu.setType(typeButton.getText().replace("Type: ", ""));
     }
 
     private JPanel createCard() {
