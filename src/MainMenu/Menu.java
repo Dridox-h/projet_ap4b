@@ -8,7 +8,6 @@ public class Menu {
     private User currentUser;
     private int nbplayers = 0;
     private int currentBots = 0;
-    private String currentMode = "Simple";
     private String currentType = "Individual";
 
     private void exitGame() {
@@ -16,9 +15,9 @@ public class Menu {
         System.exit(0);
     }
 
-    private void startGame(int nbplayers, int currentBots, String currentMode, String currentType) {
+    private void startGame(int nbplayers, int currentBots, String currentType) {
         System.out.println("Starting the game with " + nbplayers + " players and " + currentBots + " bots" + " in "
-                + currentMode + " mode and " + currentType + " type");
+                + currentType + " type");
     }
 
     public int getNbPlayers() {
@@ -27,10 +26,6 @@ public class Menu {
 
     public int getNbBots() {
         return currentBots;
-    }
-
-    public String getMode() {
-        return currentMode;
     }
 
     public String getType() {
@@ -54,11 +49,7 @@ public class Menu {
     }
 
     public void completewithBots(int nbplayers) {
-        this.currentBots = 6 - nbplayers;
-    }
-
-    public void setMode(String currentMode) {
-        this.currentMode = currentMode;
+        this.currentBots = nbplayers - 1;
     }
 
     public void setType(String currentType) {
@@ -68,7 +59,7 @@ public class Menu {
     public void MenuGame() {
         System.out.println("\n-----------------------------------------");
         System.out.println("Welcome to the game! Current settings:");
-        System.out.println("Players: " + nbplayers + " | Bots: " + currentBots + " | Mode: " + currentMode + " | Type: "
+        System.out.println("Players: " + nbplayers + " | Bots: " + currentBots + " | Type: "
                 + currentType);
         System.out.println("-----------------------------------------");
         if (currentUser != null) {
@@ -102,13 +93,13 @@ public class Menu {
                 if (nbplayers == 0 || currentBots == 0) {
                     System.out.println("Please select a number of players and bots");
                 }
-                if (currentMode == null || currentType == null) {
-                    System.out.println("Please select a mode and a type");
+                if (currentType == null) {
+                    System.out.println("Please select a type");
                 }
                 if (nbplayers > 6) {
                     System.out.println("Please select a number of players equal or less than 6");
                 }
-                startGame(nbplayers, currentBots, currentMode, currentType);
+                startGame(nbplayers, currentBots, currentType);
                 break;
             case 2:
                 do {
@@ -139,14 +130,7 @@ public class Menu {
                 }
                 setType(currentType);
                 break;
-            case 5:
-                System.out.println("Please enter the game mode: Simple or Picante");
-                currentMode = scanner.next();
-                if (!currentMode.equals("Simple") && !currentMode.equals("Picante")) {
-                    System.out.println("Invalid input. Please enter Simple or Picante.");
-                }
-                setMode(currentMode);
-                break;
+
             case 6:
                 System.out.println("Please enter the user name:");
                 String name = scanner.next();
