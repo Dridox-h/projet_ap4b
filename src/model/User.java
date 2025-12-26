@@ -1,16 +1,34 @@
 package model;
 
 public class User {
+    private static int nextId = 1;
+    private int id;
     private String name;
     private int age;
     private int nbre_victoire;
     private String path_to_avatar;
 
     public User(String name, int age, int victories, String path_to_avatar) {
+        this.id = nextId++;
         this.name = name;
         this.age = age;
         this.nbre_victoire = victories;
         this.path_to_avatar = path_to_avatar;
+    }
+
+    public User(int id, String name, int age, int victories, String path_to_avatar) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.nbre_victoire = victories;
+        this.path_to_avatar = path_to_avatar;
+        if (id >= nextId) {
+            nextId = id + 1;
+        }
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {
@@ -27,6 +45,10 @@ public class User {
 
     public String getPathAvatar() {
         return path_to_avatar;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setName(String name) {

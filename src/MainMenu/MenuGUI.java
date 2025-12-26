@@ -21,7 +21,6 @@ public class MenuGUI extends JFrame {
     private static final Color BACKGROUND_DARK = new Color(18, 27, 40);
     private static final Color BACKGROUND_MEDIUM = new Color(28, 40, 58);
     private static final Color ACCENT_BLUE = new Color(129, 182, 232);
-    private static final Color ACCENT_BLUE_HOVER = new Color(149, 202, 252);
     private static final Color BUTTON_PRIMARY = new Color(108, 162, 215);
     private static final Color BUTTON_PRIMARY_HOVER = new Color(129, 182, 232);
     private static final Color BUTTON_SECONDARY = new Color(44, 62, 84);
@@ -81,16 +80,170 @@ public class MenuGUI extends JFrame {
         return menu.getNbBots();
     }
 
-    /**
-     * Creates a new User by showing a custom form dialog
-     * Uses User setter methods to configure the user properties
-     * 
-     * @return User object with the configured properties, or null if cancelled
-     */
+    private User selectExistingUser() {
+        // Check if UserLogs.txt exists and has users
+        if (menu.isUserLogsEmpty("logs/UserLogs.txt")) {
+            JOptionPane.showMessageDialog(this,
+                    "No users found. Please create a user first.",
+                    "No Users Available",
+                    JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        // Create the dialog
+        JDialog selectDialog = new JDialog(this, "Select User", true);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        selectDialog.setSize(800, screenSize.height);
+        selectDialog.setLocationRelativeTo(this);
+        selectDialog.getContentPane().setBackground(BACKGROUND_DARK);
+        selectDialog.setLayout(new BorderLayout());
+
+        // Main panel with padding
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBackground(BACKGROUND_DARK);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+
+        // Title
+        JLabel titleLabel = new JLabel("Select User");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        titleLabel.setForeground(TEXT_PRIMARY);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(titleLabel);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        // Display users from logs
+        JPanel usersPanel = new JPanel();
+        usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
+        usersPanel.setBackground(BACKGROUND_MEDIUM);
+        usersPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(20, 25, 20, 25)));
+
+        // Read and display users
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                new java.io.FileReader("logs/UserLogs.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+
+                // Parse user info from log line
+                String displayText = line;
+                JLabel userLabel = new JLabel(displayText);
+                userLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                userLabel.setForeground(TEXT_PRIMARY);
+                usersPanel.add(userLabel);
+                usersPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+            }
+        } catch (java.io.IOException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error reading user logs: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+
+        JScrollPane scrollPane = new JScrollPane(usersPanel);
+        scrollPane.setPreferredSize(new Dimension(700, 400));
+        scrollPane.getViewport().setBackground(BACKGROUND_MEDIUM);
+        mainPanel.add(scrollPane);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        // ID input panel
+        JPanel idPanel = new JPanel();
+        idPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        idPanel.setBackground(BACKGROUND_DARK);
+
+        JLabel idLabel = new JLabel("Enter User ID:");
+        idLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        idLabel.setForeground(TEXT_PRIMARY);
+
+        JTextField idField = new JTextField(10);
+        idField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        idField.setBackground(BACKGROUND_MEDIUM);
+        idField.setForeground(TEXT_PRIMARY);
+        idField.setCaretColor(TEXT_PRIMARY);
+        idField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+
+        idPanel.add(idLabel);
+        idPanel.add(idField);
+        mainPanel.add(idPanel);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 25)));
+
+        // Container to hold the result
+        final User[] resultUser = new User[1];
+
+        // Button panel
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        buttonPanel.setBackground(BACKGROUND_DARK);
+
+        ChessButton selectButton = new ChessButton("Select User", BUTTON_PRIMARY, BUTTON_PRIMARY_HOVER);
+        selectButton.setPreferredSize(new Dimension(150, 45));
+        selectButton.addActionListener(e -> {
+            String idStr = idField.getText().trim();
+            if (idStr.isEmpty()) {
+                JOptionPane.showMessageDialog(selectDialog,
+                        "Please enter a user ID.",
+                        "Validation Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(selectDialog,
+                        "Please enter a valid number for ID.",
+                        "Validation Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Use Menu's selectUser method
+            User selectedUser = menu.selectUser(id);
+            if (selectedUser != null) {
+                resultUser[0] = selectedUser;
+                JOptionPane.showMessageDialog(selectDialog,
+                        String.format("User selected successfully!\nName: %s\nVictories: %d",
+                                selectedUser.getName(), selectedUser.getNBVictoire()),
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+                selectDialog.dispose();
+            } else {
+                JOptionPane.showMessageDialog(selectDialog,
+                        "User with ID " + id + " not found.",
+                        "User Not Found",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        ChessButton cancelButton = new ChessButton("Cancel", BUTTON_SECONDARY, BUTTON_SECONDARY_HOVER);
+        cancelButton.setPreferredSize(new Dimension(150, 45));
+        cancelButton.addActionListener(e -> selectDialog.dispose());
+
+        buttonPanel.add(selectButton);
+        buttonPanel.add(cancelButton);
+
+        mainPanel.add(buttonPanel);
+
+        selectDialog.add(mainPanel, BorderLayout.CENTER);
+        selectDialog.setVisible(true);
+
+        return resultUser[0];
+    }
+
     private User createNewUser() {
         // Create the dialog
         JDialog formDialog = new JDialog(this, "Create New User", true);
-        formDialog.setSize(500, 400);
+        // Make dialog full width
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        formDialog.setSize(800, screenSize.height);
         formDialog.setLocationRelativeTo(this);
         formDialog.getContentPane().setBackground(BACKGROUND_DARK);
         formDialog.setLayout(new BorderLayout());
@@ -249,11 +402,7 @@ public class MenuGUI extends JFrame {
             String avatarPath = avatarField.getText().trim();
 
             // Create user
-            User newUser = new User("", 0, 0, "");
-            newUser.setName(name);
-            newUser.setAge(age);
-            newUser.setNBVictoire(0);
-            newUser.setPathAvatar(avatarPath);
+            User newUser = new User(name, age, 0, avatarPath);
 
             resultUser[0] = newUser;
 
@@ -284,42 +433,6 @@ public class MenuGUI extends JFrame {
 
     private void openOptions() {
         JOptionPane.showMessageDialog(this, "Opening options...");
-    }
-
-    private void exitGame() {
-        System.exit(0);
-    }
-
-    public int getNbPlayers() {
-        return menu.getNbPlayers();
-    }
-
-    public int getNbBots() {
-        return menu.getNbBots();
-    }
-
-    public String getGameType() {
-        return menu.getType();
-    }
-
-    public User getCurrentUser() {
-        return menu.getCurrentUser();
-    }
-
-    public void setCurrentUser(User currentUser) {
-        menu.setCurrentUser(currentUser);
-    }
-
-    public void setNbPlayers(int nbplayers) {
-        menu.setNbPlayers(nbplayers);
-    }
-
-    public void setNbBots(int currentBots) {
-        menu.setNbBots(currentBots);
-    }
-
-    public void setGameType(String currentType) {
-        menu.setType(currentType);
     }
 
     // Custom rounded button with Chess.com styling
@@ -378,8 +491,90 @@ public class MenuGUI extends JFrame {
         setSize(700, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // Make window full width
         setLayout(new BorderLayout());
         getContentPane().setBackground(BACKGROUND_DARK);
+
+        // --- Right Side Panel for User Info ---
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        rightPanel.setBackground(BACKGROUND_DARK);
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(40, 20, 40, 40));
+        rightPanel.setPreferredSize(new Dimension(300, 0));
+
+        // User Info Card on the right
+        JPanel userInfoCard = new JPanel();
+        userInfoCard.setLayout(new BoxLayout(userInfoCard, BoxLayout.Y_AXIS));
+        userInfoCard.setBackground(BACKGROUND_MEDIUM);
+        userInfoCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(25, 20, 25, 20)));
+        userInfoCard.setMaximumSize(new Dimension(300, 200));
+
+        JLabel userInfoTitle = new JLabel("Current User");
+        userInfoTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        userInfoTitle.setForeground(TEXT_PRIMARY);
+        userInfoTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel userNameDisplay = new JLabel(
+                menu.getCurrentUser() != null ? menu.getCurrentUser().getName() : "No User");
+        userNameDisplay.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        userNameDisplay.setForeground(ACCENT_BLUE);
+        userNameDisplay.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel victoriesDisplay = new JLabel(
+                "Victories: " + (menu.getCurrentUser() != null ? menu.getCurrentUser().getNBVictoire() : 0));
+        victoriesDisplay.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        victoriesDisplay.setForeground(TEXT_PRIMARY);
+        victoriesDisplay.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        userInfoCard.add(userInfoTitle);
+        userInfoCard.add(Box.createRigidArea(new Dimension(0, 15)));
+        userInfoCard.add(userNameDisplay);
+        userInfoCard.add(Box.createRigidArea(new Dimension(0, 8)));
+        userInfoCard.add(victoriesDisplay);
+
+        rightPanel.add(userInfoCard);
+        rightPanel.add(Box.createVerticalGlue());
+
+        add(rightPanel, BorderLayout.EAST);
+
+        // --- Left Side Panel for Game Settings ---
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+        leftPanel.setBackground(BACKGROUND_DARK);
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 20));
+        leftPanel.setPreferredSize(new Dimension(300, 0));
+
+        // Current Settings Card on the left
+        JPanel settingsDisplayCard = new JPanel();
+        settingsDisplayCard.setLayout(new BoxLayout(settingsDisplayCard, BoxLayout.Y_AXIS));
+        settingsDisplayCard.setBackground(BACKGROUND_MEDIUM);
+        settingsDisplayCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(25, 20, 25, 20)));
+        settingsDisplayCard.setMaximumSize(new Dimension(300, 200));
+
+        JLabel settingsTitle = new JLabel("Current Settings");
+        settingsTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        settingsTitle.setForeground(TEXT_PRIMARY);
+        settingsTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel settingsInfo = new JLabel(String.format(
+                "Players: %d | Bots: %d | Type: %s",
+                menu.getNbPlayers(), menu.getNbBots(), menu.getType()));
+        settingsInfo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        settingsInfo.setForeground(TEXT_PRIMARY);
+        settingsInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        settingsDisplayCard.add(settingsTitle);
+        settingsDisplayCard.add(Box.createRigidArea(new Dimension(0, 15)));
+        settingsDisplayCard.add(settingsInfo);
+
+        leftPanel.add(settingsDisplayCard);
+        leftPanel.add(Box.createVerticalGlue());
+
+        add(leftPanel, BorderLayout.WEST);
 
         // Main container with padding
         JPanel mainContainer = new JPanel();
@@ -394,38 +589,6 @@ public class MenuGUI extends JFrame {
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainContainer.add(titleLabel);
         mainContainer.add(Box.createRigidArea(new Dimension(0, 30)));
-
-        // --- User Info Card (if user is logged in) ---
-        if (menu.getCurrentUser() != null) {
-            JPanel userCard = createCard();
-            userCard.setLayout(new BoxLayout(userCard, BoxLayout.Y_AXIS));
-
-            JLabel userTitleLabel = new JLabel("Current User");
-            userTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-            userTitleLabel.setForeground(TEXT_SECONDARY);
-            userTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            JLabel userNameLabel = new JLabel(menu.getCurrentUser().getName());
-            userNameLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
-            userNameLabel.setForeground(ACCENT_BLUE);
-            userNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            JLabel victoriesLabel = new JLabel("Victories: " + menu.getCurrentUser().getNBVictoire());
-            victoriesLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-            victoriesLabel.setForeground(TEXT_PRIMARY);
-            victoriesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            userCard.add(userTitleLabel);
-            userCard.add(Box.createRigidArea(new Dimension(0, 8)));
-            userCard.add(userNameLabel);
-            userCard.add(Box.createRigidArea(new Dimension(0, 5)));
-            userCard.add(victoriesLabel);
-
-            mainContainer.add(userCard);
-            mainContainer.add(Box.createRigidArea(new Dimension(0, 25)));
-        }
-
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 10)));
 
         // --- Player Slider Card ---
         JPanel sliderCard = createCard();
@@ -479,26 +642,6 @@ public class MenuGUI extends JFrame {
         mainContainer.add(sliderCard);
         mainContainer.add(Box.createRigidArea(new Dimension(0, 25)));
 
-        // --- Current Settings Display Card ---
-        JPanel settingsDisplayCard = createCard();
-        settingsDisplayCard.setLayout(new BoxLayout(settingsDisplayCard, BoxLayout.Y_AXIS));
-
-        JLabel settingsTitle = new JLabel("Current Settings");
-        settingsTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        settingsTitle.setForeground(TEXT_SECONDARY);
-        settingsTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel settingsInfo = new JLabel(String.format(
-                "Players: %d | Bots: %d | Type: %s",
-                menu.getNbPlayers(), menu.getNbBots(), menu.getType()));
-        settingsInfo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        settingsInfo.setForeground(TEXT_PRIMARY);
-        settingsInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        settingsDisplayCard.add(settingsTitle);
-        settingsDisplayCard.add(Box.createRigidArea(new Dimension(0, 8)));
-        settingsDisplayCard.add(settingsInfo);
-
         // Update settings display when slider changes
         playerSlider.addChangeListener(e -> {
             menu.setNbPlayers(playerSlider.getValue());
@@ -506,9 +649,6 @@ public class MenuGUI extends JFrame {
                     "Players: %d | Bots: %d | Type: %s",
                     menu.getNbPlayers(), menu.getNbBots(), menu.getType()));
         });
-
-        mainContainer.add(settingsDisplayCard);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 25)));
 
         // --- Type Button ---
         JPanel typeCard = createCard();
@@ -564,17 +704,45 @@ public class MenuGUI extends JFrame {
                     menu.getNbPlayers(), menu.getNbBots(), menu.getType()));
         });
 
+        // User management buttons panel (side by side)
         ChessButton createUserButton = new ChessButton("Create New User", BUTTON_SECONDARY, BUTTON_SECONDARY_HOVER);
-        createUserButton.setPreferredSize(new Dimension(580, 55));
-        createUserButton.setMaximumSize(new Dimension(580, 55));
-        createUserButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        createUserButton.setPreferredSize(new Dimension(280, 55));
+        createUserButton.setMaximumSize(new Dimension(280, 55));
         createUserButton.addActionListener(e -> {
             User newUser = createNewUser();
             if (newUser != null) {
                 menu.setCurrentUser(newUser);
+                menu.writeLogsUser("logs/UserLogs.txt", newUser);
                 System.out.println("Current user set to: " + menu.getCurrentUser().getName());
+                // Update right panel user info
+                userNameDisplay.setText(menu.getCurrentUser().getName());
+                victoriesDisplay.setText("Victories: " + menu.getCurrentUser().getNBVictoire());
             }
         });
+
+        ChessButton selectUserButton = new ChessButton("Select a User", BUTTON_SECONDARY, BUTTON_SECONDARY_HOVER);
+        selectUserButton.setPreferredSize(new Dimension(280, 55));
+        selectUserButton.setMaximumSize(new Dimension(280, 55));
+        selectUserButton.addActionListener(e -> {
+            User selectedUser = selectExistingUser();
+            if (selectedUser != null) {
+                // User is already set in Menu by selectUser method
+                System.out.println("Current user set to: " + menu.getCurrentUser().getName());
+                // Update right panel user info
+                userNameDisplay.setText(menu.getCurrentUser().getName());
+                victoriesDisplay.setText("Victories: " + menu.getCurrentUser().getNBVictoire());
+            }
+        });
+
+        // Create horizontal box for buttons
+        Box userButtonsPanel = Box.createHorizontalBox();
+        userButtonsPanel.add(Box.createHorizontalGlue());
+        userButtonsPanel.add(createUserButton);
+        userButtonsPanel.add(Box.createRigidArea(new Dimension(15, 0)));
+        userButtonsPanel.add(selectUserButton);
+        userButtonsPanel.add(Box.createHorizontalGlue());
+        userButtonsPanel.setMaximumSize(new Dimension(580, 55));
+        userButtonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         ChessButton optionsButton = new ChessButton("Options", BUTTON_SECONDARY, BUTTON_SECONDARY_HOVER);
         optionsButton.setPreferredSize(new Dimension(580, 55));
@@ -586,13 +754,13 @@ public class MenuGUI extends JFrame {
         exitButton.setPreferredSize(new Dimension(580, 55));
         exitButton.setMaximumSize(new Dimension(580, 55));
         exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        exitButton.addActionListener(e -> exitGame());
+        exitButton.addActionListener(e -> menu.exitGame());
 
         mainContainer.add(startButton);
         mainContainer.add(Box.createRigidArea(new Dimension(0, 12)));
         mainContainer.add(botsButton);
         mainContainer.add(Box.createRigidArea(new Dimension(0, 12)));
-        mainContainer.add(createUserButton);
+        mainContainer.add(userButtonsPanel);
         mainContainer.add(Box.createRigidArea(new Dimension(0, 12)));
         mainContainer.add(optionsButton);
         mainContainer.add(Box.createRigidArea(new Dimension(0, 12)));

@@ -1,5 +1,12 @@
 package MainMenu;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 import model.User;
 
@@ -10,12 +17,12 @@ public class Menu {
     private int currentBots = 0;
     private String currentType = "Individual";
 
-    private void exitGame() {
+    public void exitGame() {
         System.out.println("Goodbye!");
         System.exit(0);
     }
 
-    private void startGame(int nbplayers, int currentBots, String currentType) {
+    public void startGame(int nbplayers, int currentBots, String currentType) {
         System.out.println("Starting the game with " + nbplayers + " players and " + currentBots + " bots" + " in "
                 + currentType + " type");
     }
@@ -38,6 +45,102 @@ public class Menu {
 
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
+    }
+
+    public void writeLogsUser(String fileName, User currentUser) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String timestamp = now.format(formatter);
+
+            writer.newLine();
+            writer.write("[" + timestamp + "]");
+            writer.write(" ID: " + currentUser.getId());
+            writer.write("| User: " + currentUser.getName());
+            writer.write("| Age: " + currentUser.getAge());
+            writer.write("| Victories: " + currentUser.getNBVictoire());
+            writer.write("| Avatar: " + currentUser.getPathAvatar());
+
+        } catch (IOException e) {
+            System.err.println("Error writing logs file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void displayLogsUser(String fileName) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading logs file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public User selectUser(int id) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("logs/UserLogs.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+
+                if (line.contains(" ID: " + id)) {
+                    String userName = extractValue(line, " User: ", "|");
+                    int age = Integer.parseInt(extractValue(line, " Age: ", "|"));
+                    int victories = Integer.parseInt(extractValue(line, " Victories: ", "|"));
+                    String avatar = extractValue(line, " Avatar: ", null);
+                    User user = new User(id, userName, age, victories, avatar);
+                    setCurrentUser(user);
+                    System.out.println("User '" + userName + "' loaded successfully with ID: " + id);
+                    return user;
+                }
+            }
+            System.out.println("User with ID: " + id + " not found in logs.");
+            return null;
+        } catch (IOException e) {
+            System.err.println("Error reading logs file: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing user data: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String extractValue(String line, String startMarker, String endMarker) {
+        int startIndex = line.indexOf(startMarker);
+        if (startIndex == -1) {
+            return "";
+        }
+        startIndex += startMarker.length();
+
+        if (endMarker == null) {
+            return line.substring(startIndex).trim();
+        } else {
+            int endIndex = line.indexOf(endMarker, startIndex);
+            if (endIndex == -1) {
+                return line.substring(startIndex).trim();
+            }
+            return line.substring(startIndex, endIndex).trim();
+        }
+    }
+
+    public boolean isUserLogsEmpty(String fileName) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (IOException e) {
+            return true;
+        }
     }
 
     public void setNbPlayers(int nbplayers) {
@@ -132,13 +235,29 @@ public class Menu {
                 break;
 
             case 6:
-                System.out.println("Please enter the user name:");
-                String name = scanner.next();
-                System.out.println("Please enter the user age:");
-                int age = scanner.nextInt();
-                int victories = 0;
-                String path_to_avatar = "";
-                setCurrentUser(new User(name, age, victories, path_to_avatar));
+                System.out.println("Please select an option:");
+                System.out.println("1. Create new user");
+                System.out.println("2. Select existing user");
+                int optionUser = scanner.nextInt();
+                if (optionUser == 1) {
+                    System.out.println("Please enter the user name:");
+                    String name = scanner.next();
+                    System.out.println("Please enter the user age:");
+                    int age = scanner.nextInt();
+                    int victories = 0;
+                    String path_to_avatar = "";
+                    setCurrentUser(new User(name, age, victories, path_to_avatar));
+                    writeLogsUser("logs/UserLogs.txt", currentUser);
+                } else if (optionUser == 2) {
+                    if (isUserLogsEmpty("logs/UserLogs.txt")) {
+                        System.out.println("No users found. Please create one first.");
+                    } else {
+                        displayLogsUser("logs/UserLogs.txt");
+                        System.out.println("Please enter the user ID:");
+                        int id = scanner.nextInt();
+                        setCurrentUser(selectUser(id));
+                    }
+                }
                 break;
             case 7:
                 exitGame();
