@@ -8,7 +8,7 @@ public class Carte {
     public Carte(int valeur) {
         this.valeur = valeur;
         // Format demandé: Images[i]
-        this.cheminImage = "Images[" + valeur + "]";
+        this.cheminImage = "Image" + valeur + ".jpg";
         this.estVisible = false;
     }
 
