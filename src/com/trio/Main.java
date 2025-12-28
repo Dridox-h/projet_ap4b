@@ -1,11 +1,12 @@
 package com.trio;
 import com.trio.controller.GameController;
+import com.trio.controller.MenuController;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.awt.*;
+
 public class Main {
     public static void main(String[] args) {
-        GameController controller = new GameController();
-        controller.start();
+        MenuController controller = new MenuController();
+        //controller.start();
     }
 }

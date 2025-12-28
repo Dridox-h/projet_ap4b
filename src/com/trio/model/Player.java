@@ -2,7 +2,7 @@ package com.trio.model;
 
 import java.util.List;
 
-public abstract class Player {
+public class Player {
     protected String pseudo;
     protected Deck main; // Deck personnel
     protected Deck trioWins; // Cartes gagnées
@@ -32,5 +32,5 @@ public abstract class Player {
     public void setIdTeam(int id) { this.idEquipe = id; }
 
     // Méthodes abstraites pour différencier Bot et User
-    public abstract String chooseAction(Game game);
+    //public void String chooseAction(Game game);
 }

@@ -1,7 +1,7 @@
 package com.trio.controller;
 
 import com.trio.model.*;
-import com.trio.view.*;
+//import com.trio.view.*;
 
 import java.util.List;
 import java.util.Random;
@@ -9,15 +9,26 @@ import java.util.Random;
 public class GameController {
     private Game game;
     private Random random;
+    private List<Player> listPlayers;
+    private int nbPlayerTotal;
+    private int nbPlayerHuman;
+    private int nbPlayerAlive;
+
+    public GameController(int nbPlayerTotal, int nbPlayerHuman, List<Player> listPlayers) {
+        this.nbPlayerTotal = nbPlayerTotal;
+        this.nbPlayerHuman = nbPlayerHuman;
+        this.nbPlayerAlive = nbPlayerTotal - nbPlayerHuman;
+        this.listPlayers = listPlayers;
+    }
 
     public GameController() {
         this.game = new Game();
         this.random = new Random();
-        // On n'instancie plus GameGUI ici !
     }
 
     public void start() {
         // 1. Affiche le menu et attend la validation
+
 
         // 2. Récupère les deux infos du menu
 

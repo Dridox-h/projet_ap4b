@@ -5,7 +5,6 @@ public class User extends Player {
         super(pseudo);
     }
 
-    @Override
     public String chooseAction(Game game) {
         return "HUMAN_INPUT";
     }

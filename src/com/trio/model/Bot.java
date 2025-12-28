@@ -10,7 +10,6 @@ public class Bot extends Player {
     }
 
     // Cette méthode corrige l'erreur de compilation
-    @Override
     public String chooseAction(Game game) {
         return "BOT_ACTION";
     }
