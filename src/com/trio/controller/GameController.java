@@ -13,12 +13,14 @@ public class GameController {
     private int nbPlayerTotal;
     private int nbPlayerHuman;
     private int nbPlayerAlive;
+    private boolean isTeamMode;
 
-    public GameController(int nbPlayerTotal, int nbPlayerHuman, List<Player> listPlayers) {
+    public GameController(int nbPlayerTotal, int nbPlayerHuman, List<Player> listPlayers, boolean isTeamMode) {
         this.nbPlayerTotal = nbPlayerTotal;
         this.nbPlayerHuman = nbPlayerHuman;
         this.nbPlayerAlive = nbPlayerTotal - nbPlayerHuman;
         this.listPlayers = listPlayers;
+        this.isTeamMode = isTeamMode;
     }
 
     public GameController() {
@@ -27,16 +29,9 @@ public class GameController {
     }
 
     public void start() {
-        // 1. Affiche le menu et attend la validation
 
 
-        // 2. Récupère les deux infos du menu
 
-        // 3. Crée l'interface de jeu avec les bons arguments
-
-        // 4. Configure la logique métier
     }
 
-    private void configurerPartie(int nbTotal, int nbHumains) {
-    }
 }
