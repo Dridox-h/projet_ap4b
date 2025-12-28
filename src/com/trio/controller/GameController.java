@@ -2,7 +2,6 @@ package com.trio.controller;
 
 import com.trio.model.*;
 import com.trio.view.*;
-import com.trio.services.Logs;
 
 import java.util.List;
 import java.util.Random;
@@ -39,15 +38,15 @@ public class GameController {
     }
 
     private void configurerPartie(int nbTotal, int nbHumains) {
-        game.getJoueurs().clear();
+        game.getListPlayers().clear();
 
         // Création des Humains
         for (int i = 0; i < nbHumains; i++) {
-            game.getJoueurs().add(new User("Humain " + (i + 1)));
+            game.getListPlayers().add(new User("Humain " + (i + 1)));
         }
         // Création des Bots
         for (int i = nbHumains; i < nbTotal; i++) {
-            game.getJoueurs().add(new Bot("Bot " + (i + 1)));
+            game.getListPlayers().add(new Bot("Bot " + (i + 1)));
             gameView.ajouterLog("Le joueur " + (i + 1) + " est une IA.");
         }
 
@@ -55,7 +54,7 @@ public class GameController {
         if (nbTotal == 4 || nbTotal == 6) {
             int rep = gameView.demanderEntier("Jouer en mode ÉQUIPE ? 1:Oui, 2:Non", 1, 2);
             if (rep == 1) {
-                game.setModeEquipe(true);
+                game.setTeam(true);
                 creerEquipes(nbTotal);
             }
         }
@@ -66,9 +65,9 @@ public class GameController {
     private void creerEquipes(int nbJoueurs) {
         int nbEquipes = nbJoueurs / 2;
         for (int i = 0; i < nbEquipes; i++) {
-            Equipe eq = new Equipe(i, "Equipe " + (i + 1));
-            eq.ajouterJoueur(game.getJoueurs().get(i));
-            eq.ajouterJoueur(game.getJoueurs().get(i + nbEquipes)); // Partenaire à l'opposé
+            Team eq = new Team(i, "Team " + (i + 1));
+            eq.addPlayer(game.getListPlayers().get(i));
+            eq.addPlayer(game.getListPlayers().get(i + nbEquipes)); // Partenaire à l'opposé
             game.addEquipe(eq);
         }
     }
@@ -76,9 +75,9 @@ public class GameController {
     private void distribuerCartes(int nbJoueurs) {
         Deck deckComplet = new Deck();
         for (int i = 1; i <= 12; i++) {
-            for (int k = 0; k < 3; k++) deckComplet.ajouterCarte(new Carte(i));
+            for (int k = 0; k < 3; k++) deckComplet.addCard(new Card(i));
         }
-        deckComplet.melanger();
+        deckComplet.shuffle();
 
         // Règle de distribution (selon PDF p.4)
         int cartesParJoueur = switch (nbJoueurs) {
@@ -89,15 +88,15 @@ public class GameController {
             default -> 0;
         };
 
-        for (Joueur j : game.getJoueurs()) {
+        for (Player j : game.getListPlayers()) {
             for (int k = 0; k < cartesParJoueur; k++) {
-                j.recevoirCarte(deckComplet.retirerCarte(0));
+                j.receiveCard(deckComplet.removeCard(0));
             }
         }
 
         // Le reste va au centre
-        while (!deckComplet.estVide()) {
-            game.getCartesAuCentre().ajouterCarte(deckComplet.retirerCarte(0));
+        while (!deckComplet.isEmpty()) {
+            game.getCardCenter().addCard(deckComplet.removeCard(0));
         }
     }
 
@@ -112,10 +111,10 @@ public class GameController {
 
             if (verifierVictoire()) {
                 gameView.afficherPlateau(game);
-                gameView.afficherMessage("★ FÉLICITATIONS ! " + game.getJoueurCourant().getPseudo().toUpperCase() + " REMPORTE LA PARTIE ! ★");
+                gameView.afficherMessage("★ FÉLICITATIONS ! " + game.getCurrentPlayer().getPseudo().toUpperCase() + " REMPORTE LA PARTIE ! ★");
                 fini = true;
             } else {
-                game.passerAuJoueurSuivant();
+                game.nextPlayer();
             }
         }
     }
@@ -124,7 +123,7 @@ public class GameController {
      * Logique d'un tour de jeu (Humain ou Bot)
      */
     private void jouerTour() {
-        Joueur joueurActuel = game.getJoueurCourant();
+        Player joueurActuel = game.getCurrentPlayer();
         boolean estBot = (joueurActuel instanceof Bot);
 
         if (!estBot) {
@@ -135,54 +134,54 @@ public class GameController {
         }
 
         boolean tourFini = false;
-        while (!tourFini && game.getCartesReveleesCeTour().size() < 3) {
+        while (!tourFini && game.getCardVisibleRound().size() < 3) {
 
             // 1. Choix de la source
             int source;
             if (!estBot) {
-                source = gameView.demanderEntier(joueurActuel.getPseudo() + ", révéler depuis : 1.Centre, 2.Joueur", 1, 2);
+                source = gameView.demanderEntier(joueurActuel.getPseudo() + ", révéler depuis : 1.Centre, 2.Player", 1, 2);
             } else {
-                source = ((Bot) joueurActuel).choisirSource();
+                source = ((Bot) joueurActuel).chooseOrigin();
             }
 
-            Carte carteRevelee = null;
+            Card cardRevelee = null;
 
             // 2. Sélection de la carte
             if (source == 1) { // CENTRE
-                if (game.getCartesAuCentre().estVide()) {
+                if (game.getCardCenter().isEmpty()) {
                     gameView.afficherMessage("Plus de cartes au centre !");
                     continue;
                 }
-                int idx = !estBot ? gameView.demanderEntier("Index de la carte ?", 0, game.getCartesAuCentre().taille() - 1)
-                        : random.nextInt(game.getCartesAuCentre().taille());
-                carteRevelee = game.getCartesAuCentre().getCartes().get(idx);
+                int idx = !estBot ? gameView.demanderEntier("Index de la carte ?", 0, game.getCardCenter().getSize() - 1)
+                        : random.nextInt(game.getCardCenter().getSize());
+                cardRevelee = game.getCardCenter().getCartes().get(idx);
             } else { // JOUEUR
-                int idCible = !estBot ? gameView.demanderEntier("Id du Joueur cible ?", 0, game.getJoueurs().size() - 1)
-                        : ((Bot) joueurActuel).choisirCible(game.getJoueurs().size());
+                int idCible = !estBot ? gameView.demanderEntier("Id du Player cible ?", 0, game.getListPlayers().size() - 1)
+                        : ((Bot) joueurActuel).chooseTarget(game.getListPlayers().size());
 
-                Joueur cible = game.getJoueurs().get(idCible);
-                if (cible.getMain().estVide()) {
+                Player cible = game.getListPlayers().get(idCible);
+                if (cible.getMain().isEmpty()) {
                     if(!estBot) gameView.afficherMessage("Ce joueur n'a plus de cartes !");
                     continue;
                 }
 
                 int type = !estBot ? gameView.demanderEntier("1.Plus PETIT, 2.Plus GRAND de " + cible.getPseudo(), 1, 2)
-                        : ((Bot) joueurActuel).choisirTypeCarte();
+                        : ((Bot) joueurActuel).chooseCardType();
 
-                carteRevelee = (type == 1) ? cible.getMain().getPlusPetite() : cible.getMain().getPlusGrande();
+                cardRevelee = (type == 1) ? cible.getMain().getLowestCard() : cible.getMain().getMaxCard();
             }
 
             // 3. Révélation et Vérification
-            if (carteRevelee != null && !carteRevelee.estVisible()) {
-                game.ajouterCarteRevelee(carteRevelee);
-                gameView.afficherMessage("-> " + joueurActuel.getPseudo() + " a révélé un " + carteRevelee.getValeur());
+            if (cardRevelee != null && !cardRevelee.isVisible()) {
+                game.addVisibleCard(cardRevelee);
+                gameView.afficherMessage("-> " + joueurActuel.getPseudo() + " a révélé un " + cardRevelee.getValeur());
 
-                List<Carte> rev = game.getCartesReveleesCeTour();
+                List<Card> rev = game.getCardVisibleRound();
                 if (rev.size() > 1) {
                     if (rev.get(rev.size() - 1).getValeur() != rev.get(rev.size() - 2).getValeur()) {
                         gameView.afficherMessage("Dommage... Les numéros sont différents !");
                         attendre(1500);
-                        game.resetTour();
+                        game.restRound();
                         tourFini = true;
                     }
                 }
@@ -191,7 +190,7 @@ public class GameController {
                     gameView.afficherMessage("!!! TRIO DE " + rev.get(0).getValeur() + " COMPLÉTÉ !!!");
                     attendre(1000);
                     retirerCartesDuJeu(rev);
-                    game.validerTrioGagne(joueurActuel);
+                    game.awardCardsToWinner(joueurActuel);
                     tourFini = true;
                 }
             } else {
@@ -200,28 +199,28 @@ public class GameController {
         }
     }
 
-    private void retirerCartesDuJeu(List<Carte> cartes) {
-        for (Carte c : cartes) {
-            game.getCartesAuCentre().retirerCarte(c);
-            for (Joueur j : game.getJoueurs()) j.getMain().retirerCarte(c);
+    private void retirerCartesDuJeu(List<Card> cards) {
+        for (Card c : cards) {
+            game.getCardCenter().removeCard(c);
+            for (Player j : game.getListPlayers()) j.getMain().removeCard(c);
         }
     }
 
     private boolean verifierVictoire() {
-        Joueur j = game.getJoueurCourant();
-        if (game.isModeEquipe()) {
-            Equipe e = trouverEquipe(j);
-            return (e != null && (e.getNombreTrios() >= 3 || e.aTrioDeSept()));
+        Player j = game.getCurrentPlayer();
+        if (game.isTeam()) {
+            Team e = trouverEquipe(j);
+            return (e != null && (e.getNumberTrio() >= 3 || e.isTrioSeven()));
         } else {
-            int nbTrios = j.getTriosGagnes().taille() / 3;
-            boolean aTrioSept = j.getTriosGagnes().getCartes().stream().filter(c -> c.getValeur() == 7).count() == 3;
+            int nbTrios = j.getTrioWins().getSize() / 3;
+            boolean aTrioSept = j.getTrioWins().getCartes().stream().filter(c -> c.getValeur() == 7).count() == 3;
             return nbTrios >= 3 || aTrioSept;
         }
     }
 
-    private Equipe trouverEquipe(Joueur j) {
-        for (Equipe e : game.getEquipes()) {
-            if (e.getJoueurs().contains(j)) return e;
+    private Team trouverEquipe(Player j) {
+        for (Team e : game.getListTeams()) {
+            if (e.getListPlayer().contains(j)) return e;
         }
         return null;
     }

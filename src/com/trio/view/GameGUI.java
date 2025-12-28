@@ -69,7 +69,7 @@ public class GameGUI extends JFrame {
 
     public void afficherPlateau(Game game) {
         plateauCentral.removeAll();
-        for (Carte c : game.getCartesAuCentre().getCartes()) {
+        for (Card c : game.getCardCenter().getCartes()) {
             JPanel card = createCardView(c);
             plateauCentral.add(card);
         }
@@ -77,11 +77,11 @@ public class GameGUI extends JFrame {
         plateauCentral.repaint();
     }
 
-    private JPanel createCardView(Carte c) {
+    private JPanel createCardView(Card c) {
         JPanel p = new JPanel(new BorderLayout());
         p.setPreferredSize(new Dimension(100, 140));
 
-        if (c.estVisible()) {
+        if (c.isVisible()) {
             p.setBackground(ACCENT_BLUE);
             JLabel val = new JLabel(String.valueOf(c.getValeur()), SwingConstants.CENTER);
             val.setFont(new Font("Segoe UI", Font.BOLD, 30));
@@ -100,7 +100,7 @@ public class GameGUI extends JFrame {
 
     // Méthodes requises par le Controller
     public void afficherMessage(String msg) { ajouterLog(msg); }
-    public void afficherMainJoueurActif(Joueur j) { ajouterLog("Main affichée en console pour " + j.getPseudo()); }
+    public void afficherMainJoueurActif(Player j) { ajouterLog("Main affichée en console pour " + j.getPseudo()); }
     public int demanderEntier(String msg, int min, int max) {
         String res = (String)JOptionPane.showInputDialog(this, msg, "Action", JOptionPane.QUESTION_MESSAGE, null, null, null);
         try { return Integer.parseInt(res); } catch (Exception e) { return min; }

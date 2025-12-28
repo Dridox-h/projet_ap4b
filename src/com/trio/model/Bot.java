@@ -2,7 +2,7 @@ package com.trio.model;
 
 import java.util.Random;
 
-public class Bot extends Joueur {
+public class Bot extends Player {
     private Random random = new Random();
 
     public Bot(String pseudo) {
@@ -11,19 +11,19 @@ public class Bot extends Joueur {
 
     // Cette méthode corrige l'erreur de compilation
     @Override
-    public String choisirAction(Game game) {
+    public String chooseAction(Game game) {
         return "BOT_ACTION";
     }
 
-    public int choisirSource() {
+    public int chooseOrigin() {
         return random.nextInt(2) + 1;
     }
 
-    public int choisirCible(int nbJoueurs) {
+    public int chooseTarget(int nbJoueurs) {
         return random.nextInt(nbJoueurs);
     }
 
-    public int choisirTypeCarte() {
+    public int chooseCardType() {
         return random.nextInt(2) + 1;
     }
 }

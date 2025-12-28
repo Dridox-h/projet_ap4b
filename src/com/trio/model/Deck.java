@@ -6,46 +6,46 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Deck {
-    private List<Carte> cartes;
+    private List<Card> cards;
 
     public Deck() {
-        this.cartes = new ArrayList<>();
+        this.cards = new ArrayList<>();
     }
 
-    public void ajouterCarte(Carte c) {
-        this.cartes.add(c);
+    public void addCard(Card c) {
+        this.cards.add(c);
     }
 
-    public Carte retirerCarte(Carte c) {
-        if (cartes.remove(c)) return c;
+    public Card removeCard(Card c) {
+        if (cards.remove(c)) return c;
         return null;
     }
 
-    public Carte retirerCarte(int index) {
-        if (index >= 0 && index < cartes.size()) return cartes.remove(index);
+    public Card removeCard(int index) {
+        if (index >= 0 && index < cards.size()) return cards.remove(index);
         return null;
     }
 
-    public List<Carte> getCartes() { return cartes; }
+    public List<Card> getCartes() { return cards; }
 
-    public void melanger() {
-        Collections.shuffle(cartes);
+    public void shuffle() {
+        Collections.shuffle(cards);
     }
 
-    public void trier() {
-        cartes.sort(Comparator.comparingInt(Carte::getValeur));
+    public void sort() {
+        cards.sort(Comparator.comparingInt(Card::getvalue));
     }
 
-    public int taille() { return cartes.size(); }
+    public int getSize() { return cards.size(); }
 
-    public boolean estVide() { return cartes.isEmpty(); }
+    public boolean isEmpty() { return cards.isEmpty(); }
 
     // Helpers pour le gameplay Trio
-    public Carte getPlusPetite() {
-        return cartes.isEmpty() ? null : cartes.get(0);
+    public Card getLowestCard() {
+        return cards.isEmpty() ? null : cards.get(0);
     }
 
-    public Carte getPlusGrande() {
-        return cartes.isEmpty() ? null : cartes.get(cartes.size() - 1);
+    public Card getMaxCard() {
+        return cards.isEmpty() ? null : cards.get(cards.size() - 1);
     }
 }

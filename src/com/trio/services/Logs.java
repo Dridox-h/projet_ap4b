@@ -2,7 +2,7 @@ package com.trio.services;
 
 public class Logs {
     private static Logs instance;
-    private String dernierLog;
+    private String lastLogs;
 
     private Logs() {}
 
@@ -11,8 +11,8 @@ public class Logs {
         return instance;
     }
 
-    public void ecrireLog(String message) {
-        this.dernierLog = message;
+    public void writeLogs(String message) {
+        this.lastLogs = message;
         System.out.println("[LOG] " + message);
     }
 }

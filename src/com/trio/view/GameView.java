@@ -25,7 +25,7 @@ public class GameView {
     public void rafraichir(Game game) {
         if (gameGUI != null) {
             gameGUI.afficherPlateau(game);
-            gameGUI.setTourLabel("Tour de : " + game.getJoueurCourant().getPseudo());
+            gameGUI.setTourLabel("Tour de : " + game.getCurrentPlayer().getPseudo());
         }
     }
 

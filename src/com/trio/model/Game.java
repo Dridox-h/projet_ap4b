@@ -4,58 +4,58 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
-    private List<Joueur> joueurs;
-    private List<Equipe> equipes;
-    private Deck cartesAuCentre;
-    private int joueurCourantIndex;
-    private boolean modeEquipe;
+    private List<Player> listPlayers;
+    private List<Team> listTeams;
+    private Deck CardCenter;
+    private int currentPlayer;
+    private boolean isTeam;
 
     // Pour la gestion du tour actuel (cartes révélées temporairement)
-    private List<Carte> cartesReveleesCeTour;
+    private List<Card> cardVisibleRound;
 
     public Game() {
-        this.joueurs = new ArrayList<>();
-        this.equipes = new ArrayList<>();
-        this.cartesAuCentre = new Deck();
-        this.cartesReveleesCeTour = new ArrayList<>();
-        this.joueurCourantIndex = 0;
+        this.listPlayers = new ArrayList<>();
+        this.listTeams = new ArrayList<>();
+        this.CardCenter = new Deck();
+        this.cardVisibleRound = new ArrayList<>();
+        this.currentPlayer = 0;
     }
 
     // --- Getters & Setters ---
-    public List<Joueur> getJoueurs() { return joueurs; }
-    public Deck getCartesAuCentre() { return cartesAuCentre; }
-    public void setModeEquipe(boolean b) { this.modeEquipe = b; }
-    public boolean isModeEquipe() { return modeEquipe; }
+    public List<Player> getListPlayers() { return listPlayers; }
+    public Deck getCardCenter() { return CardCenter; }
+    public void setTeam(boolean b) { this.isTeam = b; }
+    public boolean isTeam() { return isTeam; }
 
-    public Joueur getJoueurCourant() {
-        return joueurs.get(joueurCourantIndex);
+    public Player getCurrentPlayer() {
+        return listPlayers.get(currentPlayer);
     }
 
-    public void passerAuJoueurSuivant() {
-        joueurCourantIndex = (joueurCourantIndex + 1) % joueurs.size();
+    public void nextPlayer() {
+        currentPlayer = (currentPlayer + 1) % listPlayers.size();
     }
 
-    public List<Carte> getCartesReveleesCeTour() { return cartesReveleesCeTour; }
+    public List<Card> getCardVisibleRound() { return cardVisibleRound; }
 
-    public void ajouterCarteRevelee(Carte c) {
+    public void addVisibleCard(Card c) {
         c.setVisible(true);
-        cartesReveleesCeTour.add(c);
+        cardVisibleRound.add(c);
     }
 
-    public void resetTour() {
+    public void restRound() {
         // Cache les cartes si pas gagnées
-        for(Carte c : cartesReveleesCeTour) {
+        for(Card c : cardVisibleRound) {
             c.setVisible(false);
         }
-        cartesReveleesCeTour.clear();
+        cardVisibleRound.clear();
     }
 
-    public void validerTrioGagne(Joueur gagnant) {
+    public void awardCardsToWinner(Player gagnant) {
         // Les cartes restent visibles et vont au gagnant
-        gagnant.gagnerTrio(new ArrayList<>(cartesReveleesCeTour));
-        cartesReveleesCeTour.clear();
+        gagnant.winTrio(new ArrayList<>(cardVisibleRound));
+        cardVisibleRound.clear();
     }
 
-    public List<Equipe> getEquipes() { return equipes; }
-    public void addEquipe(Equipe e) { equipes.add(e); }
+    public List<Team> getListTeams() { return listTeams; }
+    public void addEquipe(Team e) { listTeams.add(e); }
 }
