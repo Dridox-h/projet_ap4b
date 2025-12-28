@@ -4,58 +4,75 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
-    private List<Player> listPlayers;
-    private List<Team> listTeams;
-    private Deck CardCenter;
-    private int currentPlayer;
-    private boolean isTeam;
+    private List<Player> players;
+    private List<Team> teams;
+    private Deck centerCards;
+    private int currentPlayerIndex;
+    private boolean isTeamMode;
+    private List<Card> visibleCards;
 
-    // Pour la gestion du tour actuel (cartes révélées temporairement)
-    private List<Card> cardVisibleRound;
-
-    public Game() {
-        this.listPlayers = new ArrayList<>();
-        this.listTeams = new ArrayList<>();
-        this.CardCenter = new Deck();
-        this.cardVisibleRound = new ArrayList<>();
-        this.currentPlayer = 0;
+    public Game(List<Player> players, boolean isTeamMode) {
+        this.players = players;
+        this.teams = new ArrayList<>();
+        this.centerCards = new Deck();
+        this.visibleCards = new ArrayList<>();
+        this.currentPlayerIndex = 0;
+        this.isTeamMode = isTeamMode;
     }
 
-    // --- Getters & Setters ---
-    public List<Player> getListPlayers() { return listPlayers; }
-    public Deck getCardCenter() { return CardCenter; }
-    public void setTeam(boolean b) { this.isTeam = b; }
-    public boolean isTeam() { return isTeam; }
+    public List<Player> getPlayers() { 
+        return players; 
+    }
+
+    public Deck getCenterCards() { 
+        return centerCards; 
+    }
+
+    public void setTeamMode(boolean isTeamMode) { 
+        this.isTeamMode = isTeamMode; 
+    }
+
+    public boolean isTeamMode() { 
+        return isTeamMode; 
+    }
 
     public Player getCurrentPlayer() {
-        return listPlayers.get(currentPlayer);
+        if (players.isEmpty()) {
+            return null;
+        }
+        return players.get(currentPlayerIndex);
     }
 
     public void nextPlayer() {
-        currentPlayer = (currentPlayer + 1) % listPlayers.size();
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
 
-    public List<Card> getCardVisibleRound() { return cardVisibleRound; }
-
-    public void addVisibleCard(Card c) {
-        c.setVisible(true);
-        cardVisibleRound.add(c);
+    public List<Card> getVisibleCards() { 
+        return visibleCards; 
     }
 
-    public void restRound() {
-        // Cache les cartes si pas gagnées
-        for(Card c : cardVisibleRound) {
-            c.setVisible(false);
+    public void addVisibleCard(Card card) {
+        card.setVisible(true);
+        visibleCards.add(card);
+    }
+
+    public void clearVisibleCards() {
+        for (Card card : visibleCards) {
+            card.setVisible(false);
         }
-        cardVisibleRound.clear();
+        visibleCards.clear();
     }
 
-    public void awardCardsToWinner(Player gagnant) {
-        // Les cartes restent visibles et vont au gagnant
-        gagnant.winTrio(new ArrayList<>(cardVisibleRound));
-        cardVisibleRound.clear();
+    public void awardCardsToWinner(Player winner) {
+        winner.winTrio(new ArrayList<>(visibleCards));
+        visibleCards.clear();
     }
 
-    public List<Team> getListTeams() { return listTeams; }
-    public void addEquipe(Team e) { listTeams.add(e); }
+    public List<Team> getTeams() { 
+        return teams; 
+    }
+
+    public void addTeam(Team team) { 
+        teams.add(team); 
+    }
 }

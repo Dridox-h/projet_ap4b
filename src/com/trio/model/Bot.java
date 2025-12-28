@@ -9,7 +9,7 @@ public class Bot extends Player {
         super(pseudo);
     }
 
-    // Cette méthode corrige l'erreur de compilation
+    @Override
     public String chooseAction(Game game) {
         return "BOT_ACTION";
     }
@@ -18,8 +18,8 @@ public class Bot extends Player {
         return random.nextInt(2) + 1;
     }
 
-    public int chooseTarget(int nbJoueurs) {
-        return random.nextInt(nbJoueurs);
+    public int chooseTarget(int nbPlayers) {
+        return random.nextInt(nbPlayers);
     }
 
     public int chooseCardType() {

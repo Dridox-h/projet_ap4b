@@ -7,17 +7,25 @@ public class Card {
 
     public Card(int value) {
         this.value = value;
-        // Format demandé: Images[i]
         this.pathImage = "Image" + value + ".jpg";
         this.isVisible = false;
     }
 
-    public int getvalue() { return value; }
+    public int getValue() { 
+        return value; 
+    }
 
-    public String getpathImage() { return pathImage; }
+    public String getPathImage() { 
+        return pathImage; 
+    }
 
-    public boolean isVisible() { return isVisible; }
-    public void setVisible(boolean visible) { this.isVisible = visible; }
+    public boolean isVisible() { 
+        return isVisible; 
+    }
+
+    public void setVisible(boolean visible) { 
+        this.isVisible = visible; 
+    }
 
     @Override
     public String toString() {

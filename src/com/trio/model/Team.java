@@ -4,40 +4,60 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Team {
-    private List<Player> listPlayer;
-    private int idTeam;
+    private List<Player> players;
+    private int teamId;
     private String name;
 
-    public Team(int id, String name) {
-        this.idTeam = id;
+    public Team(int teamId, String name) {
+        this.teamId = teamId;
         this.name = name;
-        this.listPlayer = new ArrayList<>();
+        this.players = new ArrayList<>();
     }
 
-    public void addPlayer(Player j) {
-        listPlayer.add(j);
-        j.setIdTeam(this.idTeam);
+    public void addPlayer(Player player) {
+        players.add(player);
+        player.setTeamId(this.teamId);
     }
 
-    public List<Player> getListPlayer() { return listPlayer; }
-    public String getName() { return name; }
+    public List<Player> getPlayers() { 
+        return players; 
+    }
 
-    // Calcule le score total de l'équipe
-    public int getNumberTrio() {
+    public String getName() { 
+        return name; 
+    }
+
+    public int getTeamId() { 
+        return teamId; 
+    }
+
+    public int getScore() {
+        int totalScore = 0;
+        for (Player player : players) {
+            totalScore += player.getScore();
+        }
+        return totalScore;
+    }
+
+    public int getTrioCount() {
         int count = 0;
-        for(Player j : listPlayer) {
-            count += j.getTrioWins().getSize() / 3;
+        for (Player player : players) {
+            count += player.getTriosWon().getSize() / 3;
         }
         return count;
     }
 
-    public boolean isTrioSeven() {
-        for(Player j : listPlayer) {
-            int septCount = 0;
-            for(Card c : j.getTrioWins().getCartes()) {
-                if(c.getvalue() == 7) septCount++;
+    public boolean hasTrioSeven() {
+        for (Player player : players) {
+            int sevenCount = 0;
+            for (Card card : player.getTriosWon().getCards()) {
+                if (card.getValue() == 7) {
+                    sevenCount++;
+                }
             }
-            if(septCount >= 3) return true;
+            if (sevenCount >= 3) {
+                return true;
+            }
         }
         return false;
     }
