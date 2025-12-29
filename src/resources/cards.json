@@ -1,0 +1,184 @@
+{
+  "cards": [
+    {
+      "value": 1,
+      "coordinate": "TechCorp",
+      "imagePath": "card_1_a.png"
+    },
+    {
+      "value": 1,
+      "coordinate": "contact@techcorp.com",
+      "imagePath": "card_1_b.png"
+    },
+    {
+      "value": 1,
+      "coordinate": "Jean Dupont",
+      "imagePath": "card_1_c.png"
+    },
+    {
+      "value": 2,
+      "coordinate": "DataSoft",
+      "imagePath": "card_2_a.png"
+    },
+    {
+      "value": 2,
+      "coordinate": "info@datasoft.fr",
+      "imagePath": "card_2_b.png"
+    },
+    {
+      "value": 2,
+      "coordinate": "Marie Martin",
+      "imagePath": "card_2_c.png"
+    },
+    {
+      "value": 3,
+      "coordinate": "CloudNet",
+      "imagePath": "card_3_a.png"
+    },
+    {
+      "value": 3,
+      "coordinate": "hello@cloudnet.io",
+      "imagePath": "card_3_b.png"
+    },
+    {
+      "value": 3,
+      "coordinate": "Pierre Bernard",
+      "imagePath": "card_3_c.png"
+    },
+    {
+      "value": 4,
+      "coordinate": "WebAgency",
+      "imagePath": "card_4_a.png"
+    },
+    {
+      "value": 4,
+      "coordinate": "team@webagency.com",
+      "imagePath": "card_4_b.png"
+    },
+    {
+      "value": 4,
+      "coordinate": "Sophie Leroy",
+      "imagePath": "card_4_c.png"
+    },
+    {
+      "value": 5,
+      "coordinate": "AppFactory",
+      "imagePath": "card_5_a.png"
+    },
+    {
+      "value": 5,
+      "coordinate": "dev@appfactory.io",
+      "imagePath": "card_5_b.png"
+    },
+    {
+      "value": 5,
+      "coordinate": "Lucas Moreau",
+      "imagePath": "card_5_c.png"
+    },
+    {
+      "value": 6,
+      "coordinate": "StartupHub",
+      "imagePath": "card_6_a.png"
+    },
+    {
+      "value": 6,
+      "coordinate": "contact@startuphub.fr",
+      "imagePath": "card_6_b.png"
+    },
+    {
+      "value": 6,
+      "coordinate": "Emma Petit",
+      "imagePath": "card_6_c.png"
+    },
+    {
+      "value": 7,
+      "coordinate": "DigitalX",
+      "imagePath": "card_7_a.png"
+    },
+    {
+      "value": 7,
+      "coordinate": "support@digitalx.com",
+      "imagePath": "card_7_b.png"
+    },
+    {
+      "value": 7,
+      "coordinate": "Hugo Garcia",
+      "imagePath": "card_7_c.png"
+    },
+    {
+      "value": 8,
+      "coordinate": "InnoTech",
+      "imagePath": "card_8_a.png"
+    },
+    {
+      "value": 8,
+      "coordinate": "sales@innotech.io",
+      "imagePath": "card_8_b.png"
+    },
+    {
+      "value": 8,
+      "coordinate": "Léa Thomas",
+      "imagePath": "card_8_c.png"
+    },
+    {
+      "value": 9,
+      "coordinate": "CyberSec",
+      "imagePath": "card_9_a.png"
+    },
+    {
+      "value": 9,
+      "coordinate": "admin@cybersec.net",
+      "imagePath": "card_9_b.png"
+    },
+    {
+      "value": 9,
+      "coordinate": "Nathan Robert",
+      "imagePath": "card_9_c.png"
+    },
+    {
+      "value": 10,
+      "coordinate": "AILabs",
+      "imagePath": "card_10_a.png"
+    },
+    {
+      "value": 10,
+      "coordinate": "research@ailabs.ai",
+      "imagePath": "card_10_b.png"
+    },
+    {
+      "value": 10,
+      "coordinate": "Chloé Richard",
+      "imagePath": "card_10_c.png"
+    },
+    {
+      "value": 11,
+      "coordinate": "BlockChain+",
+      "imagePath": "card_11_a.png"
+    },
+    {
+      "value": 11,
+      "coordinate": "crypto@blockchain.plus",
+      "imagePath": "card_11_b.png"
+    },
+    {
+      "value": 11,
+      "coordinate": "Maxime Durand",
+      "imagePath": "card_11_c.png"
+    },
+    {
+      "value": 12,
+      "coordinate": "QuantumSoft",
+      "imagePath": "card_12_a.png"
+    },
+    {
+      "value": 12,
+      "coordinate": "quantum@qsoft.tech",
+      "imagePath": "card_12_b.png"
+    },
+    {
+      "value": 12,
+      "coordinate": "Julie Simon",
+      "imagePath": "card_12_c.png"
+    }
+  ]
+}

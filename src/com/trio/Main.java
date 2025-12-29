@@ -1,11 +1,10 @@
 package com.trio;
-import com.trio.controller.GameController;
-import com.trio.controller.MenuController;
 
-import java.awt.*;
+import com.trio.model.Menu;
 
 public class Main {
     public static void main(String[] args) {
-        MenuController controller = new MenuController();
+        Menu menu = new Menu();
+        menu.showMainMenu();
     }
 }

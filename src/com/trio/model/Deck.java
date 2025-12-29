@@ -6,11 +6,41 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Deck {
+    // Attributs
     private List<Card> cards;
 
+    // Constructeurs
     public Deck() {
         this.cards = new ArrayList<>();
     }
+
+    // Getters
+    public Card getLowCard() {
+        return this.cards.stream().min(Comparator.comparingInt(Card::getValue)).orElse(null);
+    }
+
+    public Card getHighCard() {
+        return this.cards.stream().max(Comparator.comparingInt(Card::getValue)).orElse(null);
+    }
+
+    public Card getCard(int index) {
+        if (index >= 0 && index < cards.size()) {
+            return cards.get(index);
+        }
+        return null;
+    }
+
+    public List<Card> getCards() {
+        return cards;
+    }
+
+    public int getSize() {
+        return cards.size();
+    }
+
+    // Setters
+
+    // Méthodes Métiers
 
     public void addCard(Card card) {
         this.cards.add(card);
@@ -23,8 +53,8 @@ public class Deck {
         return null;
     }
 
-    public List<Card> getCards() { 
-        return cards; 
+    public boolean removeCard(Card card) {
+        return cards.remove(card);
     }
 
     public void shuffle() {
@@ -35,11 +65,17 @@ public class Deck {
         cards.sort(Comparator.comparingInt(Card::getValue));
     }
 
-    public int getSize() { 
-        return cards.size(); 
+    public boolean isEmpty() {
+        return cards.isEmpty();
     }
 
-    public boolean isEmpty() { 
-        return cards.isEmpty(); 
+    // toString
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Card card : cards) {
+            sb.append(card.toString()).append("\n");
+        }
+        return sb.toString();
     }
 }

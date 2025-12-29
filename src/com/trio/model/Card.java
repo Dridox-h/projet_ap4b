@@ -1,32 +1,61 @@
 package com.trio.model;
 
 public class Card {
+
+    // Attributs
     private int value;
+    private String coordinate;
     private String pathImage;
     private boolean isVisible;
 
-    public Card(int value) {
+    // Constructeurs
+    public Card(int value, String coordinate, String pathImage) {
         this.value = value;
-        this.pathImage = "Image" + value + ".jpg";
+        this.coordinate = coordinate;
+        this.pathImage = pathImage;
         this.isVisible = false;
     }
 
-    public int getValue() { 
-        return value; 
+    // Getters
+    public int getValue() {
+        return value;
     }
 
-    public String getPathImage() { 
-        return pathImage; 
+    public String getCoordinate() {
+        return coordinate;
     }
 
-    public boolean isVisible() { 
-        return isVisible; 
+    public String getPathImage() {
+        return pathImage;
     }
 
-    public void setVisible(boolean visible) { 
-        this.isVisible = visible; 
+    public boolean isVisible() {
+        return isVisible;
     }
 
+    // Setters
+    public void setValue(int value) {
+        this.value = value;
+    }
+
+    public void setCoordinate(String coordinate) {
+        this.coordinate = coordinate;
+    }
+
+    public void setPathImage(String pathImage) {
+        this.pathImage = pathImage;
+    }
+
+    // Méthodes Métier
+    public void setVisible() {
+        this.isVisible = true;
+    }
+
+    public void setInvisible() {
+        this.isVisible = false;
+    }
+
+    // toString
     @Override
     public String toString() {
         return isVisible ? "[" + value + "]" : "[?]";

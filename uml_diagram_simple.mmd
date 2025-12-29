@@ -1,0 +1,143 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#e3f2fd', 'primaryTextColor': '#1565c0', 'primaryBorderColor': '#1976d2', 'lineColor': '#455a64'}}}%%
+
+classDiagram
+    direction TB
+
+    %% ══════════════════════════════════════════════════════════
+    %% CARDS
+    %% ══════════════════════════════════════════════════════════
+
+    class Card {
+        -String pathImage
+        -int cardId
+        -int value
+        -String coordinates
+        +getValue() int
+        +isVisible() boolean
+        +setVisible(boolean)
+    }
+
+    class Deck {
+        -List~Card~ cards
+        +getCard(int index) Card
+        +getHighCard() Card
+        +getLowCard() Card
+        +addCard(Card)
+        +getSize() int
+        +removeCard(int) Card
+        +sort()
+        +shuffle()
+    }
+
+    %% ══════════════════════════════════════════════════════════
+    %% GAME INTERFACE + IMPLEMENTATIONS
+    %% ══════════════════════════════════════════════════════════
+
+    class Game {
+        <<interface>>
+        +play()*
+        +pickCard(int number) Card*
+        +isFinished() boolean*
+        +getWinner()*
+    }
+
+    class SoloGame {
+        -List~Player~ players
+        -Deck centerCards
+        -int currentPlayerIndex
+        +SoloGame(List~Player~ players)
+        +play()
+        +pickCard(int number) Card
+        +isFinished() boolean
+        +getWinner() Player
+        +getCurrentPlayer() Player
+        +nextPlayer()
+    }
+
+    class TeamGame {
+        -List~Team~ teams
+        -Deck centerCards
+        -int currentTeamIndex
+        +TeamGame(List~Team~ teams)
+        +play()
+        +pickCard(int number) Card
+        +isFinished() boolean
+        +getWinner() Team
+        +getCurrentTeam() Team
+        +nextTeam()
+    }
+
+    %% ══════════════════════════════════════════════════════════
+    %% PLAYERS
+    %% ══════════════════════════════════════════════════════════
+
+    class Player {
+        -Deck hand
+        -Deck triosWon
+        +play()
+        +pickCard(int number) Card
+    }
+
+    class User {
+        -String pseudo
+        -int age
+        -int victoryCount
+        -String avatarPath
+        +addVictory(int count)
+    }
+
+    class Bot {
+        -String botName
+        +play()
+    }
+
+    %% ══════════════════════════════════════════════════════════
+    %% TEAM
+    %% ══════════════════════════════════════════════════════════
+
+    class Team {
+        -List~Player~ players
+        -int teamId
+        -String name
+        +play()
+        +pickCard(int number) Card
+        +assignTeam(List~Player~ players)
+    }
+
+    %% ══════════════════════════════════════════════════════════
+    %% MENU
+    %% ══════════════════════════════════════════════════════════
+
+    class Menu {
+        -int nbPlayers
+        -int nbBots
+        -String gameType
+        +startGame() Game
+        +createSoloGame() SoloGame
+        +createTeamGame() TeamGame
+        +configureGame()
+    }
+
+    %% ══════════════════════════════════════════════════════════
+    %% RELATIONSHIPS
+    %% ══════════════════════════════════════════════════════════
+
+    %% Inheritance
+    Game <|.. SoloGame : implements
+    Game <|.. TeamGame : implements
+    Player <|-- User : extends
+    Player <|-- Bot : extends
+
+    %% Composition
+    Deck "1" *-- "*" Card : contains
+    Player "1" *-- "1" Deck : hand
+    Player "1" *-- "1" Deck : triosWon
+    SoloGame "1" o-- "*" Player : players
+    SoloGame "1" *-- "1" Deck : centerCards
+    TeamGame "1" o-- "*" Team : teams
+    TeamGame "1" *-- "1" Deck : centerCards
+    Team "1" o-- "2..*" Player : contains
+
+    %% Dependencies
+    Menu ..> SoloGame : creates
+    Menu ..> TeamGame : creates
