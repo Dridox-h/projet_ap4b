@@ -1,4 +1,4 @@
 package com.trio.model;
 
-public interface Game {
+public class SoloGame {
 }
