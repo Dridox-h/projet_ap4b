@@ -84,19 +84,24 @@ public class GameController {
                     continue;
                 }
 
-                // Vérifier si la carte correspond
+                // Récupérer l'owner et l'index de la carte révélée (dernière ajoutée)
                 List<RevealedCard> revealed = game.getRevealedCards();
+                RevealedCard lastRevealed = revealed.get(revealed.size() - 1);
+                Player cardOwner = lastRevealed.getOwner();
+                int cardIndex = lastRevealed.getCardIndex();
+
+                // Vérifier si la carte correspond
                 if (revealed.size() > 1) {
                     int expectedValue = revealed.get(0).getValue();
                     if (revealedCard.getValue() != expectedValue) {
-                        view.displayCardRevealed(revealedCard, false, false, expectedValue);
+                        view.displayCardRevealed(revealedCard, cardOwner, cardIndex, false, false, expectedValue);
                         turnSuccess = false;
                         turnContinues = false;
                     } else {
-                        view.displayCardRevealed(revealedCard, false, true, expectedValue);
+                        view.displayCardRevealed(revealedCard, cardOwner, cardIndex, false, true, expectedValue);
                     }
                 } else {
-                    view.displayCardRevealed(revealedCard, true, true, 0);
+                    view.displayCardRevealed(revealedCard, cardOwner, cardIndex, true, true, 0);
                 }
             }
         }

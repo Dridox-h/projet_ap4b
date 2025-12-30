@@ -173,7 +173,13 @@ public class SwingGameView extends JFrame implements GameView {
         SwingUtilities.invokeLater(() -> {
             handPanel.removeAll();
             for (Card c : player.getDeck().getCards()) {
-                JButton cardBtn = createCardButton(c.getValue(), true);
+                // Les cartes visibles (révélées) sont grisées
+                JButton cardBtn = createCardButton(c.getValue(), !c.isVisible());
+                if (c.isVisible()) {
+                    // Carte déjà révélée: grisée et barrée
+                    cardBtn.setEnabled(false);
+                    cardBtn.setToolTipText("Carte déjà révélée");
+                }
                 handPanel.add(cardBtn);
             }
             handPanel.revalidate();
@@ -236,13 +242,21 @@ public class SwingGameView extends JFrame implements GameView {
     }
 
     @Override
-    public void displayCardRevealed(Card card, boolean isFirst, boolean isCorrect, int expectedValue) {
-        if (isFirst) {
-            log("✓ Première carte révélée: [" + card.getValue() + "]");
-        } else if (isCorrect) {
-            log("✓ Bonne carte! [" + card.getValue() + "]");
+    public void displayCardRevealed(Card card, Player owner, int cardIndex, boolean isFirst, boolean isCorrect,
+            int expectedValue) {
+        String source;
+        if (owner != null) {
+            source = owner.getPseudo();
         } else {
-            log("❌ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue());
+            source = "Centre" + (cardIndex >= 0 ? " (Carte n°" + (cardIndex + 1) + ")" : "");
+        }
+
+        if (isFirst) {
+            log("✓ Première carte révélée: [" + card.getValue() + "] de " + source);
+        } else if (isCorrect) {
+            log("✓ Bonne carte! [" + card.getValue() + "] de " + source);
+        } else {
+            log("❌ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue() + " de " + source);
         }
     }
 

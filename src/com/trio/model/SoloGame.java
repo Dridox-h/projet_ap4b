@@ -414,7 +414,7 @@ public class SoloGame implements Game {
         Card card = centerDeck.getCard(index);
         if (card != null && !card.isVisible()) {
             card.setVisible();
-            revealedThisTurn.add(new RevealedCard(card, null));
+            revealedThisTurn.add(new RevealedCard(card, null, index));
         }
         return card;
     }

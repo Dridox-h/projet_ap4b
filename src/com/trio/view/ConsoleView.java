@@ -81,13 +81,22 @@ public class ConsoleView implements GameView {
     }
 
     @Override
-    public void displayCardRevealed(Card card, boolean isFirst, boolean isCorrect, int expectedValue) {
-        if (isFirst) {
-            System.out.println("✓ Première carte révélée: [" + card.getValue() + "]");
-        } else if (isCorrect) {
-            System.out.println("✓ Bonne carte! [" + card.getValue() + "]");
+    public void displayCardRevealed(Card card, Player owner, int cardIndex, boolean isFirst, boolean isCorrect,
+            int expectedValue) {
+        String source;
+        if (owner != null) {
+            source = owner.getPseudo();
         } else {
-            System.out.println("❌ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue());
+            source = "Centre" + (cardIndex >= 0 ? " (Carte n°" + (cardIndex + 1) + ")" : "");
+        }
+
+        if (isFirst) {
+            System.out.println("✓ Première carte révélée: [" + card.getValue() + "] de " + source);
+        } else if (isCorrect) {
+            System.out.println("✓ Bonne carte! [" + card.getValue() + "] de " + source);
+        } else {
+            System.out.println(
+                    "❌ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue() + " de " + source);
         }
     }
 

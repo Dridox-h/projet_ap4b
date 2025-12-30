@@ -38,8 +38,16 @@ public interface GameView {
 
     /**
      * Affiche le résultat d'une révélation de carte
+     * 
+     * @param card          La carte révélée
+     * @param owner         Le propriétaire de la carte (null si centre)
+     * @param cardIndex     L'index de la carte si elle vient du centre (-1 sinon)
+     * @param isFirst       Si c'est la première carte du tour
+     * @param isCorrect     Si la carte correspond à la valeur attendue
+     * @param expectedValue La valeur attendue
      */
-    void displayCardRevealed(Card card, boolean isFirst, boolean isCorrect, int expectedValue);
+    void displayCardRevealed(Card card, Player owner, int cardIndex, boolean isFirst, boolean isCorrect,
+            int expectedValue);
 
     /**
      * Affiche un trio réussi
