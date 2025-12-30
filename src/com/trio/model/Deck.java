@@ -16,11 +16,17 @@ public class Deck {
 
     // Getters
     public Card getLowCard() {
-        return this.cards.stream().min(Comparator.comparingInt(Card::getValue)).orElse(null);
+        return this.cards.stream()
+                .filter(card -> !card.isVisible())
+                .min(Comparator.comparingInt(Card::getValue))
+                .orElse(null);
     }
 
     public Card getHighCard() {
-        return this.cards.stream().max(Comparator.comparingInt(Card::getValue)).orElse(null);
+        return this.cards.stream()
+                .filter(card -> !card.isVisible())
+                .max(Comparator.comparingInt(Card::getValue))
+                .orElse(null);
     }
 
     public Card getCard(int index) {
@@ -74,7 +80,9 @@ public class Deck {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Card card : cards) {
-            sb.append(card.toString()).append("\n");
+            if (card.isVisible() != false) {
+                sb.append(card.toString()).append("\n");
+            }
         }
         return sb.toString();
     }

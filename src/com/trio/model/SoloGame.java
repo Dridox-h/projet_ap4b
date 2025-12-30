@@ -196,6 +196,9 @@ public class SoloGame implements Game {
         } else if (!turnSuccess || revealedThisTurn.size() > 0) {
             System.out.println("\n❌ Échec du tour. Les cartes sont remises face cachée.");
             failTurn();
+            // Réafficher l'état après échec
+            displayUserHand();
+            displayVisibleCards();
         }
     }
 
@@ -220,6 +223,11 @@ public class SoloGame implements Game {
             return chooseBotAction((Bot) player);
         }
 
+        // Afficher l'état actuel avant de choisir
+        displayUserHand();
+        displayVisibleCards();
+        displayRevealedCards();
+
         System.out.println("\nActions disponibles:");
         System.out.println("1. Révéler votre carte MIN");
         System.out.println("2. Révéler votre carte MAX");
@@ -241,6 +249,9 @@ public class SoloGame implements Game {
      * Exécute l'action choisie et retourne la carte révélée
      */
     private Card executeAction(int action, Player currentPlayer) {
+        boolean isBot = currentPlayer instanceof Bot;
+        Bot bot = isBot ? (Bot) currentPlayer : null;
+
         switch (action) {
             case 1: // Ma carte MIN
                 return revealLowestCardFromPlayer(currentPlayer);
@@ -249,21 +260,36 @@ public class SoloGame implements Game {
                 return revealHighestCardFromPlayer(currentPlayer);
 
             case 3: // Carte MIN d'un autre joueur
-                Player target3 = selectOtherPlayer(currentPlayer);
+                Player target3 = isBot ? bot.chooseTargetPlayer(players) : selectOtherPlayer(currentPlayer);
                 if (target3 != null) {
+                    if (isBot) {
+                        System.out.println(bot.getPseudo() + " cible " + target3.getPseudo() + " (MIN)");
+                    }
                     return revealLowestCardFromPlayer(target3);
                 }
                 return null;
 
             case 4: // Carte MAX d'un autre joueur
-                Player target4 = selectOtherPlayer(currentPlayer);
+                Player target4 = isBot ? bot.chooseTargetPlayer(players) : selectOtherPlayer(currentPlayer);
                 if (target4 != null) {
+                    if (isBot) {
+                        System.out.println(bot.getPseudo() + " cible " + target4.getPseudo() + " (MAX)");
+                    }
                     return revealHighestCardFromPlayer(target4);
                 }
                 return null;
 
             case 5: // Carte du centre
-                return selectAndRevealCenterCard();
+                if (isBot) {
+                    int centerIndex = bot.chooseCenterCardIndex(centerDeck);
+                    if (centerIndex >= 0) {
+                        System.out.println(bot.getPseudo() + " révèle une carte du centre");
+                        return revealCardFromCenter(centerIndex);
+                    }
+                    return null;
+                } else {
+                    return selectAndRevealCenterCard();
+                }
 
             default:
                 return null;
@@ -336,12 +362,10 @@ public class SoloGame implements Game {
     }
 
     /**
-     * Action automatique pour un Bot
+     * Action automatique pour un Bot - délègue à la classe Bot
      */
     private int chooseBotAction(Bot bot) {
-        // Stratégie simple: actions aléatoires
-        int[] actions = { 1, 2, 3, 4, 5 };
-        return actions[(int) (Math.random() * actions.length)];
+        return bot.chooseBotAction(revealedThisTurn, players, centerDeck);
     }
 
     @Override
