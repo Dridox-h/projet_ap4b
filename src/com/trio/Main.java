@@ -1,47 +1,38 @@
 package com.trio;
 
-import com.trio.model.*;
+import com.trio.controller.MenuController;
+import com.trio.view.SwingMenuView;
 import com.trio.view.SwingGameView;
-import com.trio.controller.GameController;
 
 import javax.swing.SwingUtilities;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Point d'entrée du jeu Trio avec interface graphique Swing.
+ * Utilise le pattern MVC pour le menu et le jeu.
  */
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            // Créer la View graphique
-            SwingGameView view = new SwingGameView();
+            // === MENU MVC ===
+            // Créer la View du menu
+            SwingMenuView menuView = new SwingMenuView();
 
-            // Demander le pseudo
-            String pseudo = view.promptPseudo();
-            if (pseudo == null || pseudo.trim().isEmpty()) {
-                pseudo = "Joueur";
-            }
+            // Créer le Controller du menu
+            MenuController menuController = new MenuController(menuView);
 
-            // Demander le nombre de joueurs
-            int nbPlayers = view.promptPlayerCount();
+            // Configurer la partie (pseudo, mode, joueurs)
+            menuController.configure();
 
-            // Créer les joueurs
-            List<Player> players = new ArrayList<>();
-            players.add(new User(pseudo));
-            for (int i = 1; i < nbPlayers; i++) {
-                players.add(new Bot("Bot" + i));
-            }
+            // Fermer le menu
+            menuView.close();
 
-            // Créer le Model
-            SoloGame game = new SoloGame(players, new Deck());
+            // === JEU MVC ===
+            // Créer la View du jeu
+            SwingGameView gameView = new SwingGameView();
 
-            // Créer le Controller et lancer le jeu dans un thread séparé
-            GameController controller = new GameController(game, view);
-
-            // Lancer le jeu en arrière-plan pour ne pas bloquer l'UI
+            // Lancer le jeu dans un thread séparé pour ne pas bloquer l'UI
             new Thread(() -> {
-                controller.startGame();
+                menuController.startGame(gameView);
             }).start();
         });
     }
