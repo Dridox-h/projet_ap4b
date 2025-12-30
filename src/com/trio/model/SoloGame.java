@@ -91,7 +91,6 @@ public class SoloGame implements Game {
         DrawPile drawPile = new DrawPile();
         drawPile.createDefaultCards();
         drawPile.distributeToPlayers(players, centerDeck);
-        System.out.println("📦 Cartes distribuées!");
     }
 
     /**

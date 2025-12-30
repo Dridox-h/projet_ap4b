@@ -64,14 +64,21 @@ public class Menu {
     }
 
     /**
-     * Lance le jeu
+     * Lance le jeu avec le pattern MVC
      */
     public Game startGame() {
         List<Player> players = createPlayers();
 
-        // SoloGame distribue les cartes lui-même dans startGame()
+        // Créer le Model
         SoloGame game = new SoloGame(players, new Deck());
-        game.startGame();
+
+        // Créer la View
+        com.trio.view.ConsoleView view = new com.trio.view.ConsoleView();
+
+        // Créer le Controller et lancer le jeu
+        com.trio.controller.GameController controller = new com.trio.controller.GameController(game, view);
+        controller.startGame();
+
         return game;
     }
 
