@@ -1,35 +1,49 @@
 package com.trio.view;
 
 import com.trio.model.*;
-import com.trio.controller.GameController;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.ArrayList;
+import java.awt.geom.RoundRectangle2D;
 import java.util.List;
 
 /**
- * Interface graphique Swing pour le jeu Trio.
- * Implémente GameView avec une fenêtre graphique.
+ * Interface graphique Swing style Apple pour le jeu Trio (mode Solo).
+ * Design minimaliste, clean avec couleurs douces.
  */
 public class SwingGameView extends JFrame implements GameView {
 
-    // Panels principaux
-    private JPanel mainPanel;
-    private JTextArea gameLog;
-    private JPanel handPanel;
-    private JPanel visibleCardsPanel;
-    private JPanel actionsPanel;
-    private JLabel statusLabel;
+    // === Apple-like Color Palette ===
+    private static final Color BACKGROUND = new Color(248, 248, 248);
+    private static final Color CARD_BG = Color.WHITE;
+    private static final Color PRIMARY = new Color(0, 122, 255); // Apple Blue
+    private static final Color SUCCESS = new Color(52, 199, 89); // Apple Green
+    private static final Color WARNING = new Color(255, 149, 0); // Apple Orange
+    private static final Color DANGER = new Color(255, 59, 48); // Apple Red
+    private static final Color GRAY_1 = new Color(142, 142, 147);
+    private static final Color GRAY_2 = new Color(174, 174, 178);
+    private static final Color GRAY_3 = new Color(199, 199, 204);
+    private static final Color TEXT_PRIMARY = new Color(0, 0, 0);
+    private static final Color TEXT_SECONDARY = new Color(60, 60, 67, 153);
 
-    // Pour les inputs
+    // === UI Components ===
+    private JPanel mainPanel;
+    private JLabel titleLabel;
+    private JLabel statusLabel;
+    private JPanel playersPanel;
+    private JPanel handPanel;
+    private JPanel centerPanel;
+    private JPanel actionsPanel;
+    private JTextArea logArea;
+
+    // Input handling
     private int selectedAction = -1;
     private Player selectedPlayer = null;
     private int selectedCenterIndex = -1;
     private final Object inputLock = new Object();
 
-    // Références
+    // State
     private List<Player> currentPlayers;
     private Deck currentCenterDeck;
 
@@ -38,122 +52,289 @@ public class SwingGameView extends JFrame implements GameView {
     }
 
     private void initializeUI() {
-        setTitle("🎮 TRIO - Le Jeu de Cartes");
+        setTitle("TRIO - Mode Solo");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(900, 700);
+        setSize(1100, 800);
         setLocationRelativeTo(null);
+        setBackground(BACKGROUND);
 
-        // Panel principal avec BorderLayout
-        mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        mainPanel.setBackground(new Color(34, 40, 49));
+        // Main container
+        mainPanel = new JPanel(new BorderLayout(20, 20));
+        mainPanel.setBackground(BACKGROUND);
+        mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
 
-        // Header avec status
-        statusLabel = new JLabel("Bienvenue dans TRIO!", SwingConstants.CENTER);
-        statusLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        statusLabel.setForeground(new Color(0, 173, 181));
-        statusLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-        mainPanel.add(statusLabel, BorderLayout.NORTH);
+        // Header
+        JPanel headerPanel = createHeaderPanel();
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // Centre: Log du jeu
-        gameLog = new JTextArea();
-        gameLog.setEditable(false);
-        gameLog.setFont(new Font("Consolas", Font.PLAIN, 14));
-        gameLog.setBackground(new Color(57, 62, 70));
-        gameLog.setForeground(Color.WHITE);
-        gameLog.setMargin(new Insets(10, 10, 10, 10));
-        JScrollPane scrollPane = new JScrollPane(gameLog);
-        scrollPane.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(0, 173, 181)),
-                "📜 Historique", 0, 0,
-                new Font("Arial", Font.BOLD, 12), new Color(0, 173, 181)));
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        // Center content
+        JPanel contentPanel = new JPanel(new BorderLayout(20, 20));
+        contentPanel.setOpaque(false);
 
-        // Bas: Main du joueur
-        handPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        handPanel.setBackground(new Color(34, 40, 49));
-        handPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(238, 238, 238)),
-                "🃏 Votre Main", 0, 0,
-                new Font("Arial", Font.BOLD, 12), Color.WHITE));
-        handPanel.setPreferredSize(new Dimension(0, 100));
-        mainPanel.add(handPanel, BorderLayout.SOUTH);
+        // Left: Players + Scores
+        playersPanel = createPlayersPanel();
+        contentPanel.add(playersPanel, BorderLayout.WEST);
 
-        // Droite: Cartes visibles
-        visibleCardsPanel = new JPanel();
-        visibleCardsPanel.setLayout(new BoxLayout(visibleCardsPanel, BoxLayout.Y_AXIS));
-        visibleCardsPanel.setBackground(new Color(34, 40, 49));
-        visibleCardsPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(255, 211, 105)),
-                "👁️ Cartes Visibles", 0, 0,
-                new Font("Arial", Font.BOLD, 12), new Color(255, 211, 105)));
-        visibleCardsPanel.setPreferredSize(new Dimension(200, 0));
-        mainPanel.add(visibleCardsPanel, BorderLayout.EAST);
+        // Center: Game area (cards + center)
+        JPanel gameArea = createGameAreaPanel();
+        contentPanel.add(gameArea, BorderLayout.CENTER);
 
-        // Gauche: Actions
-        actionsPanel = new JPanel();
-        actionsPanel.setLayout(new BoxLayout(actionsPanel, BoxLayout.Y_AXIS));
-        actionsPanel.setBackground(new Color(34, 40, 49));
-        actionsPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(0, 173, 181)),
-                "⚡ Actions", 0, 0,
-                new Font("Arial", Font.BOLD, 12), new Color(0, 173, 181)));
-        actionsPanel.setPreferredSize(new Dimension(250, 0));
-        mainPanel.add(actionsPanel, BorderLayout.WEST);
+        // Right: Actions
+        actionsPanel = createActionsPanel();
+        contentPanel.add(actionsPanel, BorderLayout.EAST);
+
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
+
+        // Bottom: Log
+        JPanel logPanel = createLogPanel();
+        mainPanel.add(logPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
         setVisible(true);
     }
 
-    private JButton createCardButton(int value, boolean visible) {
-        String text = visible ? String.valueOf(value) : "?";
-        JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(50, 70));
-        btn.setFont(new Font("Arial", Font.BOLD, 18));
-        if (visible) {
-            btn.setBackground(new Color(0, 173, 181));
-            btn.setForeground(Color.WHITE);
-        } else {
-            btn.setBackground(new Color(100, 100, 100));
-            btn.setForeground(Color.GRAY);
+    private JPanel createHeaderPanel() {
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+
+        titleLabel = new JLabel("TRIO", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("SF Pro Display", Font.BOLD, 36));
+        titleLabel.setForeground(TEXT_PRIMARY);
+
+        statusLabel = new JLabel("Mode Solo", SwingConstants.CENTER);
+        statusLabel.setFont(new Font("SF Pro Text", Font.PLAIN, 18));
+        statusLabel.setForeground(TEXT_SECONDARY);
+
+        JPanel titleGroup = new JPanel();
+        titleGroup.setOpaque(false);
+        titleGroup.setLayout(new BoxLayout(titleGroup, BoxLayout.Y_AXIS));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titleGroup.add(titleLabel);
+        titleGroup.add(Box.createVerticalStrut(5));
+        titleGroup.add(statusLabel);
+
+        header.add(titleGroup, BorderLayout.CENTER);
+        return header;
+    }
+
+    private JPanel createPlayersPanel() {
+        JPanel panel = createCardPanel("Joueurs");
+        panel.setPreferredSize(new Dimension(200, 0));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        return panel;
+    }
+
+    private JPanel createGameAreaPanel() {
+        JPanel panel = new JPanel(new BorderLayout(15, 15));
+        panel.setOpaque(false);
+
+        // Top: Your hand
+        handPanel = createCardPanel("Votre Main");
+        handPanel.setPreferredSize(new Dimension(0, 140));
+        handPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        panel.add(handPanel, BorderLayout.NORTH);
+
+        // Center: Center deck
+        centerPanel = createCardPanel("Cartes du Centre");
+        centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 8, 8));
+        panel.add(centerPanel, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel createActionsPanel() {
+        JPanel panel = createCardPanel("Actions");
+        panel.setPreferredSize(new Dimension(220, 0));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        return panel;
+    }
+
+    private JPanel createLogPanel() {
+        JPanel panel = createCardPanel("Historique");
+        panel.setPreferredSize(new Dimension(0, 150));
+        panel.setLayout(new BorderLayout());
+
+        logArea = new JTextArea();
+        logArea.setEditable(false);
+        logArea.setFont(new Font("SF Mono", Font.PLAIN, 12));
+        logArea.setForeground(TEXT_SECONDARY);
+        logArea.setBackground(Color.WHITE);
+        logArea.setMargin(new Insets(10, 10, 10, 10));
+
+        JScrollPane scrollPane = new JScrollPane(logArea);
+        scrollPane.setBorder(null);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel createCardPanel(String title) {
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(CARD_BG);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 16, 16));
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                new RoundedBorder(16, GRAY_3),
+                BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+        titleLabel.setForeground(TEXT_PRIMARY);
+        panel.add(titleLabel);
+
+        return panel;
+    }
+
+    // Custom rounded border
+    private static class RoundedBorder extends javax.swing.border.AbstractBorder {
+        private final int radius;
+        private final Color color;
+
+        RoundedBorder(int radius, Color color) {
+            this.radius = radius;
+            this.color = color;
         }
+
+        @Override
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.draw(new RoundRectangle2D.Float(x, y, width - 1, height - 1, radius, radius));
+            g2.dispose();
+        }
+
+        @Override
+        public Insets getBorderInsets(Component c) {
+            return new Insets(radius / 2, radius / 2, radius / 2, radius / 2);
+        }
+    }
+
+    private JButton createAppleButton(String text, Color color) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                if (getModel().isPressed()) {
+                    g2.setColor(color.darker());
+                } else if (getModel().isRollover()) {
+                    g2.setColor(color.brighter());
+                } else {
+                    g2.setColor(color);
+                }
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        btn.setFont(new Font("SF Pro Text", Font.PLAIN, 14));
+        btn.setForeground(Color.WHITE);
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createRaisedBevelBorder());
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setMaximumSize(new Dimension(190, 44));
+        btn.setPreferredSize(new Dimension(190, 44));
+        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         return btn;
     }
 
-    private JButton createActionButton(String text, int actionCode) {
-        JButton btn = new JButton(text);
-        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setMaximumSize(new Dimension(220, 40));
-        btn.setFont(new Font("Arial", Font.PLAIN, 12));
-        btn.setBackground(new Color(0, 173, 181));
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.addActionListener(e -> {
-            synchronized (inputLock) {
-                selectedAction = actionCode;
-                inputLock.notifyAll();
+    private JPanel createCardView(int value, boolean visible) {
+        JPanel card = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(visible ? Color.WHITE : GRAY_3);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+                g2.setColor(GRAY_2);
+                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
+                g2.dispose();
             }
-        });
-        return btn;
+        };
+        card.setPreferredSize(new Dimension(55, 80));
+        card.setMaximumSize(new Dimension(55, 80));
+        card.setOpaque(false);
+        card.setLayout(new GridBagLayout());
+
+        JLabel label = new JLabel(visible ? String.valueOf(value) : "?");
+        label.setFont(new Font("SF Pro Display", Font.BOLD, 22));
+        label.setForeground(visible ? TEXT_PRIMARY : GRAY_1);
+        card.add(label);
+
+        return card;
     }
 
     private void log(String message) {
         SwingUtilities.invokeLater(() -> {
-            gameLog.append(message + "\n");
-            gameLog.setCaretPosition(gameLog.getDocument().getLength());
+            logArea.append(message + "\n");
+            logArea.setCaretPosition(logArea.getDocument().getLength());
         });
     }
 
-    // === IMPLÉMENTATION GameView ===
+    private void updatePlayersPanel(List<Player> players) {
+        playersPanel.removeAll();
+
+        JLabel title = new JLabel("Joueurs");
+        title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+        title.setForeground(TEXT_PRIMARY);
+        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+        playersPanel.add(title);
+        playersPanel.add(Box.createVerticalStrut(15));
+
+        for (Player player : players) {
+            JPanel playerCard = new JPanel();
+            playerCard.setLayout(new BoxLayout(playerCard, BoxLayout.Y_AXIS));
+            playerCard.setOpaque(false);
+            playerCard.setBorder(BorderFactory.createCompoundBorder(
+                    new RoundedBorder(10, player instanceof User ? PRIMARY : GRAY_2),
+                    new EmptyBorder(10, 10, 10, 10)));
+            playerCard.setMaximumSize(new Dimension(180, 80));
+            playerCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            JLabel nameLabel = new JLabel(player.getPseudo());
+            nameLabel.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+            nameLabel.setForeground(player instanceof User ? PRIMARY : TEXT_PRIMARY);
+
+            JLabel scoreLabel = new JLabel(player.getTrioCount() + " trio" + (player.getTrioCount() != 1 ? "s" : ""));
+            scoreLabel.setFont(new Font("SF Pro Display", Font.BOLD, 18));
+            scoreLabel.setForeground(TEXT_PRIMARY);
+
+            String type = player instanceof User ? "👤 Vous" : "🤖 Bot";
+            JLabel typeLabel = new JLabel(type);
+            typeLabel.setFont(new Font("SF Pro Text", Font.PLAIN, 11));
+            typeLabel.setForeground(TEXT_SECONDARY);
+
+            playerCard.add(nameLabel);
+            playerCard.add(scoreLabel);
+            playerCard.add(typeLabel);
+
+            playersPanel.add(playerCard);
+            playersPanel.add(Box.createVerticalStrut(8));
+        }
+
+        playersPanel.revalidate();
+        playersPanel.repaint();
+    }
+
+    // === GAME VIEW IMPLEMENTATION ===
 
     @Override
     public void displayWelcome(int nbPlayers) {
         SwingUtilities.invokeLater(() -> {
-            statusLabel.setText("🎮 Partie avec " + nbPlayers + " joueurs!");
+            statusLabel.setText("Mode Solo • " + nbPlayers + " joueurs");
         });
-        log("=== DÉBUT DE LA PARTIE TRIO ===");
+        log("═══ DÉBUT DE LA PARTIE TRIO ═══");
         log("Nombre de joueurs: " + nbPlayers);
         log("Objectif: 3 trios pour gagner\n");
     }
@@ -161,7 +342,8 @@ public class SwingGameView extends JFrame implements GameView {
     @Override
     public void displayTurnStart(Player player) {
         SwingUtilities.invokeLater(() -> {
-            statusLabel.setText("🎯 Tour de " + player.getPseudo());
+            statusLabel.setText("Tour de " + player.getPseudo());
+            statusLabel.setForeground(player instanceof User ? PRIMARY : TEXT_SECONDARY);
         });
         log("\n═══════════════════════════════════");
         log("   Tour de " + player.getPseudo());
@@ -172,15 +354,15 @@ public class SwingGameView extends JFrame implements GameView {
     public void displayPlayerHand(Player player) {
         SwingUtilities.invokeLater(() -> {
             handPanel.removeAll();
+
+            JLabel title = new JLabel("Votre Main");
+            title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+            title.setForeground(TEXT_PRIMARY);
+            handPanel.add(title);
+
             for (Card c : player.getDeck().getCards()) {
-                // Les cartes visibles (révélées) sont grisées
-                JButton cardBtn = createCardButton(c.getValue(), !c.isVisible());
-                if (c.isVisible()) {
-                    // Carte déjà révélée: grisée et barrée
-                    cardBtn.setEnabled(false);
-                    cardBtn.setToolTipText("Carte déjà révélée");
-                }
-                handPanel.add(cardBtn);
+                JPanel card = createCardView(c.getValue(), !c.isVisible());
+                handPanel.add(card);
             }
             handPanel.revalidate();
             handPanel.repaint();
@@ -193,40 +375,24 @@ public class SwingGameView extends JFrame implements GameView {
         this.currentCenterDeck = centerDeck;
 
         SwingUtilities.invokeLater(() -> {
-            visibleCardsPanel.removeAll();
+            updatePlayersPanel(players);
 
-            for (Player p : players) {
-                for (Card c : p.getDeck().getCards()) {
-                    if (c.isVisible()) {
-                        JLabel label = new JLabel(p.getPseudo() + ": [" + c.getValue() + "]");
-                        label.setForeground(Color.WHITE);
-                        label.setFont(new Font("Arial", Font.PLAIN, 12));
-                        label.setAlignmentX(Component.LEFT_ALIGNMENT);
-                        visibleCardsPanel.add(label);
-                    }
-                }
-            }
+            centerPanel.removeAll();
+
+            JLabel title = new JLabel("Cartes du Centre");
+            title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+            title.setForeground(TEXT_PRIMARY);
+            centerPanel.add(title);
 
             if (centerDeck != null) {
                 for (Card c : centerDeck.getCards()) {
-                    if (c.isVisible()) {
-                        JLabel label = new JLabel("Centre: [" + c.getValue() + "]");
-                        label.setForeground(new Color(255, 211, 105));
-                        label.setFont(new Font("Arial", Font.PLAIN, 12));
-                        label.setAlignmentX(Component.LEFT_ALIGNMENT);
-                        visibleCardsPanel.add(label);
-                    }
+                    JPanel card = createCardView(c.getValue(), c.isVisible());
+                    centerPanel.add(card);
                 }
             }
 
-            if (visibleCardsPanel.getComponentCount() == 0) {
-                JLabel label = new JLabel("Aucune");
-                label.setForeground(Color.GRAY);
-                visibleCardsPanel.add(label);
-            }
-
-            visibleCardsPanel.revalidate();
-            visibleCardsPanel.repaint();
+            centerPanel.revalidate();
+            centerPanel.repaint();
         });
     }
 
@@ -244,19 +410,13 @@ public class SwingGameView extends JFrame implements GameView {
     @Override
     public void displayCardRevealed(Card card, Player owner, int cardIndex, boolean isFirst, boolean isCorrect,
             int expectedValue) {
-        String source;
-        if (owner != null) {
-            source = owner.getPseudo();
-        } else {
-            source = "Centre" + (cardIndex >= 0 ? " (Carte n°" + (cardIndex + 1) + ")" : "");
-        }
-
+        String source = owner != null ? owner.getPseudo() : "Centre";
         if (isFirst) {
-            log("✓ Première carte révélée: [" + card.getValue() + "] de " + source);
+            log("✓ Première carte: [" + card.getValue() + "] de " + source);
         } else if (isCorrect) {
-            log("✓ Bonne carte! [" + card.getValue() + "] de " + source);
+            log("✓ Bonne carte: [" + card.getValue() + "] de " + source);
         } else {
-            log("❌ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue() + " de " + source);
+            log("✗ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue());
         }
     }
 
@@ -271,14 +431,15 @@ public class SwingGameView extends JFrame implements GameView {
 
     @Override
     public void displayTurnFailed() {
-        log("\n❌ Échec du tour. Les cartes sont remises face cachée.");
+        log("\n✗ Échec du tour. Cartes remises face cachée.");
     }
 
     @Override
     public void displayGameWinner(Player winner) {
-        log("\n🎉 " + winner.getPseudo() + " GAGNE avec " + winner.getTrioCount() + " trios!");
+        log("\n🏆 " + winner.getPseudo() + " GAGNE avec " + winner.getTrioCount() + " trios!");
         SwingUtilities.invokeLater(() -> {
             statusLabel.setText("🏆 " + winner.getPseudo() + " GAGNE!");
+            statusLabel.setForeground(SUCCESS);
         });
         JOptionPane.showMessageDialog(this,
                 "🏆 " + winner.getPseudo() + " GAGNE avec " + winner.getTrioCount() + " trios!",
@@ -307,18 +468,24 @@ public class SwingGameView extends JFrame implements GameView {
 
         SwingUtilities.invokeLater(() -> {
             actionsPanel.removeAll();
-            actionsPanel.add(Box.createVerticalStrut(10));
-            actionsPanel.add(createActionButton("1. Ma carte MIN", 1));
-            actionsPanel.add(Box.createVerticalStrut(5));
-            actionsPanel.add(createActionButton("2. Ma carte MAX", 2));
-            actionsPanel.add(Box.createVerticalStrut(5));
-            actionsPanel.add(createActionButton("3. MIN autre joueur", 3));
-            actionsPanel.add(Box.createVerticalStrut(5));
-            actionsPanel.add(createActionButton("4. MAX autre joueur", 4));
-            actionsPanel.add(Box.createVerticalStrut(5));
-            actionsPanel.add(createActionButton("5. Carte du centre", 5));
+
+            JLabel title = new JLabel("Actions");
+            title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+            title.setForeground(TEXT_PRIMARY);
+            title.setAlignmentX(Component.CENTER_ALIGNMENT);
+            actionsPanel.add(title);
             actionsPanel.add(Box.createVerticalStrut(15));
-            actionsPanel.add(createActionButton("0. Arrêter le tour", 0));
+
+            addActionButton("Ma carte MIN", 1, PRIMARY);
+            addActionButton("Ma carte MAX", 2, PRIMARY);
+            actionsPanel.add(Box.createVerticalStrut(10));
+            addActionButton("MIN autre joueur", 3, WARNING);
+            addActionButton("MAX autre joueur", 4, WARNING);
+            actionsPanel.add(Box.createVerticalStrut(10));
+            addActionButton("Carte du centre", 5, SUCCESS);
+            actionsPanel.add(Box.createVerticalStrut(20));
+            addActionButton("Arrêter le tour", 0, DANGER);
+
             actionsPanel.revalidate();
             actionsPanel.repaint();
         });
@@ -332,8 +499,19 @@ public class SwingGameView extends JFrame implements GameView {
                 }
             }
         }
-
         return selectedAction;
+    }
+
+    private void addActionButton(String text, int actionCode, Color color) {
+        JButton btn = createAppleButton(text, color);
+        btn.addActionListener(e -> {
+            synchronized (inputLock) {
+                selectedAction = actionCode;
+                inputLock.notifyAll();
+            }
+        });
+        actionsPanel.add(btn);
+        actionsPanel.add(Box.createVerticalStrut(8));
     }
 
     @Override
@@ -342,19 +520,16 @@ public class SwingGameView extends JFrame implements GameView {
 
         SwingUtilities.invokeLater(() -> {
             actionsPanel.removeAll();
-            actionsPanel.add(Box.createVerticalStrut(10));
-            JLabel label = new JLabel("Choisir un joueur:");
-            label.setForeground(Color.WHITE);
-            label.setAlignmentX(Component.CENTER_ALIGNMENT);
-            actionsPanel.add(label);
-            actionsPanel.add(Box.createVerticalStrut(10));
+
+            JLabel title = new JLabel("Choisir un joueur");
+            title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+            title.setForeground(TEXT_PRIMARY);
+            title.setAlignmentX(Component.CENTER_ALIGNMENT);
+            actionsPanel.add(title);
+            actionsPanel.add(Box.createVerticalStrut(15));
 
             for (Player p : availablePlayers) {
-                JButton btn = new JButton(p.getPseudo() + " (" + p.getDeck().getSize() + " cartes)");
-                btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-                btn.setMaximumSize(new Dimension(220, 35));
-                btn.setBackground(new Color(0, 173, 181));
-                btn.setForeground(Color.WHITE);
+                JButton btn = createAppleButton(p.getPseudo(), PRIMARY);
                 btn.addActionListener(e -> {
                     synchronized (inputLock) {
                         selectedPlayer = p;
@@ -362,8 +537,9 @@ public class SwingGameView extends JFrame implements GameView {
                     }
                 });
                 actionsPanel.add(btn);
-                actionsPanel.add(Box.createVerticalStrut(5));
+                actionsPanel.add(Box.createVerticalStrut(8));
             }
+
             actionsPanel.revalidate();
             actionsPanel.repaint();
         });
@@ -377,7 +553,6 @@ public class SwingGameView extends JFrame implements GameView {
                 }
             }
         }
-
         return selectedPlayer;
     }
 
@@ -387,22 +562,19 @@ public class SwingGameView extends JFrame implements GameView {
 
         SwingUtilities.invokeLater(() -> {
             actionsPanel.removeAll();
-            actionsPanel.add(Box.createVerticalStrut(10));
-            JLabel label = new JLabel("Choisir une carte du centre:");
-            label.setForeground(Color.WHITE);
-            label.setAlignmentX(Component.CENTER_ALIGNMENT);
-            actionsPanel.add(label);
-            actionsPanel.add(Box.createVerticalStrut(10));
+
+            JLabel title = new JLabel("Choisir une carte");
+            title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+            title.setForeground(TEXT_PRIMARY);
+            title.setAlignmentX(Component.CENTER_ALIGNMENT);
+            actionsPanel.add(title);
+            actionsPanel.add(Box.createVerticalStrut(15));
 
             for (int i = 0; i < centerDeck.getSize(); i++) {
                 Card c = centerDeck.getCard(i);
                 String text = (i + 1) + ". " + (c.isVisible() ? "[" + c.getValue() + "]" : "[?]");
                 final int index = i;
-                JButton btn = new JButton(text);
-                btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-                btn.setMaximumSize(new Dimension(220, 35));
-                btn.setBackground(c.isVisible() ? new Color(255, 211, 105) : new Color(100, 100, 100));
-                btn.setForeground(Color.BLACK);
+                JButton btn = createAppleButton(text, c.isVisible() ? WARNING : GRAY_1);
                 btn.addActionListener(e -> {
                     synchronized (inputLock) {
                         selectedCenterIndex = index;
@@ -410,8 +582,9 @@ public class SwingGameView extends JFrame implements GameView {
                     }
                 });
                 actionsPanel.add(btn);
-                actionsPanel.add(Box.createVerticalStrut(3));
+                actionsPanel.add(Box.createVerticalStrut(5));
             }
+
             actionsPanel.revalidate();
             actionsPanel.repaint();
         });
@@ -425,27 +598,6 @@ public class SwingGameView extends JFrame implements GameView {
                 }
             }
         }
-
         return selectedCenterIndex;
-    }
-
-    /**
-     * Affiche un dialogue pour entrer le pseudo
-     */
-    public String promptPseudo() {
-        return JOptionPane.showInputDialog(this,
-                "Entrez votre pseudo:", "TRIO - Nouveau joueur", JOptionPane.QUESTION_MESSAGE);
-    }
-
-    /**
-     * Affiche un dialogue pour choisir le nombre de joueurs
-     */
-    public int promptPlayerCount() {
-        String[] options = { "3", "4", "5", "6" };
-        int choice = JOptionPane.showOptionDialog(this,
-                "Nombre de joueurs:", "TRIO - Configuration",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-                null, options, options[0]);
-        return choice >= 0 ? Integer.parseInt(options[choice]) : 3;
     }
 }
