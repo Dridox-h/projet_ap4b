@@ -62,7 +62,7 @@ public class SwingMenuView extends JFrame implements MenuView {
 
     @Override
     public int promptGameMode() {
-        String[] options = { "Solo (vs Bots)", "Multijoueur Local" };
+        String[] options = { "Solo (3-6 joueurs)", "Équipe (4 ou 6 joueurs)" };
         int choice = JOptionPane.showOptionDialog(
                 this,
                 "Choisissez le mode de jeu:",
@@ -72,22 +72,38 @@ public class SwingMenuView extends JFrame implements MenuView {
                 null,
                 options,
                 options[0]);
-        return choice >= 0 ? choice + 1 : 1; // 1 = Solo, 2 = Multijoueur
+        return choice >= 0 ? choice + 1 : 1; // 1 = Solo, 2 = Équipe
     }
 
     @Override
-    public int promptPlayerCount() {
-        String[] options = { "3 joueurs", "4 joueurs", "5 joueurs", "6 joueurs" };
-        int choice = JOptionPane.showOptionDialog(
-                this,
-                "Nombre de joueurs:",
-                "🎮 TRIO - Configuration",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                options,
-                options[0]);
-        return choice >= 0 ? choice + 3 : 3; // 3, 4, 5 ou 6 joueurs
+    public int promptPlayerCount(int gameMode) {
+        if (gameMode == 2) {
+            // Mode Équipe: seulement 4 ou 6 joueurs
+            String[] options = { "4 joueurs (2 équipes)", "6 joueurs (3 équipes)" };
+            int choice = JOptionPane.showOptionDialog(
+                    this,
+                    "Nombre de joueurs (mode Équipe):",
+                    "🎮 TRIO - Configuration",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]);
+            return choice == 1 ? 6 : 4; // 0 = 4 joueurs, 1 = 6 joueurs
+        } else {
+            // Mode Solo: 3 à 6 joueurs
+            String[] options = { "3 joueurs", "4 joueurs", "5 joueurs", "6 joueurs" };
+            int choice = JOptionPane.showOptionDialog(
+                    this,
+                    "Nombre de joueurs:",
+                    "🎮 TRIO - Configuration",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]);
+            return choice >= 0 ? choice + 3 : 3;
+        }
     }
 
     @Override

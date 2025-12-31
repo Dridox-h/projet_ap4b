@@ -174,12 +174,28 @@ public class TeamGame implements Game {
     }
 
     /**
-     * Distribue les cartes aux joueurs et au centre
+     * Distribue TOUTES les cartes aux joueurs (pas de centre en mode équipe)
+     * 4 joueurs = 9 cartes chacun, 6 joueurs = 6 cartes chacun
      */
     public void distributeCards() {
         DrawPile drawPile = new DrawPile();
         drawPile.createDefaultCards();
-        drawPile.distributeToPlayers(getAllPlayers(), centerDeck);
+        drawPile.shuffle();
+
+        List<Player> allPlayers = getAllPlayers();
+        int cardsPerPlayer = 36 / allPlayers.size(); // 9 pour 4 joueurs, 6 pour 6 joueurs
+
+        for (Player player : allPlayers) {
+            for (int i = 0; i < cardsPerPlayer; i++) {
+                if (!drawPile.getDeck().isEmpty()) {
+                    Card card = drawPile.getDeck().removeCard(0);
+                    player.getDeck().addCard(card);
+                }
+            }
+            player.getDeck().sort();
+        }
+
+        System.out.println("📋 Distribution: " + cardsPerPlayer + " cartes/joueur (pas de centre en mode équipe)");
     }
 
     /**
@@ -215,14 +231,7 @@ public class TeamGame implements Game {
             }
         }
 
-        if (centerDeck != null) {
-            for (Card c : centerDeck.getCards()) {
-                if (c.isVisible()) {
-                    System.out.println("  Centre: [" + c.getValue() + "]");
-                    anyVisible = true;
-                }
-            }
-        }
+        // Pas de cartes au centre en mode équipe
 
         if (!anyVisible) {
             System.out.println("  (Aucune)");
@@ -322,7 +331,7 @@ public class TeamGame implements Game {
         System.out.println("2. Révéler votre carte MAX");
         System.out.println("3. Révéler la carte MIN d'un autre joueur");
         System.out.println("4. Révéler la carte MAX d'un autre joueur");
-        System.out.println("5. Révéler une carte du centre");
+        // Pas d'option centre en mode équipe
         System.out.println("0. Arrêter le tour");
 
         System.out.print("Votre choix: ");
@@ -369,17 +378,7 @@ public class TeamGame implements Game {
                 }
                 return null;
 
-            case 5: // Carte du centre
-                if (isBot) {
-                    int centerIndex = bot.chooseCenterCardIndex(centerDeck);
-                    if (centerIndex >= 0) {
-                        System.out.println(bot.getPseudo() + " révèle une carte du centre");
-                        return revealCardFromCenter(centerIndex);
-                    }
-                    return null;
-                } else {
-                    return selectAndRevealCenterCard();
-                }
+            // Pas de case 5 (centre) en mode équipe
 
             default:
                 return null;

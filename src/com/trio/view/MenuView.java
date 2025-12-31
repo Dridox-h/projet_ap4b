@@ -21,9 +21,11 @@ public interface MenuView {
     int promptGameMode();
 
     /**
-     * Demande le nombre de joueurs
+     * Demande le nombre de joueurs selon le mode de jeu
+     * 
+     * @param gameMode 1 = Solo (3-6), 2 = Équipe (4 ou 6 seulement)
      */
-    int promptPlayerCount();
+    int promptPlayerCount(int gameMode);
 
     /**
      * Affiche la liste des joueurs créés

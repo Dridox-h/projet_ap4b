@@ -36,8 +36,8 @@ public class MenuController {
         // Demander le mode de jeu
         this.gameMode = menuView.promptGameMode();
 
-        // Demander le nombre de joueurs
-        this.nbPlayers = menuView.promptPlayerCount();
+        // Demander le nombre de joueurs selon le mode
+        this.nbPlayers = menuView.promptPlayerCount(gameMode);
     }
 
     /**
@@ -71,10 +71,12 @@ public class MenuController {
         List<Player> players = createPlayers();
 
         if (gameMode == 2) {
-            // Mode Équipe - TeamGame gère son propre affichage console
+            // Mode Équipe avec UI Apple-like
             List<Team> teams = createTeams(players);
             TeamGame game = new TeamGame(teams, new Deck());
-            game.startGame(); // TeamGame a son propre système d'affichage
+            com.trio.view.SwingTeamGameView teamView = new com.trio.view.SwingTeamGameView();
+            TeamGameController teamController = new TeamGameController(game, teamView);
+            teamController.startGame();
         } else {
             // Mode Solo
             SoloGame game = new SoloGame(players, new Deck());
