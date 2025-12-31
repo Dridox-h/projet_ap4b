@@ -33,7 +33,7 @@ public class SwingMenuView extends JFrame implements MenuView {
     private void initializeUI() {
         setTitle("TRIO - Menu Principal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(500, 400);
+        setSize(500, 450); // Légèrement plus grand pour le confort
         setLocationRelativeTo(null);
         setBackground(BACKGROUND);
 
@@ -80,7 +80,7 @@ public class SwingMenuView extends JFrame implements MenuView {
 
         // Logo
         JLabel logoLabel = new JLabel("🃏");
-        logoLabel.setFont(new Font("Apple Color Emoji", Font.PLAIN, 64));
+        logoLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64)); // Segoe UI Emoji pour Windows, Apple Color Emoji pour Mac
         logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Title
@@ -90,7 +90,7 @@ public class SwingMenuView extends JFrame implements MenuView {
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Subtitle
-        subtitleLabel = new JLabel("Le jeu de cartes");
+        subtitleLabel = new JLabel("Le jeu de déduction");
         subtitleLabel.setFont(new Font("SF Pro Text", Font.PLAIN, 18));
         subtitleLabel.setForeground(TEXT_SECONDARY);
         subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -165,7 +165,8 @@ public class SwingMenuView extends JFrame implements MenuView {
 
     @Override
     public void displayWelcome() {
-        // The window is already displayed with the title
+        // La fenêtre principale est déjà affichée avec le titre
+        // On peut éventuellement rafraîchir ici
     }
 
     @Override
@@ -214,7 +215,7 @@ public class SwingMenuView extends JFrame implements MenuView {
         panel.add(label);
         panel.add(Box.createVerticalStrut(20));
 
-        final int[] choice = { 1 };
+        final int[] choice = { 1 }; // Default Solo
 
         JButton soloBtn = createAppleButton("Solo (3-6 joueurs)", PRIMARY);
         soloBtn.addActionListener(e -> {
@@ -235,7 +236,7 @@ public class SwingMenuView extends JFrame implements MenuView {
         JDialog dialog = new JDialog(this, "TRIO - Mode de jeu", true);
         dialog.setContentPane(panel);
         dialog.pack();
-        dialog.setSize(350, 200);
+        dialog.setSize(350, 250);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
 
@@ -294,7 +295,7 @@ public class SwingMenuView extends JFrame implements MenuView {
         JDialog dialog = new JDialog(this, "TRIO - Configuration", true);
         dialog.setContentPane(panel);
         dialog.pack();
-        dialog.setSize(350, gameMode == 2 ? 180 : 280);
+        dialog.setSize(350, gameMode == 2 ? 220 : 350);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
 
@@ -308,7 +309,7 @@ public class SwingMenuView extends JFrame implements MenuView {
         panel.setBackground(BACKGROUND);
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JLabel label = new JLabel("Joueurs créés:");
+        JLabel label = new JLabel("La partie va commencer !");
         label.setFont(new Font("SF Pro Text", Font.BOLD, 16));
         label.setForeground(TEXT_PRIMARY);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -324,7 +325,7 @@ public class SwingMenuView extends JFrame implements MenuView {
             playerRow.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             JLabel iconLabel = new JLabel(icon);
-            iconLabel.setFont(new Font("Apple Color Emoji", Font.PLAIN, 20));
+            iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
 
             JLabel nameLabel = new JLabel(playerNames[i]);
             nameLabel.setFont(new Font("SF Pro Text", Font.PLAIN, 14));
@@ -360,9 +361,9 @@ public class SwingMenuView extends JFrame implements MenuView {
     }
 
     /**
-     * Ferme la fenêtre du menu
+     * Ferme la fenêtre du menu (appelé depuis le Main ou Controller)
      */
     public void close() {
-        dispose();
+        this.dispose();
     }
 }

@@ -21,6 +21,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     private static final Color SUCCESS = new Color(52, 199, 89); // Apple Green
     private static final Color WARNING = new Color(255, 149, 0); // Apple Orange
     private static final Color DANGER = new Color(255, 59, 48); // Apple Red
+    private static final Color PURPLE = new Color(175, 82, 222); // Apple Purple (for team/exchange)
     private static final Color GRAY_1 = new Color(142, 142, 147);
     private static final Color GRAY_2 = new Color(174, 174, 178);
     private static final Color GRAY_3 = new Color(199, 199, 204);
@@ -46,6 +47,8 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     private int selectedAction = -1;
     private Player selectedPlayer = null;
     private int selectedCenterIndex = -1;
+
+    // Lock for synchronization
     private final Object inputLock = new Object();
 
     // State
@@ -144,7 +147,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         // Center: Center deck
         centerPanel = createCardPanel("Cartes du Centre");
         centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 8, 8));
-        panel.add(centerPanel, BorderLayout.CENTER);
+        //panel.add(centerPanel, BorderLayout.CENTER); // pas de carte en multi
 
         return panel;
     }
@@ -519,7 +522,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     @Override
     public void displayCardRevealed(Card card, Player owner, int cardIndex, boolean isFirst, boolean isCorrect,
-            int expectedValue) {
+                                    int expectedValue) {
         String source = owner != null ? owner.getPseudo() : "Centre";
         if (isFirst) {
             log("✓ Première carte: [" + card.getValue() + "] de " + source);
@@ -582,6 +585,11 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             addActionButton("MAX autre joueur", 4, WARNING);
             actionsPanel.add(Box.createVerticalStrut(10));
             addActionButton("Carte du centre", 5, SUCCESS);
+            actionsPanel.add(Box.createVerticalStrut(15));
+
+            // Nouveau bouton d'échange
+            addActionButton("Échanger (équipe)", 6, PURPLE);
+
             actionsPanel.add(Box.createVerticalStrut(20));
             addActionButton("Arrêter le tour", 0, DANGER);
 
@@ -612,6 +620,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         actionsPanel.add(btn);
         actionsPanel.add(Box.createVerticalStrut(8));
     }
+
 
     @Override
     public Player promptSelectPlayer(List<Player> availablePlayers) {
@@ -682,6 +691,61 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
                 });
                 actionsPanel.add(btn);
                 actionsPanel.add(Box.createVerticalStrut(5));
+            }
+
+            actionsPanel.revalidate();
+            actionsPanel.repaint();
+        });
+
+        synchronized (inputLock) {
+            while (selectedCenterIndex == -1) {
+                try {
+                    inputLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        return selectedCenterIndex;
+    }
+
+    @Override
+    public int promptSelectHandCard(Player player) {
+        selectedCenterIndex = -1; // Réutilisation du champ "index" pour éviter une nouvelle variable
+
+        SwingUtilities.invokeLater(() -> {
+            actionsPanel.removeAll();
+
+            JLabel title = new JLabel("Carte de " + player.getPseudo());
+            title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+            title.setForeground(TEXT_PRIMARY);
+            title.setAlignmentX(Component.CENTER_ALIGNMENT);
+            actionsPanel.add(title);
+            actionsPanel.add(Box.createVerticalStrut(15));
+
+            Deck deck = player.getDeck();
+            for (int i = 0; i < deck.getSize(); i++) {
+                Card c = deck.getCard(i);
+
+                String text = (i + 1) + ". " + (c.isVisible() ? "[" + c.getValue() + "]" : "[?]");
+                final int index = i;
+
+                // Si c'est la main d'un autre joueur, on voit pas forcément les valeurs
+                // Mais ici la vue demande de choisir, c'est contextuel.
+                // Pour l'échange "aveugle", on montre juste les index.
+                // Si on a le droit de voir NOS cartes pour choisir : OK.
+
+                // Design choix : bouton simple
+                JButton btn = createAppleButton(text, c.isVisible() ? WARNING : PRIMARY);
+                btn.addActionListener(e -> {
+                    synchronized (inputLock) {
+                        selectedCenterIndex = index;
+                        inputLock.notifyAll();
+                    }
+                });
+
+                actionsPanel.add(btn);
+                actionsPanel.add(Box.createVerticalStrut(6));
             }
 
             actionsPanel.revalidate();

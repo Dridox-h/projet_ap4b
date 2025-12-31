@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Interface spécifique pour l'affichage du mode Team Game.
- * Étend GameView avec des méthodes pour les équipes.
+ * Étend GameView avec des méthodes pour les équipes et les actions spécifiques (échange).
  */
 public interface TeamGameView extends GameView {
 
@@ -45,4 +45,14 @@ public interface TeamGameView extends GameView {
      * Met à jour les infos d'un joueur avec son équipe
      */
     void displayPlayerWithTeam(Player player, Team team);
+
+    // === INPUT SPÉCIFIQUE ===
+
+    /**
+     * Demande de sélectionner une carte spécifique dans la main d'un joueur.
+     * Utilisé pour l'échange de cartes entre coéquipiers.
+     * @param player Le joueur dont on affiche la main
+     * @return L'index de la carte choisie
+     */
+    int promptSelectHandCard(Player player);
 }
