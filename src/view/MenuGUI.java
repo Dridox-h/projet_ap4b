@@ -1,4 +1,4 @@
-package MainMenu;
+package view;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicSliderUI;
@@ -6,12 +6,15 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import controller.MenuController;
+import model.Menu;
 import model.User;
 
 public class MenuGUI extends JFrame {
 
-    // Use Menu object to handle all game logic
-    private Menu menu;
+    // Use MenuController to handle interactions between View and Model
+    private MenuController controller;
+    private Menu menu; // Reference to model for reading state
 
     // UI Components
     private JSlider playerSlider;
@@ -33,44 +36,25 @@ public class MenuGUI extends JFrame {
         menu.setNbPlayers(playerSlider.getValue());
         menu.setType(typeButton.getText().replace("Type: ", ""));
 
-        // Validation from Menu.java
-        if (menu.getNbPlayers() == 0 || menu.getNbBots() == 0) {
-            JOptionPane.showMessageDialog(this,
-                    "Please select a number of players and configure bots first.",
-                    "Configuration Required",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        // Use controller to validate and start game
+        Menu.ValidationResult validation = controller.startGame();
 
-        if (menu.getType() == null) {
+        if (!validation.isValid()) {
             JOptionPane.showMessageDialog(this,
-                    "Please select a type.",
-                    "Configuration Required",
+                    validation.getErrorMessage(),
+                    "Configuration Error",
                     JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        if (menu.getNbPlayers() > 6) {
-            JOptionPane.showMessageDialog(this,
-                    "Please select a number of players equal or less than 6.",
-                    "Invalid Configuration",
-                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         // Start the game
-        System.out.println(
-                "Starting the game with " + menu.getNbPlayers() + " players and " + menu.getNbBots() + " bots" + " in "
-                        + menu.getType() + " type");
         Game.Game game = new Game.Game(menu.getNbPlayers(), menu.getNbBots(), menu.getType());
         game.setVisible(true);
     }
 
     private int configureBots() {
-        menu.setNbPlayers(playerSlider.getValue());
-        menu.completewithBots(menu.getNbPlayers());
-
-        System.out.println("Bots configured: " + menu.getNbBots());
+        // Use controller to configure bots
+        controller.configureBots(playerSlider.getValue());
 
         JOptionPane.showMessageDialog(this,
                 String.format("Game will be completed with %d bots.\nTotal players: %d | Bots: %d",
@@ -81,8 +65,8 @@ public class MenuGUI extends JFrame {
     }
 
     private User selectExistingUser() {
-        // Check if UserLogs.txt exists and has users
-        if (menu.isUserLogsEmpty("logs/UserLogs.txt")) {
+        // Check if UserLogs.txt exists and has users using controller
+        if (controller.isUserLogsEmpty()) {
             JOptionPane.showMessageDialog(this,
                     "No users found. Please create a user first.",
                     "No Users Available",
@@ -205,8 +189,8 @@ public class MenuGUI extends JFrame {
                 return;
             }
 
-            // Use Menu's selectUser method
-            User selectedUser = menu.selectUser(id);
+            // Use controller to select user
+            User selectedUser = controller.selectExistingUser(id);
             if (selectedUser != null) {
                 resultUser[0] = selectedUser;
                 JOptionPane.showMessageDialog(selectDialog,
@@ -401,8 +385,8 @@ public class MenuGUI extends JFrame {
             // Get avatar path (optional)
             String avatarPath = avatarField.getText().trim();
 
-            // Create user
-            User newUser = new User(name, age, 0, avatarPath);
+            // Use controller to create user
+            User newUser = controller.createNewUser(name, age, avatarPath);
 
             resultUser[0] = newUser;
 
@@ -483,8 +467,9 @@ public class MenuGUI extends JFrame {
     }
 
     public MenuGUI() {
-        // Initialize the Menu object
+        // Initialize the Model and Controller
         menu = new Menu();
+        controller = new MenuController(menu);
 
         // Window setup
         setTitle("Game Menu");
@@ -599,7 +584,7 @@ public class MenuGUI extends JFrame {
         sliderLabel.setForeground(TEXT_PRIMARY);
         sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        playerSlider = new JSlider(JSlider.HORIZONTAL, 1, 6, 1);
+        playerSlider = new JSlider(JSlider.HORIZONTAL, 2, 6, 2);
         playerSlider.setMajorTickSpacing(1);
         playerSlider.setPaintTicks(true);
         playerSlider.setPaintLabels(true);
@@ -711,9 +696,7 @@ public class MenuGUI extends JFrame {
         createUserButton.addActionListener(e -> {
             User newUser = createNewUser();
             if (newUser != null) {
-                menu.setCurrentUser(newUser);
-                menu.writeLogsUser("logs/UserLogs.txt", newUser);
-                System.out.println("Current user set to: " + menu.getCurrentUser().getName());
+                // User is already set and logged by controller
                 // Update right panel user info
                 userNameDisplay.setText(menu.getCurrentUser().getName());
                 victoriesDisplay.setText("Victories: " + menu.getCurrentUser().getNBVictoire());
@@ -726,8 +709,7 @@ public class MenuGUI extends JFrame {
         selectUserButton.addActionListener(e -> {
             User selectedUser = selectExistingUser();
             if (selectedUser != null) {
-                // User is already set in Menu by selectUser method
-                System.out.println("Current user set to: " + menu.getCurrentUser().getName());
+                // User is already set by controller
                 // Update right panel user info
                 userNameDisplay.setText(menu.getCurrentUser().getName());
                 victoriesDisplay.setText("Victories: " + menu.getCurrentUser().getNBVictoire());
@@ -754,7 +736,7 @@ public class MenuGUI extends JFrame {
         exitButton.setPreferredSize(new Dimension(580, 55));
         exitButton.setMaximumSize(new Dimension(580, 55));
         exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        exitButton.addActionListener(e -> menu.exitGame());
+        exitButton.addActionListener(e -> controller.exitGame());
 
         mainContainer.add(startButton);
         mainContainer.add(Box.createRigidArea(new Dimension(0, 12)));

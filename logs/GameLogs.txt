@@ -1,20 +1,23 @@
+
+
 ============================================================
-Game Log - 2025-12-26 05:55:24
+Game Session Log - 2025-12-31 03:32:32
 ============================================================
+
+Game Configuration:
+------------------------------------------------------------
+  Total Players: 4
+  Number of Bots: 3
+  Game Type: Individual
 
 Players:
 ------------------------------------------------------------
 Player 1:
-  Name: Alice
-  Age: 25
-  Victories: 10
-  Avatar: /avatars/alice.png
-
-Player 2:
-  Name: Bot1
-  Age: 0
-  Victories: 5
-  Avatar: /avatars/bot1.png
+  ID: 1
+  Name: JL
+  Age: 19
+  Victories: 0
+  Avatar: 
 
 ============================================================
 
