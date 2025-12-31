@@ -12,6 +12,7 @@ public class Menu {
     // Attributs
     private User currentUser;
     private int nbPlayers;
+    private int gameMode; // 1 = Solo, 2 = Équipe
     private Scanner scanner;
 
     // Constructeurs
@@ -36,8 +37,14 @@ public class Menu {
         System.out.println();
 
         createUser();
+        chooseGameMode();
         choosePlayerCount();
-        startGame();
+
+        if (gameMode == 1) {
+            startSoloGame();
+        } else {
+            startTeamGame();
+        }
     }
 
     /**
@@ -54,19 +61,46 @@ public class Menu {
     }
 
     /**
-     * Choisir le nombre de joueurs
+     * Choisir le mode de jeu
+     */
+    private void chooseGameMode() {
+        System.out.println("Mode de jeu:");
+        System.out.println("1. Solo (3-6 joueurs)");
+        System.out.println("2. Équipe (4 ou 6 joueurs, équipes de 2)");
+        System.out.print("Votre choix: ");
+        this.gameMode = readInt(1, 2);
+        System.out.println();
+    }
+
+    /**
+     * Choisir le nombre de joueurs selon le mode
      */
     private void choosePlayerCount() {
-        System.out.println("Nombre de joueurs (3-6):");
-        System.out.print("Votre choix: ");
-        this.nbPlayers = readInt(3, 6);
+        if (gameMode == 1) {
+            // Mode Solo: 3 à 6 joueurs
+            System.out.println("Nombre de joueurs (3-6):");
+            System.out.print("Votre choix: ");
+            this.nbPlayers = readInt(3, 6);
+        } else {
+            // Mode Équipe: 4 ou 6 joueurs uniquement
+            System.out.println("Nombre de joueurs (4 ou 6 pour le mode équipe):");
+            System.out.print("Votre choix: ");
+            while (true) {
+                int choice = readInt(4, 6);
+                if (choice == 4 || choice == 6) {
+                    this.nbPlayers = choice;
+                    break;
+                }
+                System.out.print("Le mode équipe nécessite 4 ou 6 joueurs: ");
+            }
+        }
         System.out.println("Nombre de joueurs: " + nbPlayers + "\n");
     }
 
     /**
-     * Lance le jeu avec le pattern MVC
+     * Lance le jeu Solo avec le pattern MVC
      */
-    public Game startGame() {
+    public Game startSoloGame() {
         List<Player> players = createPlayers();
 
         // Créer le Model
@@ -80,6 +114,55 @@ public class Menu {
         controller.startGame();
 
         return game;
+    }
+
+    /**
+     * Ancien nom pour compatibilité
+     */
+    public Game startGame() {
+        return startSoloGame();
+    }
+
+    /**
+     * Lance le jeu en mode Équipe
+     */
+    public Game startTeamGame() {
+        List<Player> players = createPlayers();
+        List<Team> teams = createTeams(players);
+
+        // Créer le Model
+        TeamGame game = new TeamGame(teams, new Deck());
+
+        // Lancer le jeu directement (TeamGame gère l'affichage)
+        game.startGame();
+
+        return game;
+    }
+
+    /**
+     * Crée les équipes à partir de la liste de joueurs
+     */
+    private List<Team> createTeams(List<Player> players) {
+        List<Team> teams = new ArrayList<>();
+        int teamSize = 2;
+        int nbTeams = players.size() / teamSize;
+
+        for (int i = 0; i < nbTeams; i++) {
+            List<Player> teamPlayers = new ArrayList<>();
+            for (int j = 0; j < teamSize; j++) {
+                teamPlayers.add(players.get(i * teamSize + j));
+            }
+            Team team = new Team("Équipe " + (char) ('A' + i), teamPlayers);
+            teams.add(team);
+        }
+
+        System.out.println("Équipes créées:");
+        for (Team team : teams) {
+            System.out.println("  - " + team);
+        }
+        System.out.println();
+
+        return teams;
     }
 
     /**

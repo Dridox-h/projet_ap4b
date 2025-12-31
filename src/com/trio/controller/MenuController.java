@@ -65,19 +65,42 @@ public class MenuController {
     }
 
     /**
-     * Lance le jeu avec le GameController approprié
+     * Lance le jeu avec le GameController approprié selon le mode
      */
     public void startGame(GameView gameView) {
         List<Player> players = createPlayers();
 
-        // Créer le Model
-        SoloGame game = new SoloGame(players, new Deck());
+        if (gameMode == 2) {
+            // Mode Équipe - TeamGame gère son propre affichage console
+            List<Team> teams = createTeams(players);
+            TeamGame game = new TeamGame(teams, new Deck());
+            game.startGame(); // TeamGame a son propre système d'affichage
+        } else {
+            // Mode Solo
+            SoloGame game = new SoloGame(players, new Deck());
+            GameController gameController = new GameController(game, gameView);
+            gameController.startGame();
+        }
+    }
 
-        // Créer le Controller du jeu
-        GameController gameController = new GameController(game, gameView);
+    /**
+     * Crée les équipes à partir de la liste de joueurs
+     */
+    private List<Team> createTeams(List<Player> players) {
+        List<Team> teams = new ArrayList<>();
+        int teamSize = 2;
+        int nbTeams = players.size() / teamSize;
 
-        // Lancer le jeu
-        gameController.startGame();
+        for (int i = 0; i < nbTeams; i++) {
+            List<Player> teamPlayers = new ArrayList<>();
+            for (int j = 0; j < teamSize; j++) {
+                teamPlayers.add(players.get(i * teamSize + j));
+            }
+            Team team = new Team("Équipe " + (char) ('A' + i), teamPlayers);
+            teams.add(team);
+        }
+
+        return teams;
     }
 
     // Getters
