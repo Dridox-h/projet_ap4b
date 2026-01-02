@@ -20,17 +20,17 @@ public class MenuGUI extends JFrame {
     private JSlider playerSlider;
     private JButton typeButton;
 
-    // Chess.com Blue Theme Colors
-    private static final Color BACKGROUND_DARK = new Color(18, 27, 40);
-    private static final Color BACKGROUND_MEDIUM = new Color(28, 40, 58);
-    private static final Color ACCENT_BLUE = new Color(129, 182, 232);
-    private static final Color BUTTON_PRIMARY = new Color(108, 162, 215);
-    private static final Color BUTTON_PRIMARY_HOVER = new Color(129, 182, 232);
-    private static final Color BUTTON_SECONDARY = new Color(44, 62, 84);
-    private static final Color BUTTON_SECONDARY_HOVER = new Color(54, 72, 94);
-    private static final Color TEXT_PRIMARY = new Color(235, 240, 245);
-    private static final Color TEXT_SECONDARY = new Color(162, 177, 195);
-    private static final Color BORDER_COLOR = new Color(62, 82, 105);
+    // Modern TRIO Theme Colors
+    private static final Color BACKGROUND_DARK = new Color(245, 245, 245); // Light gray background
+    private static final Color BACKGROUND_MEDIUM = Color.WHITE; // White cards
+    private static final Color ACCENT_BLUE = new Color(0, 123, 255); // Bright blue accent
+    private static final Color BUTTON_PRIMARY = new Color(0, 123, 255); // Blue for primary actions
+    private static final Color BUTTON_PRIMARY_HOVER = new Color(0, 105, 217);
+    private static final Color BUTTON_SECONDARY = new Color(255, 152, 0); // Orange for secondary actions
+    private static final Color BUTTON_SECONDARY_HOVER = new Color(230, 137, 0);
+    private static final Color TEXT_PRIMARY = new Color(33, 33, 33); // Dark text
+    private static final Color TEXT_SECONDARY = new Color(117, 117, 117); // Gray text
+    private static final Color BORDER_COLOR = new Color(224, 224, 224); // Light gray borders
 
     private void startGame() {
         menu.setNbPlayers(playerSlider.getValue());
@@ -472,7 +472,7 @@ public class MenuGUI extends JFrame {
         controller = new MenuController(menu);
 
         // Window setup
-        setTitle("Game Menu");
+        setTitle("Trio");
         setSize(700, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -492,7 +492,7 @@ public class MenuGUI extends JFrame {
         userInfoCard.setLayout(new BoxLayout(userInfoCard, BoxLayout.Y_AXIS));
         userInfoCard.setBackground(BACKGROUND_MEDIUM);
         userInfoCard.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createLineBorder(BORDER_COLOR, 2, true),
                 BorderFactory.createEmptyBorder(25, 20, 25, 20)));
         userInfoCard.setMaximumSize(new Dimension(300, 200));
 
@@ -536,7 +536,7 @@ public class MenuGUI extends JFrame {
         settingsDisplayCard.setLayout(new BoxLayout(settingsDisplayCard, BoxLayout.Y_AXIS));
         settingsDisplayCard.setBackground(BACKGROUND_MEDIUM);
         settingsDisplayCard.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createLineBorder(BORDER_COLOR, 2, true),
                 BorderFactory.createEmptyBorder(25, 20, 25, 20)));
         settingsDisplayCard.setMaximumSize(new Dimension(300, 200));
 
@@ -568,7 +568,7 @@ public class MenuGUI extends JFrame {
         mainContainer.setBorder(BorderFactory.createEmptyBorder(40, 60, 40, 60));
 
         // --- Title ---
-        JLabel titleLabel = new JLabel("Game Menu");
+        JLabel titleLabel = new JLabel("Trio");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -758,7 +758,7 @@ public class MenuGUI extends JFrame {
         JPanel card = new JPanel();
         card.setBackground(BACKGROUND_MEDIUM);
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createLineBorder(BORDER_COLOR, 2, true),
                 BorderFactory.createEmptyBorder(25, 30, 25, 30)));
         card.setMaximumSize(new Dimension(580, Integer.MAX_VALUE));
         return card;
@@ -774,7 +774,7 @@ public class MenuGUI extends JFrame {
     private JPopupMenu createStyledPopup() {
         JPopupMenu popup = new JPopupMenu();
         popup.setBackground(BACKGROUND_MEDIUM);
-        popup.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
+        popup.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 2));
         return popup;
     }
 
