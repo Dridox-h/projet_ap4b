@@ -129,11 +129,44 @@ public class SwingGameView extends JFrame implements GameView {
         JPanel panel = new JPanel(new BorderLayout(15, 15));
         panel.setOpaque(false);
 
-        // Top: Your hand
-        handPanel = createCardPanel("Votre Main");
-        handPanel.setPreferredSize(new Dimension(0, 140));
-        handPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        panel.add(handPanel, BorderLayout.NORTH);
+        // --- CORRECTION DU PANNEAU JOUEUR ---
+        // 1. On crée le conteneur visuel (la boîte blanche avec bordure)
+        JPanel handContainer = createCardPanel("Votre Main");
+        handContainer.setLayout(new BorderLayout(0, 10)); // BorderLayout pour placer le titre au dessus
+
+        // 2. On retire le titre par défaut ajouté par createCardPanel pour le gérer nous-même proprement
+        handContainer.removeAll();
+
+        // 3. On remet le Titre (fixe, ne défilera pas)
+        JLabel titleLabel = new JLabel("Votre Main");
+        titleLabel.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+        titleLabel.setForeground(TEXT_PRIMARY);
+        titleLabel.setBorder(new EmptyBorder(0, 5, 0, 0)); // Petite marge
+        handContainer.add(titleLabel, BorderLayout.NORTH);
+
+        // 4. On configure handPanel pour contenir UNIQUEMENT les cartes
+        // BoxLayout.X_AXIS force l'alignement horizontal sans retour à la ligne
+        handPanel = new JPanel();
+        handPanel.setLayout(new BoxLayout(handPanel, BoxLayout.X_AXIS));
+        handPanel.setOpaque(false);
+
+        // 5. On ajoute le ScrollPane horizontal
+        JScrollPane scrollPane = new JScrollPane(handPanel);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(null); // Pas de bordure moche
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER); // Pas de scroll vertical
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); // Scroll horizontal si besoin
+
+        // Astuce pour le scroll tactile/souris plus fluide
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+
+        handContainer.add(scrollPane, BorderLayout.CENTER);
+
+        // Placement en BAS (SOUTH) pour laisser la place au centre
+        panel.add(handContainer, BorderLayout.SOUTH);
+
+        // ------------------------------------
 
         // Center: Center deck
         centerPanel = createCardPanel("Cartes du Centre");
@@ -142,6 +175,8 @@ public class SwingGameView extends JFrame implements GameView {
 
         return panel;
     }
+
+
 
     private JPanel createActionsPanel() {
         JPanel panel = createCardPanel("Actions");
@@ -355,19 +390,23 @@ public class SwingGameView extends JFrame implements GameView {
         SwingUtilities.invokeLater(() -> {
             handPanel.removeAll();
 
-            JLabel title = new JLabel("Votre Main");
-            title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
-            title.setForeground(TEXT_PRIMARY);
-            handPanel.add(title);
+            // NOTE: On ne rajoute PLUS le titre "Votre Main" ici, car il est géré dans le parent.
+
+            // On ajoute une petite marge au début pour ne pas coller au bord
+            handPanel.add(Box.createHorizontalStrut(5));
 
             for (Card c : player.getDeck().getCards()) {
                 JPanel card = createCardView(c.getValue(), !c.isVisible());
                 handPanel.add(card);
+                // Espace entre les cartes
+                handPanel.add(Box.createHorizontalStrut(10));
             }
+
             handPanel.revalidate();
             handPanel.repaint();
         });
     }
+
 
     @Override
     public void displayVisibleCards(List<Player> players, Deck centerDeck) {
