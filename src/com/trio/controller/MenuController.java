@@ -1,11 +1,6 @@
 package com.trio.controller;
 
 import com.trio.model.*;
-import com.trio.view.MenuView;
-import com.trio.view.GameView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Contrôleur du menu principal.
@@ -13,96 +8,14 @@ import java.util.List;
  */
 public class MenuController {
 
-    private MenuView menuView;
+    private Menu menu;
     private User currentUser;
     private int nbPlayers;
     private int gameMode;
 
-    public MenuController(MenuView menuView) {
-        this.menuView = menuView;
-    }
-
-    /**
-     * Lance le processus de configuration et retourne les données nécessaires
-     */
-    public void configure() {
-        // Afficher bienvenue
-        menuView.displayWelcome();
-
-        // Demander le pseudo
-        String pseudo = menuView.promptPseudo();
-        this.currentUser = new User(pseudo);
-
-        // Demander le mode de jeu
-        this.gameMode = menuView.promptGameMode();
-
-        // Demander le nombre de joueurs selon le mode
-        this.nbPlayers = menuView.promptPlayerCount(gameMode);
-    }
-
-    /**
-     * Crée la liste des joueurs
-     */
-    public List<Player> createPlayers() {
-        List<Player> players = new ArrayList<>();
-        players.add(currentUser);
-
-        // Créer les bots
-        for (int i = 1; i < nbPlayers; i++) {
-            players.add(new Bot("Bot" + i));
-        }
-
-        // Afficher la liste des joueurs
-        String[] names = new String[players.size()];
-        boolean[] isBot = new boolean[players.size()];
-        for (int i = 0; i < players.size(); i++) {
-            names[i] = players.get(i).getPseudo();
-            isBot[i] = players.get(i) instanceof Bot;
-        }
-        menuView.displayPlayersList(names, isBot);
-
-        return players;
-    }
-
-    /**
-     * Lance le jeu avec le GameController approprié selon le mode
-     */
-    public void startGame(GameView gameView) {
-        List<Player> players = createPlayers();
-
-        if (gameMode == 2) {
-            // Mode Équipe avec UI Apple-like
-            List<Team> teams = createTeams(players);
-            TeamGame game = new TeamGame(teams, new Deck());
-            com.trio.view.SwingTeamGameView teamView = new com.trio.view.SwingTeamGameView();
-            TeamGameController teamController = new TeamGameController(game, teamView);
-            teamController.startGame();
-        } else {
-            // Mode Solo
-            SoloGame game = new SoloGame(players, new Deck());
-            GameController gameController = new GameController(game, gameView);
-            gameController.startGame();
-        }
-    }
-
-    /**
-     * Crée les équipes à partir de la liste de joueurs
-     */
-    private List<Team> createTeams(List<Player> players) {
-        List<Team> teams = new ArrayList<>();
-        int teamSize = 2;
-        int nbTeams = players.size() / teamSize;
-
-        for (int i = 0; i < nbTeams; i++) {
-            List<Player> teamPlayers = new ArrayList<>();
-            for (int j = 0; j < teamSize; j++) {
-                teamPlayers.add(players.get(i * teamSize + j));
-            }
-            Team team = new Team("Équipe " + (char) ('A' + i), teamPlayers);
-            teams.add(team);
-        }
-
-        return teams;
+    // Constructor for MenuGUI
+    public MenuController(Menu menu) {
+        this.menu = menu;
     }
 
     // Getters
@@ -116,5 +29,71 @@ public class MenuController {
 
     public int getGameMode() {
         return gameMode;
+    }
+
+    public Menu getMenu() {
+        return menu;
+    }
+
+    // === GUI SUPPORT METHODS ===
+
+    /**
+     * Attempts to start the game with current settings (for GUI)
+     */
+    public Menu.ValidationResult startGame() {
+        Menu.ValidationResult validation = menu.validateGameStart();
+        if (validation.isValid()) {
+            System.out.println("Starting the game with " + menu.getNbPlayers() +
+                    " players and " + menu.getNbBots() + " bots in " +
+                    menu.getType() + " type");
+            menu.logGameSession("logs/GameLogs.txt");
+        }
+        return validation;
+    }
+
+    /**
+     * Configures bots to complete the game
+     */
+    public void configureBots(int nbPlayers) {
+        menu.setNbPlayers(nbPlayers);
+        menu.completewithBots(nbPlayers);
+        System.out.println("Bots configured: " + menu.getNbBots());
+    }
+
+    /**
+     * Creates a new user and saves to logs
+     */
+    public User createNewUser(String name, int age, String avatarPath) {
+        User newUser = new User(name, age, 0, avatarPath);
+        menu.setCurrentUser(newUser);
+        menu.writeLogsUser("logs/UserLogs.txt", newUser);
+        System.out.println("Current user set to: " + menu.getCurrentUser().getName());
+        return newUser;
+    }
+
+    /**
+     * Selects an existing user by ID
+     */
+    public User selectExistingUser(int id) {
+        User selectedUser = menu.selectUser(id);
+        if (selectedUser != null) {
+            System.out.println("Current user set to: " + menu.getCurrentUser().getName());
+        }
+        return selectedUser;
+    }
+
+    /**
+     * Checks if user logs are empty
+     */
+    public boolean isUserLogsEmpty() {
+        return menu.isUserLogsEmpty("logs/UserLogs.txt");
+    }
+
+    /**
+     * Exits the game
+     */
+    public void exitGame() {
+        System.out.println("Goodbye!");
+        System.exit(0);
     }
 }
