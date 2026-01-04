@@ -1,6 +1,7 @@
 package com.trio.controller;
 
 import com.trio.model.*;
+import com.trio.services.Logs;
 import com.trio.view.TeamGameView;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Random;
 /**
  * Contrôleur du jeu Trio en mode Équipe.
  * Orchestre les interactions entre la TeamGameView et le TeamGame model.
+ * Utilise le service Logs pour tracer l'exécution.
  */
 public class TeamGameController {
 
@@ -28,6 +30,8 @@ public class TeamGameController {
      * Lance le jeu complet en mode équipe
      */
     public void startGame() {
+        Logs.getInstance().writeLogs("=== Démarrage d'une nouvelle partie (Mode Équipe) ===");
+
         // Afficher bienvenue avec les équipes
         view.displayTeamWelcome(game.getTeams());
 
@@ -36,6 +40,7 @@ public class TeamGameController {
 
         // Distribuer les cartes
         game.distributeCards();
+        Logs.getInstance().writeLogs("Distribution des cartes terminée.");
 
         // Afficher la main du joueur humain
         refreshHumanView();
@@ -47,6 +52,8 @@ public class TeamGameController {
         while (!game.isFinished()) {
             Player currentPlayer = game.getCurrentPlayer();
             Team currentTeam = game.getTeamForPlayer(currentPlayer);
+
+            Logs.getInstance().writeLogs("Début du tour de : " + currentPlayer.getPseudo() + " (" + currentTeam.getName() + ")");
 
             // Afficher le début du tour
             view.displayTeamTurnStart(currentPlayer, currentTeam);
@@ -68,7 +75,9 @@ public class TeamGameController {
         // Afficher l'équipe gagnante
         TrioHolder winner = game.getWinner();
         if (winner instanceof Team) {
-            view.displayTeamWinner((Team) winner);
+            Team winningTeam = (Team) winner;
+            Logs.getInstance().writeLogs("FIN DE PARTIE - Équipe Vainqueur : " + winningTeam.getName());
+            view.displayTeamWinner(winningTeam);
         }
     }
 
@@ -89,6 +98,11 @@ public class TeamGameController {
             // Choisir une action
             int action = chooseAction(currentPlayer);
 
+            // Log de l'action brute pour debug (sauf Bot qui logue déjà son intention parfois)
+            if (!(currentPlayer instanceof Bot)) {
+                Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " a choisi l'action n°" + action);
+            }
+
             // --- GESTION DE L'ACTION ÉCHANGE (6) ---
             if (action == 6) {
                 if (exchangeUsedThisTurn) {
@@ -100,20 +114,20 @@ public class TeamGameController {
                     continue;
                 }
 
+                Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " tente un échange avec son coéquipier.");
                 boolean ok = performTeamExchange(currentPlayer, currentTeam);
                 if (ok) {
                     exchangeUsedThisTurn = true;
+                    Logs.getInstance().writeLogs(">> Échange effectué avec succès.");
                     // Rafraîchir l'affichage après échange
                     refreshHumanView();
                     view.displayVisibleCards(game.getAllPlayers(), game.getCenterDeck());
                 } else {
-                    // Si l'échange a échoué (annulation user, ou pas de cartes), on affiche l'erreur
-                    // mais on ne change pas le flag, le joueur peut retenter ou jouer autre chose.
+                    Logs.getInstance().writeLogs(">> Échange annulé ou échoué.");
                     if (!(currentPlayer instanceof Bot)) {
                         view.displayError("Échange annulé ou impossible.");
                     }
                 }
-                // L'échange ne compte pas comme une révélation, on continue la boucle
                 continue;
             }
             // ---------------------------------------
@@ -124,6 +138,7 @@ public class TeamGameController {
                     view.displayError("Vous devez révéler au moins 2 cartes avant d'arrêter!");
                     continue;
                 }
+                Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " décide d'arrêter son tour.");
                 turnSuccess = false;
                 turnContinues = false;
             } else {
@@ -131,16 +146,17 @@ public class TeamGameController {
                 Card revealedCard = executeAction(action, currentPlayer);
 
                 if (revealedCard == null) {
-                    // Si executeAction retourne null (ex: annulation ou erreur), on boucle
-                    // sauf si c'est un bot qui plante (éviter boucle infinie)
                     if (currentPlayer instanceof Bot) {
                         turnSuccess = false;
                         turnContinues = false;
                     } else {
                         view.displayError("Action invalide!");
                     }
+                    Logs.getInstance().writeLogs("Erreur : Action invalide ou annulée par " + currentPlayer.getPseudo());
                     continue;
                 }
+
+                Logs.getInstance().writeLogs("Carte révélée : " + revealedCard.getValue() + " (" + revealedCard.getCoordinate() + ")");
 
                 // Récupérer les infos de la carte révélée pour affichage
                 List<RevealedCard> revealed = game.getRevealedCards();
@@ -152,14 +168,17 @@ public class TeamGameController {
                 if (revealed.size() > 1) {
                     int expectedValue = revealed.get(0).getValue();
                     if (revealedCard.getValue() != expectedValue) {
+                        Logs.getInstance().writeLogs(">> Mauvaise carte ! Attendu: " + expectedValue + ", Reçu: " + revealedCard.getValue());
                         view.displayCardRevealed(revealedCard, cardOwner, cardIndex, false, false, expectedValue);
                         turnSuccess = false;
                         turnContinues = false;
                     } else {
+                        Logs.getInstance().writeLogs(">> Bonne carte ! La série continue.");
                         view.displayCardRevealed(revealedCard, cardOwner, cardIndex, false, true, expectedValue);
                     }
                 } else {
                     // Première carte révélée
+                    Logs.getInstance().writeLogs(">> Première carte de la série.");
                     view.displayCardRevealed(revealedCard, cardOwner, cardIndex, true, true, 0);
                 }
             }
@@ -167,22 +186,16 @@ public class TeamGameController {
 
         // Fin du tour
         if (game.getRevealedCards().size() == 3 && game.isValidTrio()) {
+            Logs.getInstance().writeLogs("SUCCÈS ! Trio validé pour l'équipe " + currentTeam.getName());
             game.awardTrioToTeam(currentTeam);
             view.displayTeamTrioSuccess(currentTeam, currentTeam.getTrioCount());
-
-            // Important : Après un trio réussi, le joueur rejoue potentiellement (selon variantes),
-            // mais surtout le compteur d'échange doit être remis à zéro pour le "nouveau" tour logique.
-            // Si le jeu passe au joueur suivant, c'est fait au début de playTurn.
-            // Si le joueur garde la main (variante experte), il faudrait reset ici.
-            // Dans votre boucle principale startGame(), on fait game.nextTurn() systématiquement,
-            // donc le reset se fera au prochain appel de playTurn().
-
         } else if (!turnSuccess || (!game.getRevealedCards().isEmpty() && game.getRevealedCards().size() < 3)) {
             // Échec ou arrêt volontaire
+            Logs.getInstance().writeLogs("Échec du tour. Les cartes sont remises face cachée.");
             view.displayTurnFailed();
             game.failTurn();
 
-            // Réafficher l'état après échec (cartes retournées)
+            // Réafficher l'état après échec
             refreshHumanView();
             view.displayVisibleCards(game.getAllPlayers(), game.getCenterDeck());
         }
@@ -190,19 +203,15 @@ public class TeamGameController {
 
     /**
      * Choisit une action selon le type de joueur.
-     * Pour un Bot, on injecte une petite probabilité d'échange aléatoire.
      */
     private int chooseAction(Player player) {
         if (player instanceof Bot) {
             Bot bot = (Bot) player;
-            // Logique Bot simple pour l'échange :
-            // Si pas encore échangé, pas de carte révélée, et proba 20% -> tenter échange
             if (!exchangeUsedThisTurn && game.getRevealedCards().isEmpty()) {
                 if (new Random().nextDouble() < 0.20) {
                     return 6; // Action échange
                 }
             }
-
             return bot.chooseBotAction(
                     game.getRevealedCards(),
                     game.getAllPlayers(),
@@ -225,11 +234,17 @@ public class TeamGameController {
         Bot bot = isBot ? (Bot) currentPlayer : null;
         List<Player> allPlayers = game.getAllPlayers();
 
+        String actionDesc = "";
+
         switch (action) {
             case 1: // Ma carte MIN
+                actionDesc = currentPlayer.getPseudo() + " révèle sa carte MIN.";
+                Logs.getInstance().writeLogs(actionDesc);
                 return game.revealLowestCardFromPlayer(currentPlayer);
 
             case 2: // Ma carte MAX
+                actionDesc = currentPlayer.getPseudo() + " révèle sa carte MAX.";
+                Logs.getInstance().writeLogs(actionDesc);
                 return game.revealHighestCardFromPlayer(currentPlayer);
 
             case 3: // Carte MIN d'un autre joueur
@@ -240,6 +255,7 @@ public class TeamGameController {
                     if (isBot) {
                         view.displayBotAction(bot, "révèle MIN de", target3);
                     }
+                    Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " demande la carte MIN de " + target3.getPseudo());
                     return game.revealLowestCardFromPlayer(target3);
                 }
                 return null;
@@ -252,33 +268,19 @@ public class TeamGameController {
                     if (isBot) {
                         view.displayBotAction(bot, "révèle MAX de", target4);
                     }
+                    Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " demande la carte MAX de " + target4.getPseudo());
                     return game.revealHighestCardFromPlayer(target4);
                 }
                 return null;
 
-            case 5: // Carte du centre
-                int centerIndex;
-                if (isBot) {
-                    centerIndex = bot.chooseCenterCardIndex(game.getCenterDeck());
-                    if (centerIndex >= 0) {
-                        view.displayBotAction(bot, "révèle une carte du centre", null);
-                    }
-                } else {
-                    centerIndex = view.promptSelectCenterCard(game.getCenterDeck());
-                }
-                if (centerIndex >= 0) {
-                    return game.revealCardFromCenter(centerIndex);
-                }
-                return null;
-
             default:
+                Logs.getInstance().writeLogs("Action inconnue ou non gérée : " + action);
                 return null;
         }
     }
 
     /**
      * Effectue un échange de carte entre 2 joueurs d'une même équipe.
-     * Gère à la fois les joueurs humains et les bots.
      */
     private boolean performTeamExchange(Player currentPlayer, Team currentTeam) {
         // Trouver coéquipier(s) avec des cartes
@@ -298,10 +300,8 @@ public class TeamGameController {
         int idxA, idxB;
 
         if (currentPlayer instanceof Bot) {
-            // Bot: choix entièrement aléatoire
             Bot bot = (Bot) currentPlayer;
             Random rand = new Random();
-
             mate = mates.get(rand.nextInt(mates.size()));
 
             Deck deckA = currentPlayer.getDeck();
@@ -313,24 +313,20 @@ public class TeamGameController {
             idxB = rand.nextInt(deckB.getSize());
 
             view.displayBotAction(bot, "échange une carte avec", mate);
-
         } else {
-            // Joueur humain: interface UI
             mate = view.promptSelectPlayer(mates);
-            if (mate == null) return false; // Annulation
+            if (mate == null) return false;
 
-            // Sélectionner SA carte
             idxA = view.promptSelectHandCard(currentPlayer);
-            if (idxA < 0) return false; // Annulation
+            if (idxA < 0) return false;
 
-            // Sélectionner la carte du PARTENAIRE
-            // Note: promptSelectHandCard affiche les cartes masquées [?] pour les autres joueurs
             idxB = view.promptSelectHandCard(mate);
-            if (idxB < 0) return false; // Annulation
+            if (idxB < 0) return false;
         }
 
-        // Appeler le modèle pour effectuer l'échange physique
-        // On suppose que game.performExchange existe (ajouté dans le modèle précédent)
+        // Log détaillé de l'échange
+        Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " échange une carte avec " + mate.getPseudo());
+
         return game.performExchange(currentPlayer, idxA, mate, idxB);
     }
 
@@ -363,9 +359,6 @@ public class TeamGameController {
         }
     }
 
-    /**
-     * Trouve le joueur humain (User)
-     */
     private Player findHumanPlayer() {
         for (Player p : game.getAllPlayers()) {
             if (p instanceof User) {

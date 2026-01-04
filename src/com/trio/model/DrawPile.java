@@ -4,6 +4,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Classe pour créer et initialiser la pioche à partir d'un fichier JSON
@@ -98,14 +102,43 @@ public class DrawPile {
      */
     public void createDefaultCards() {
         deck = new Deck();
-        String[] coordinates = { "Entreprise", "email@example.com", "Nom Prénom" };
 
-        for (int value = 1; value <= 12; value++) {
-            for (int copy = 0; copy < 3; copy++) {
-                String coord = coordinates[copy];
-                String imagePath = "card_" + value + "_" + (char) ('a' + copy) + ".png";
+        try {
+            // 1. Lire le fichier depuis le classpath (dossier resources)
+            // Le chemin commence par "/" car il est à la racine des ressources compilées
+            InputStream is = getClass().getResourceAsStream("../../../resources/cards.json");
+
+            if (is == null) {
+                System.err.println("Erreur : Impossible de trouver cards.json");
+                return;
+            }
+
+            // Astuce "One-liner" pour lire tout le stream dans une String (Scanner avec délimiteur \A)
+            Scanner scanner = new Scanner(is, "UTF-8");
+            String jsonContent = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+            scanner.close();
+            is.close();
+
+            // 2. Parser manuellement avec Regex
+            // On cherche le pattern : "value": X ... "coordinate": "Y" ... "imagePath": "Z"
+            // Le flag DOTALL permet au . de matcher les retours à la ligne
+            String regex = "\"value\"\\s*:\\s*(\\d+).*?\"coordinate\"\\s*:\\s*\"(.*?)\".*?\"imagePath\"\\s*:\\s*\"(.*?)\"";
+            Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(jsonContent);
+
+            // 3. Boucler sur toutes les correspondances trouvées
+            while (matcher.find()) {
+                int value = Integer.parseInt(matcher.group(1)); // Groupe 1 : la valeur numérique
+                String coord = matcher.group(2);               // Groupe 2 : le texte de coordinate
+                String imagePath = matcher.group(3);           // Groupe 3 : le chemin de l'image
+
+                // Créer et ajouter la carte
                 deck.addCard(new Card(value, coord, imagePath));
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Fallback optionnel : créer des cartes par défaut si le fichier échoue
         }
     }
 

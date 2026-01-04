@@ -5,23 +5,26 @@ import com.trio.model.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.RoundRectangle2D;
+import java.net.URL;
 import java.util.List;
 
 /**
  * Interface graphique Swing style Apple pour le mode Team Game.
- * Design minimaliste, clean avec couleurs douces et animations subtiles.
+ * Affiche les cartes avec Images + Textes, gère les équipes et la victoire.
  */
 public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     // === Apple-like Color Palette ===
     private static final Color BACKGROUND = new Color(248, 248, 248);
     private static final Color CARD_BG = Color.WHITE;
-    private static final Color PRIMARY = new Color(0, 122, 255); // Apple Blue
-    private static final Color SUCCESS = new Color(52, 199, 89); // Apple Green
-    private static final Color WARNING = new Color(255, 149, 0); // Apple Orange
-    private static final Color DANGER = new Color(255, 59, 48); // Apple Red
-    private static final Color PURPLE = new Color(175, 82, 222); // Apple Purple (for team/exchange)
+    private static final Color PRIMARY = new Color(0, 122, 255);
+    private static final Color SUCCESS = new Color(52, 199, 89);
+    private static final Color WARNING = new Color(255, 149, 0);
+    private static final Color DANGER = new Color(255, 59, 48);
+    private static final Color PURPLE = new Color(175, 82, 222);
     private static final Color GRAY_1 = new Color(142, 142, 147);
     private static final Color GRAY_2 = new Color(174, 174, 178);
     private static final Color GRAY_3 = new Color(199, 199, 204);
@@ -32,6 +35,10 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     private static final Color TEAM_A = new Color(0, 122, 255); // Blue
     private static final Color TEAM_B = new Color(255, 149, 0); // Orange
     private static final Color TEAM_C = new Color(175, 82, 222); // Purple
+
+    // === Card Dimensions ===
+    private static final int CARD_WIDTH = 80;
+    private static final int CARD_HEIGHT = 110;
 
     // === UI Components ===
     private JPanel mainPanel;
@@ -47,8 +54,6 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     private int selectedAction = -1;
     private Player selectedPlayer = null;
     private int selectedCenterIndex = -1;
-
-    // Lock for synchronization
     private final Object inputLock = new Object();
 
     // State
@@ -62,44 +67,58 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     private void initializeUI() {
         setTitle("TRIO - Mode Équipe");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1100, 800);
+        // Gestion de la fermeture propre
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                confirmAndExit();
+            }
+        });
+
+        setSize(1200, 850);
         setLocationRelativeTo(null);
         setBackground(BACKGROUND);
 
-        // Main container
         mainPanel = new JPanel(new BorderLayout(20, 20));
         mainPanel.setBackground(BACKGROUND);
         mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
 
-        // Header
         JPanel headerPanel = createHeaderPanel();
         mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // Center content
         JPanel contentPanel = new JPanel(new BorderLayout(20, 20));
         contentPanel.setOpaque(false);
 
-        // Left: Teams + Scores
         teamsPanel = createTeamsPanel();
         contentPanel.add(teamsPanel, BorderLayout.WEST);
 
-        // Center: Game area (cards + center)
         JPanel gameArea = createGameAreaPanel();
         contentPanel.add(gameArea, BorderLayout.CENTER);
 
-        // Right: Actions
         actionsPanel = createActionsPanel();
         contentPanel.add(actionsPanel, BorderLayout.EAST);
 
         mainPanel.add(contentPanel, BorderLayout.CENTER);
 
-        // Bottom: Log
         JPanel logPanel = createLogPanel();
         mainPanel.add(logPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
         setVisible(true);
+    }
+
+    private void confirmAndExit() {
+        int choice = JOptionPane.showConfirmDialog(
+                this,
+                "Voulez-vous vraiment quitter le jeu ?",
+                "Quitter Trio",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+        if (choice == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
     }
 
     private JPanel createHeaderPanel() {
@@ -138,16 +157,39 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         JPanel panel = new JPanel(new BorderLayout(15, 15));
         panel.setOpaque(false);
 
-        // Top: Your hand
-        handPanel = createCardPanel("Votre Main");
-        handPanel.setPreferredSize(new Dimension(0, 140));
-        handPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        panel.add(handPanel, BorderLayout.NORTH);
+        // --- HAND PANEL ---
+        JPanel handContainer = createCardPanel("Votre Main");
+        handContainer.setLayout(new BorderLayout(0, 10));
+        handContainer.removeAll();
 
-        // Center: Center deck
+        JLabel titleLabel = new JLabel("Votre Main");
+        titleLabel.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+        titleLabel.setForeground(TEXT_PRIMARY);
+        titleLabel.setBorder(new EmptyBorder(0, 5, 0, 0));
+        handContainer.add(titleLabel, BorderLayout.NORTH);
+
+        handPanel = new JPanel();
+        handPanel.setLayout(new BoxLayout(handPanel, BoxLayout.X_AXIS));
+        handPanel.setOpaque(false);
+
+        JScrollPane scrollPane = new JScrollPane(handPanel);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(null);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+
+        handContainer.add(scrollPane, BorderLayout.CENTER);
+        handContainer.setPreferredSize(new Dimension(0, 160));
+        panel.add(handContainer, BorderLayout.NORTH);
+
+        // --- CENTER DECK ---
+        // On garde le panneau visible (vide) pour garder la structure,
+        // ou on l'enlève si vraiment inutile. Ici on le garde vide.
         centerPanel = createCardPanel("Cartes du Centre");
-        centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 8, 8));
-        //panel.add(centerPanel, BorderLayout.CENTER); // pas de carte en multi
+        centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        panel.add(centerPanel, BorderLayout.CENTER);
 
         return panel;
     }
@@ -197,7 +239,6 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
                         new RoundedBorder(16, GRAY_3),
                         BorderFactory.createEmptyBorder(15, 15, 15, 15))));
 
-        // Title
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("SF Pro Text", Font.BOLD, 14));
         titleLabel.setForeground(TEXT_PRIMARY);
@@ -206,16 +247,80 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         return panel;
     }
 
-    // Custom rounded border
+    // === CUSTOM CARD VIEW ===
+
+    private JPanel createCardView(Card card, boolean forceVisible) {
+        JPanel cardPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(forceVisible ? Color.WHITE : GRAY_3);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+                g2.setColor(GRAY_2);
+                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
+                g2.dispose();
+            }
+        };
+
+        cardPanel.setPreferredSize(new Dimension(CARD_WIDTH, CARD_HEIGHT));
+        cardPanel.setMaximumSize(new Dimension(CARD_WIDTH, CARD_HEIGHT));
+        cardPanel.setOpaque(false);
+        cardPanel.setLayout(new BorderLayout());
+        cardPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+        if (forceVisible) {
+            JLabel valueLabel = new JLabel(String.valueOf(card.getValue()));
+            valueLabel.setFont(new Font("SF Pro Display", Font.BOLD, 16));
+            valueLabel.setForeground(TEXT_PRIMARY);
+            valueLabel.setHorizontalAlignment(SwingConstants.LEFT);
+            cardPanel.add(valueLabel, BorderLayout.NORTH);
+
+            JLabel imageLabel = new JLabel();
+            imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            try {
+                URL imgUrl = getClass().getResource("/" + card.getPathImage());
+                if (imgUrl != null) {
+                    ImageIcon icon = new ImageIcon(imgUrl);
+                    Image img = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+                    imageLabel.setIcon(new ImageIcon(img));
+                } else {
+                    String fallback = card.getCoordinate().isEmpty() ? "?" : card.getCoordinate().substring(0, 1);
+                    imageLabel.setText(fallback);
+                    imageLabel.setFont(new Font("Serif", Font.ITALIC, 24));
+                    imageLabel.setForeground(PRIMARY);
+                }
+            } catch (Exception e) {
+                imageLabel.setText("Img?");
+            }
+            cardPanel.add(imageLabel, BorderLayout.CENTER);
+
+            JLabel coordLabel = new JLabel(card.getCoordinate());
+            coordLabel.setFont(new Font("SF Pro Text", Font.PLAIN, 9));
+            coordLabel.setForeground(TEXT_SECONDARY);
+            coordLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            if (card.getCoordinate().length() > 12) {
+                coordLabel.setToolTipText(card.getCoordinate());
+            }
+            cardPanel.add(coordLabel, BorderLayout.SOUTH);
+
+        } else {
+            JLabel hiddenLabel = new JLabel("?");
+            hiddenLabel.setFont(new Font("SF Pro Display", Font.BOLD, 28));
+            hiddenLabel.setForeground(GRAY_1);
+            hiddenLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            cardPanel.add(hiddenLabel, BorderLayout.CENTER);
+        }
+
+        return cardPanel;
+    }
+
+    // === UTILS ===
+
     private static class RoundedBorder extends javax.swing.border.AbstractBorder {
         private final int radius;
         private final Color color;
-
-        RoundedBorder(int radius, Color color) {
-            this.radius = radius;
-            this.color = color;
-        }
-
+        RoundedBorder(int radius, Color color) { this.radius = radius; this.color = color; }
         @Override
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -224,11 +329,8 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             g2.draw(new RoundRectangle2D.Float(x, y, width - 1, height - 1, radius, radius));
             g2.dispose();
         }
-
         @Override
-        public Insets getBorderInsets(Component c) {
-            return new Insets(radius / 2, radius / 2, radius / 2, radius / 2);
-        }
+        public Insets getBorderInsets(Component c) { return new Insets(radius/2, radius/2, radius/2, radius/2); }
     }
 
     private JButton createAppleButton(String text, Color color) {
@@ -237,13 +339,9 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                if (getModel().isPressed()) {
-                    g2.setColor(color.darker());
-                } else if (getModel().isRollover()) {
-                    g2.setColor(color.brighter());
-                } else {
-                    g2.setColor(color);
-                }
+                if (getModel().isPressed()) g2.setColor(color.darker());
+                else if (getModel().isRollover()) g2.setColor(color.brighter());
+                else g2.setColor(color);
                 g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
                 g2.dispose();
                 super.paintComponent(g);
@@ -261,50 +359,12 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         return btn;
     }
 
-    private JPanel createCardView(int value, boolean visible, boolean clickable) {
-        JPanel card = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                if (visible) {
-                    g2.setColor(Color.WHITE);
-                } else {
-                    g2.setColor(GRAY_3);
-                }
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                g2.setColor(GRAY_2);
-                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
-                g2.dispose();
-            }
-        };
-        card.setPreferredSize(new Dimension(55, 80));
-        card.setMaximumSize(new Dimension(55, 80));
-        card.setOpaque(false);
-        card.setLayout(new GridBagLayout());
-
-        JLabel label = new JLabel(visible ? String.valueOf(value) : "?");
-        label.setFont(new Font("SF Pro Display", Font.BOLD, 22));
-        label.setForeground(visible ? TEXT_PRIMARY : GRAY_1);
-        card.add(label);
-
-        if (clickable) {
-            card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        }
-
-        return card;
-    }
-
     private Color getTeamColor(int index) {
         switch (index) {
-            case 0:
-                return TEAM_A;
-            case 1:
-                return TEAM_B;
-            case 2:
-                return TEAM_C;
-            default:
-                return GRAY_1;
+            case 0: return TEAM_A;
+            case 1: return TEAM_B;
+            case 2: return TEAM_C;
+            default: return GRAY_1;
         }
     }
 
@@ -315,7 +375,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         });
     }
 
-    // === TEAM GAME VIEW IMPLEMENTATION ===
+    // === IMPLEMENTATION ===
 
     @Override
     public void displayTeamWelcome(List<Team> teams) {
@@ -325,9 +385,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             updateTeamsPanel(teams);
         });
         log("═══ DÉBUT DE LA PARTIE TRIO - MODE ÉQUIPE ═══");
-        for (int i = 0; i < teams.size(); i++) {
-            log("  " + teams.get(i).getName() + ": " + teams.get(i));
-        }
+        for (Team t : teams) log("  " + t.getName() + ": " + t);
         log("Objectif: 3 trios pour gagner\n");
     }
 
@@ -343,10 +401,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     }
 
     private Team findTeamForPlayer(Player player, List<Team> teams) {
-        for (Team t : teams) {
-            if (t.hasPlayer(player))
-                return t;
-        }
+        for (Team t : teams) if (t.hasPlayer(player)) return t;
         return null;
     }
 
@@ -354,7 +409,6 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     public void displayTeamTurnStart(Player player, Team team) {
         int teamIndex = currentTeams != null ? currentTeams.indexOf(team) : 0;
         Color teamColor = getTeamColor(teamIndex);
-
         SwingUtilities.invokeLater(() -> {
             statusLabel.setText("Tour de " + player.getPseudo() + " • " + team.getName());
             statusLabel.setForeground(teamColor);
@@ -368,14 +422,11 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     public void displayTeamScores(List<Team> teams) {
         SwingUtilities.invokeLater(() -> updateTeamsPanel(teams));
         log("📊 Scores:");
-        for (Team t : teams) {
-            log("  " + t.getName() + ": " + t.getTrioCount() + " trio(s)");
-        }
+        for (Team t : teams) log("  " + t.getName() + ": " + t.getTrioCount() + " trio(s)");
     }
 
     private void updateTeamsPanel(List<Team> teams) {
         teamsPanel.removeAll();
-
         JLabel title = new JLabel("Équipes");
         title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
         title.setForeground(TEXT_PRIMARY);
@@ -386,7 +437,6 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         for (int i = 0; i < teams.size(); i++) {
             Team team = teams.get(i);
             Color teamColor = getTeamColor(i);
-
             JPanel teamCard = new JPanel();
             teamCard.setLayout(new BoxLayout(teamCard, BoxLayout.Y_AXIS));
             teamCard.setOpaque(false);
@@ -415,7 +465,6 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             teamsPanel.add(teamCard);
             teamsPanel.add(Box.createVerticalStrut(10));
         }
-
         teamsPanel.revalidate();
         teamsPanel.repaint();
     }
@@ -424,29 +473,134 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     public void displayTeamTrioSuccess(Team team, int trioCount) {
         log("\n🎉 TRIO COMPLÉTÉ!");
         log(team.getName() + " a maintenant " + trioCount + " trio(s)");
-        JOptionPane.showMessageDialog(this,
-                "🎉 TRIO!\n" + team.getName() + " a maintenant " + trioCount + " trio(s)",
-                "Trio réussi!", JOptionPane.INFORMATION_MESSAGE);
+
+        // Petit toast non bloquant pour le trio
+        JDialog toast = new JDialog(this, false);
+        toast.setUndecorated(true);
+        JLabel l = new JLabel("🎉 TRIO pour " + team.getName() + " !", SwingConstants.CENTER);
+        l.setFont(new Font("SF Pro Text", Font.BOLD, 16));
+        l.setForeground(Color.WHITE);
+        l.setBorder(new EmptyBorder(15, 30, 15, 30));
+        JPanel p = new JPanel();
+        p.setBackground(new Color(52, 199, 89, 220)); // Vert semi-transparent
+        p.add(l);
+        toast.add(p);
+        toast.pack();
+        toast.setLocation(getX() + getWidth()/2 - toast.getWidth()/2, getY() + 100);
+        toast.setVisible(true);
+        new Timer(2000, e -> toast.dispose()).start();
     }
+
+    // === DISPLAY TEAM WINNER - CUSTOMIZED ===
 
     @Override
     public void displayTeamWinner(Team winner) {
         log("\n🏆 " + winner.getName() + " GAGNE avec " + winner.getTrioCount() + " trios!");
+
+        String companyName = "Inconnue";
+        List<Deck> winningTrios = winner.getTrios();
+
+        if (winningTrios != null && !winningTrios.isEmpty()) {
+            Deck lastTrio = winningTrios.get(winningTrios.size() - 1);
+            if (!lastTrio.isEmpty()) {
+                companyName = lastTrio.getCard(0).getCoordinate();
+            }
+        }
+        final String finalCompanyName = companyName;
+
         SwingUtilities.invokeLater(() -> {
-            statusLabel.setText("🏆 " + winner.getName() + " GAGNE!");
+            statusLabel.setText("🏆 VICTOIRE !");
             statusLabel.setForeground(SUCCESS);
+
+            JDialog victoryDialog = new JDialog(this, "Stage Trouvé !", true);
+            victoryDialog.setUndecorated(true);
+            victoryDialog.setBackground(new Color(0,0,0,0));
+
+            JPanel content = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(Color.WHITE);
+                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 30, 30));
+                    g2.setColor(SUCCESS);
+                    g2.setStroke(new BasicStroke(3));
+                    g2.draw(new RoundRectangle2D.Float(1, 1, getWidth()-3, getHeight()-3, 30, 30));
+                    g2.dispose();
+                }
+            };
+            content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+            content.setBorder(new EmptyBorder(40, 50, 40, 50));
+
+            JLabel iconLabel = new JLabel("🎓");
+            iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 70));
+            iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel titleLabel = new JLabel("L'Équipe gagne !");
+            titleLabel.setFont(new Font("SF Pro Display", Font.BOLD, 32));
+            titleLabel.setForeground(SUCCESS);
+            titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel teamLabel = new JLabel(winner.getName());
+            teamLabel.setFont(new Font("SF Pro Text", Font.BOLD, 20));
+            teamLabel.setForeground(TEXT_SECONDARY);
+            teamLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JTextArea messageArea = new JTextArea(
+                    "Vous avez réussi à trouver un stage\nau sein de l'entreprise\n" + finalCompanyName
+            );
+            messageArea.setFont(new Font("SF Pro Text", Font.PLAIN, 18));
+            messageArea.setForeground(TEXT_PRIMARY);
+            messageArea.setOpaque(false);
+            messageArea.setEditable(false);
+            messageArea.setWrapStyleWord(true);
+            messageArea.setLineWrap(true);
+            messageArea.setHighlighter(null);
+            messageArea.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JPanel msgContainer = new JPanel();
+            msgContainer.setOpaque(false);
+            msgContainer.add(messageArea);
+
+            JPanel cardsPanel = new JPanel();
+            cardsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
+            cardsPanel.setOpaque(false);
+
+            if (winningTrios != null && !winningTrios.isEmpty()) {
+                Deck lastTrio = winningTrios.get(winningTrios.size() - 1);
+                for(Card c : lastTrio.getCards()) {
+                    JPanel cardView = createCardView(c, true);
+                    cardsPanel.add(cardView);
+                }
+            }
+
+            JButton closeBtn = createAppleButton("Célébrer & Quitter", PRIMARY);
+            closeBtn.addActionListener(e -> System.exit(0));
+            closeBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            content.add(iconLabel);
+            content.add(Box.createVerticalStrut(10));
+            content.add(titleLabel);
+            content.add(Box.createVerticalStrut(5));
+            content.add(teamLabel);
+            content.add(Box.createVerticalStrut(20));
+            content.add(msgContainer);
+            content.add(Box.createVerticalStrut(20));
+            content.add(cardsPanel);
+            content.add(Box.createVerticalStrut(30));
+            content.add(closeBtn);
+
+            victoryDialog.add(content);
+            victoryDialog.pack();
+            victoryDialog.setLocationRelativeTo(this);
+            victoryDialog.setVisible(true);
         });
-        JOptionPane.showMessageDialog(this,
-                "🏆 " + winner.getName() + " GAGNE!\n\nFélicitations à " + winner,
-                "Fin de partie!", JOptionPane.INFORMATION_MESSAGE);
     }
 
     @Override
     public void displayPlayerWithTeam(Player player, Team team) {
         log(player.getPseudo() + " (" + team.getName() + ")");
     }
-
-    // === GAME VIEW IMPLEMENTATION ===
 
     @Override
     public void displayWelcome(int nbPlayers) {
@@ -455,29 +609,19 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     @Override
     public void displayTurnStart(Player player) {
-        SwingUtilities.invokeLater(() -> {
-            statusLabel.setText("Tour de " + player.getPseudo());
-        });
+        SwingUtilities.invokeLater(() -> statusLabel.setText("Tour de " + player.getPseudo()));
     }
 
     @Override
     public void displayPlayerHand(Player player) {
         SwingUtilities.invokeLater(() -> {
             handPanel.removeAll();
-
-            JLabel title = new JLabel("Votre Main");
-            title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
-            title.setForeground(TEXT_PRIMARY);
-
-            // Re-add title
-            handPanel.add(title);
+            handPanel.add(Box.createHorizontalStrut(5));
 
             for (Card c : player.getDeck().getCards()) {
-                JPanel card = createCardView(c.getValue(), !c.isVisible(), false);
-                if (c.isVisible()) {
-                    card.setEnabled(false);
-                }
+                JPanel card = createCardView(c, true);
                 handPanel.add(card);
+                handPanel.add(Box.createHorizontalStrut(10));
             }
             handPanel.revalidate();
             handPanel.repaint();
@@ -488,10 +632,8 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     public void displayVisibleCards(List<Player> players, Deck centerDeck) {
         this.allPlayers = players;
         this.currentCenterDeck = centerDeck;
-
         SwingUtilities.invokeLater(() -> {
             centerPanel.removeAll();
-
             JLabel title = new JLabel("Cartes du Centre");
             title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
             title.setForeground(TEXT_PRIMARY);
@@ -499,11 +641,10 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
             if (centerDeck != null) {
                 for (Card c : centerDeck.getCards()) {
-                    JPanel card = createCardView(c.getValue(), c.isVisible(), true);
+                    JPanel card = createCardView(c, c.isVisible());
                     centerPanel.add(card);
                 }
             }
-
             centerPanel.revalidate();
             centerPanel.repaint();
         });
@@ -513,24 +654,17 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     public void displayRevealedCards(List<RevealedCard> revealedCards) {
         if (!revealedCards.isEmpty()) {
             StringBuilder sb = new StringBuilder("Cartes révélées: ");
-            for (RevealedCard rc : revealedCards) {
-                sb.append("[").append(rc.getValue()).append("] ");
-            }
+            for (RevealedCard rc : revealedCards) sb.append("[").append(rc.getValue()).append("] ");
             log(sb.toString());
         }
     }
 
     @Override
-    public void displayCardRevealed(Card card, Player owner, int cardIndex, boolean isFirst, boolean isCorrect,
-                                    int expectedValue) {
+    public void displayCardRevealed(Card card, Player owner, int cardIndex, boolean isFirst, boolean isCorrect, int expectedValue) {
         String source = owner != null ? owner.getPseudo() : "Centre";
-        if (isFirst) {
-            log("✓ Première carte: [" + card.getValue() + "] de " + source);
-        } else if (isCorrect) {
-            log("✓ Bonne carte: [" + card.getValue() + "] de " + source);
-        } else {
-            log("✗ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue());
-        }
+        if (isFirst) log("✓ Première carte: [" + card.getValue() + "] de " + source);
+        else if (isCorrect) log("✓ Bonne carte: [" + card.getValue() + "] de " + source);
+        else log("✗ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue());
     }
 
     @Override
@@ -555,22 +689,15 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     @Override
     public void displayBotAction(Bot bot, String action, Player target) {
-        if (target != null) {
-            log(bot.getPseudo() + " " + action + " " + target.getPseudo());
-        } else {
-            log(bot.getPseudo() + " " + action);
-        }
+        if (target != null) log(bot.getPseudo() + " " + action + " " + target.getPseudo());
+        else log(bot.getPseudo() + " " + action);
     }
-
-    // === INPUT ===
 
     @Override
     public int promptAction() {
         selectedAction = -1;
-
         SwingUtilities.invokeLater(() -> {
             actionsPanel.removeAll();
-
             JLabel title = new JLabel("Actions");
             title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
             title.setForeground(TEXT_PRIMARY);
@@ -583,13 +710,9 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             actionsPanel.add(Box.createVerticalStrut(10));
             addActionButton("MIN autre joueur", 3, WARNING);
             addActionButton("MAX autre joueur", 4, WARNING);
-            actionsPanel.add(Box.createVerticalStrut(10));
-            addActionButton("Carte du centre", 5, SUCCESS);
-            actionsPanel.add(Box.createVerticalStrut(15));
-
-            // Nouveau bouton d'échange
+            // Action 5 (Centre) retirée
+            actionsPanel.add(Box.createVerticalStrut(20));
             addActionButton("Échanger (équipe)", 6, PURPLE);
-
             actionsPanel.add(Box.createVerticalStrut(20));
             addActionButton("Arrêter le tour", 0, DANGER);
 
@@ -599,11 +722,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
         synchronized (inputLock) {
             while (selectedAction == -1) {
-                try {
-                    inputLock.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+                try { inputLock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
         }
         return selectedAction;
@@ -621,14 +740,11 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         actionsPanel.add(Box.createVerticalStrut(8));
     }
 
-
     @Override
     public Player promptSelectPlayer(List<Player> availablePlayers) {
         selectedPlayer = null;
-
         SwingUtilities.invokeLater(() -> {
             actionsPanel.removeAll();
-
             JLabel title = new JLabel("Choisir un joueur");
             title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
             title.setForeground(TEXT_PRIMARY);
@@ -647,18 +763,13 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
                 actionsPanel.add(btn);
                 actionsPanel.add(Box.createVerticalStrut(8));
             }
-
             actionsPanel.revalidate();
             actionsPanel.repaint();
         });
 
         synchronized (inputLock) {
             while (selectedPlayer == null) {
-                try {
-                    inputLock.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+                try { inputLock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
         }
         return selectedPlayer;
@@ -666,11 +777,11 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     @Override
     public int promptSelectCenterCard(Deck centerDeck) {
+        // Cette méthode existe pour satisfaire l'interface, mais ne sera pas appelée
+        // si l'option 5 est retirée du Controller.
         selectedCenterIndex = -1;
-
         SwingUtilities.invokeLater(() -> {
             actionsPanel.removeAll();
-
             JLabel title = new JLabel("Choisir une carte");
             title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
             title.setForeground(TEXT_PRIMARY);
@@ -692,18 +803,13 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
                 actionsPanel.add(btn);
                 actionsPanel.add(Box.createVerticalStrut(5));
             }
-
             actionsPanel.revalidate();
             actionsPanel.repaint();
         });
 
         synchronized (inputLock) {
             while (selectedCenterIndex == -1) {
-                try {
-                    inputLock.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+                try { inputLock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
         }
         return selectedCenterIndex;
@@ -711,11 +817,9 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     @Override
     public int promptSelectHandCard(Player player) {
-        selectedCenterIndex = -1; // Réutilisation du champ "index" pour éviter une nouvelle variable
-
+        selectedCenterIndex = -1;
         SwingUtilities.invokeLater(() -> {
             actionsPanel.removeAll();
-
             JLabel title = new JLabel("Carte de " + player.getPseudo());
             title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
             title.setForeground(TEXT_PRIMARY);
@@ -726,39 +830,25 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             Deck deck = player.getDeck();
             for (int i = 0; i < deck.getSize(); i++) {
                 Card c = deck.getCard(i);
-
-                String text = (i + 1) + ". " + (c.isVisible() ? "[" + c.getValue() + "]" : "[?]");
+                String text = (i + 1) + ". [" + c.getValue() + "]";
                 final int index = i;
-
-                // Si c'est la main d'un autre joueur, on voit pas forcément les valeurs
-                // Mais ici la vue demande de choisir, c'est contextuel.
-                // Pour l'échange "aveugle", on montre juste les index.
-                // Si on a le droit de voir NOS cartes pour choisir : OK.
-
-                // Design choix : bouton simple
-                JButton btn = createAppleButton(text, c.isVisible() ? WARNING : PRIMARY);
+                JButton btn = createAppleButton(text, PRIMARY);
                 btn.addActionListener(e -> {
                     synchronized (inputLock) {
                         selectedCenterIndex = index;
                         inputLock.notifyAll();
                     }
                 });
-
                 actionsPanel.add(btn);
                 actionsPanel.add(Box.createVerticalStrut(6));
             }
-
             actionsPanel.revalidate();
             actionsPanel.repaint();
         });
 
         synchronized (inputLock) {
             while (selectedCenterIndex == -1) {
-                try {
-                    inputLock.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+                try { inputLock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
         }
         return selectedCenterIndex;

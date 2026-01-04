@@ -8,7 +8,7 @@ public class Player implements TrioHolder {
     // Attributs
     protected final String pseudo;
     protected Deck hand;
-    protected List<Deck> trios;
+    protected List<Deck> trios; // Stocke les trios gagnés (les "stages" trouvés)
 
     // Constructeurs
     public Player(String pseudo) {
@@ -26,6 +26,10 @@ public class Player implements TrioHolder {
         return hand;
     }
 
+    /**
+     * Retourne la liste des trios gagnés.
+     * Utilisé par la Vue pour afficher l'entreprise du stage trouvé.
+     */
     public List<Deck> getTrios() {
         return trios;
     }
@@ -44,5 +48,11 @@ public class Player implements TrioHolder {
     // Méthodes Métier
     public String chooseAction(Game game) {
         return "DEFAULT_ACTION";
+    }
+
+    // Utile pour le débogage console
+    @Override
+    public String toString() {
+        return pseudo + " (" + getTrioCount() + " trios)";
     }
 }

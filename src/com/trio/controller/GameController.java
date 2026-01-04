@@ -1,13 +1,16 @@
 package com.trio.controller;
 
 import com.trio.model.*;
+import com.trio.services.Logs;
 import com.trio.view.GameView;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Contrôleur du jeu Trio.
  * Orchestre les interactions entre la View et le Model (SoloGame).
+ * Utilise le service Logs pour tracer l'exécution.
  */
 public class GameController {
 
@@ -23,10 +26,12 @@ public class GameController {
      * Lance le jeu complet
      */
     public void startGame() {
+        Logs.getInstance().writeLogs("=== Démarrage d'une nouvelle partie (Solo) ===");
         view.displayWelcome(game.getPlayers().size());
 
         // Distribuer les cartes
         game.distributeCards();
+        Logs.getInstance().writeLogs("Distribution des cartes effectuée.");
 
         // Afficher la main du joueur humain
         Player humanPlayer = findHumanPlayer();
@@ -37,6 +42,7 @@ public class GameController {
         // Boucle principale du jeu
         while (!game.isFinished()) {
             Player currentPlayer = game.getCurrentPlayer();
+            Logs.getInstance().writeLogs("Début du tour de : " + currentPlayer.getPseudo());
             view.displayTurnStart(currentPlayer);
 
             // Afficher les cartes visibles au début du tour
@@ -52,7 +58,9 @@ public class GameController {
         // Afficher le gagnant
         TrioHolder winner = game.getWinner();
         if (winner instanceof Player) {
-            view.displayGameWinner((Player) winner);
+            Player pWinner = (Player) winner;
+            Logs.getInstance().writeLogs("FIN DE PARTIE - Vainqueur : " + pWinner.getPseudo());
+            view.displayGameWinner(pWinner);
         }
     }
 
@@ -67,12 +75,18 @@ public class GameController {
             // Choisir une action
             int action = chooseAction(currentPlayer);
 
+            // Log de l'action brute (sauf si c'est un bot qui gère ses propres logs d'intention)
+            if (!(currentPlayer instanceof Bot)) {
+                Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " a choisi l'action n°" + action);
+            }
+
             if (action == 0) {
                 // Arrêter le tour
                 if (game.getRevealedCards().size() < 2) {
                     view.displayError("Vous devez révéler au moins 2 cartes avant d'arrêter!");
                     continue;
                 }
+                Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " décide d'arrêter son tour.");
                 turnSuccess = false;
                 turnContinues = false;
             } else {
@@ -81,8 +95,11 @@ public class GameController {
 
                 if (revealedCard == null) {
                     view.displayError("Action invalide!");
+                    Logs.getInstance().writeLogs("Erreur : Action invalide ou annulée par " + currentPlayer.getPseudo());
                     continue;
                 }
+
+                Logs.getInstance().writeLogs("Carte révélée : " + revealedCard.getValue() + " (" + revealedCard.getCoordinate() + ")");
 
                 // Récupérer l'owner et l'index de la carte révélée (dernière ajoutée)
                 List<RevealedCard> revealed = game.getRevealedCards();
@@ -94,13 +111,16 @@ public class GameController {
                 if (revealed.size() > 1) {
                     int expectedValue = revealed.get(0).getValue();
                     if (revealedCard.getValue() != expectedValue) {
+                        Logs.getInstance().writeLogs(">> Mauvaise carte ! Attendu: " + expectedValue + ", Reçu: " + revealedCard.getValue());
                         view.displayCardRevealed(revealedCard, cardOwner, cardIndex, false, false, expectedValue);
                         turnSuccess = false;
                         turnContinues = false;
                     } else {
+                        Logs.getInstance().writeLogs(">> Bonne carte ! La série continue.");
                         view.displayCardRevealed(revealedCard, cardOwner, cardIndex, false, true, expectedValue);
                     }
                 } else {
+                    Logs.getInstance().writeLogs(">> Première carte de la série.");
                     view.displayCardRevealed(revealedCard, cardOwner, cardIndex, true, true, 0);
                 }
             }
@@ -108,9 +128,11 @@ public class GameController {
 
         // Fin du tour
         if (game.getRevealedCards().size() == 3 && game.isValidTrio()) {
+            Logs.getInstance().writeLogs("SUCCÈS ! Trio validé pour " + currentPlayer.getPseudo());
             game.awardTrioToWinner(currentPlayer);
             view.displayTrioSuccess(currentPlayer, currentPlayer.getTrioCount());
-        } else if (!turnSuccess || game.getRevealedCards().size() > 0) {
+        } else if (!turnSuccess || !game.getRevealedCards().isEmpty()) {
+            Logs.getInstance().writeLogs("Échec du tour. Les cartes sont remises face cachée.");
             view.displayTurnFailed();
             game.failTurn();
 
@@ -149,11 +171,18 @@ public class GameController {
         boolean isBot = currentPlayer instanceof Bot;
         Bot bot = isBot ? (Bot) currentPlayer : null;
 
+        // Log descriptif de l'action
+        String actionDesc = "";
+
         switch (action) {
             case 1: // Ma carte MIN
+                actionDesc = currentPlayer.getPseudo() + " révèle sa carte la plus faible.";
+                Logs.getInstance().writeLogs(actionDesc);
                 return game.revealLowestCardFromPlayer(currentPlayer);
 
             case 2: // Ma carte MAX
+                actionDesc = currentPlayer.getPseudo() + " révèle sa carte la plus forte.";
+                Logs.getInstance().writeLogs(actionDesc);
                 return game.revealHighestCardFromPlayer(currentPlayer);
 
             case 3: // Carte MIN d'un autre joueur
@@ -164,6 +193,7 @@ public class GameController {
                     if (isBot) {
                         view.displayBotAction(bot, "cible", target3);
                     }
+                    Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " demande la carte MIN de " + target3.getPseudo());
                     return game.revealLowestCardFromPlayer(target3);
                 }
                 return null;
@@ -176,6 +206,7 @@ public class GameController {
                     if (isBot) {
                         view.displayBotAction(bot, "cible", target4);
                     }
+                    Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " demande la carte MAX de " + target4.getPseudo());
                     return game.revealHighestCardFromPlayer(target4);
                 }
                 return null;
@@ -191,11 +222,13 @@ public class GameController {
                     centerIndex = view.promptSelectCenterCard(game.getCenterDeck());
                 }
                 if (centerIndex >= 0) {
+                    Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " révèle la carte du centre n°" + (centerIndex + 1));
                     return game.revealCardFromCenter(centerIndex);
                 }
                 return null;
 
             default:
+                Logs.getInstance().writeLogs("Action inconnue : " + action);
                 return null;
         }
     }
