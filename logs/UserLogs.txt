@@ -1,3 +1,2 @@
 
-[2025-12-26 07:05:41] ID: 1| User: JL| Age: 19| Victories: 0| Avatar: 
-[2025-12-26 07:06:00] ID: 2| User: kop| Age: 48| Victories: 0| Avatar: 
+[2026-01-03 20:19:23] ID: 1| User: jl| Age: 18| Victories: 0| Avatar: 
