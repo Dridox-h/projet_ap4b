@@ -8,33 +8,31 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.RoundRectangle2D;
-import java.net.URL;
 import java.util.List;
 
 /**
- * Interface graphique Swing style Apple pour le mode Team Game.
- * Affiche les cartes avec Images + Textes, gère les équipes et la victoire.
+ * Interface graphique Swing style sombre premium pour le mode Team Game.
+ * Harmonisée avec le MenuGUI.
  */
 public class SwingTeamGameView extends JFrame implements TeamGameView {
 
-    // === Apple-like Color Palette ===
-    private static final Color BACKGROUND = new Color(248, 248, 248);
-    private static final Color CARD_BG = Color.WHITE;
-    private static final Color PRIMARY = new Color(0, 122, 255);
-    private static final Color SUCCESS = new Color(52, 199, 89);
-    private static final Color WARNING = new Color(255, 149, 0);
-    private static final Color DANGER = new Color(255, 59, 48);
-    private static final Color PURPLE = new Color(175, 82, 222);
-    private static final Color GRAY_1 = new Color(142, 142, 147);
-    private static final Color GRAY_2 = new Color(174, 174, 178);
-    private static final Color GRAY_3 = new Color(199, 199, 204);
-    private static final Color TEXT_PRIMARY = new Color(0, 0, 0);
-    private static final Color TEXT_SECONDARY = new Color(60, 60, 67, 153);
+    // === Dark Premium Color Palette (harmonisé avec MenuGUI) ===
+    private static final Color BACKGROUND = new Color(26, 26, 46); // Deep navy
+    private static final Color CARD_BG = new Color(40, 45, 75); // Card background
+    private static final Color PRIMARY = new Color(0, 217, 255); // Electric cyan
+    private static final Color SUCCESS = new Color(16, 185, 129); // Success green
+    private static final Color WARNING = new Color(255, 149, 0); // Orange
+    private static final Color DANGER = new Color(239, 68, 68); // Red
+    private static final Color PURPLE = new Color(139, 92, 246); // Purple for team action
+    private static final Color GRAY_1 = new Color(100, 110, 140); // Lighter gray
+    private static final Color GRAY_3 = new Color(50, 55, 80); // Dark gray
+    private static final Color TEXT_PRIMARY = new Color(255, 255, 255); // White
+    private static final Color TEXT_SECONDARY = new Color(160, 170, 200); // Light gray-blue
 
-    // Team colors
-    private static final Color TEAM_A = new Color(0, 122, 255); // Blue
+    // Team colors (couleurs vives pour les équipes)
+    private static final Color TEAM_A = new Color(0, 217, 255); // Cyan
     private static final Color TEAM_B = new Color(255, 149, 0); // Orange
-    private static final Color TEAM_C = new Color(175, 82, 222); // Purple
+    private static final Color TEAM_C = new Color(139, 92, 246); // Purple
 
     // === Card Dimensions ===
     private static final int CARD_WIDTH = 80;
@@ -58,8 +56,6 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     // State
     private List<Team> currentTeams;
-    private List<Player> allPlayers;
-    private Deck currentCenterDeck;
 
     public SwingTeamGameView() {
         initializeUI();
@@ -114,8 +110,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
                 "Voulez-vous vraiment quitter le jeu ?",
                 "Quitter Trio",
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
+                JOptionPane.QUESTION_MESSAGE);
         if (choice == JOptionPane.YES_OPTION) {
             System.exit(0);
         }
@@ -210,7 +205,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         logArea.setEditable(false);
         logArea.setFont(new Font("SF Mono", Font.PLAIN, 12));
         logArea.setForeground(TEXT_SECONDARY);
-        logArea.setBackground(Color.WHITE);
+        logArea.setBackground(CARD_BG);
         logArea.setMargin(new Insets(10, 10, 10, 10));
 
         JScrollPane scrollPane = new JScrollPane(logArea);
@@ -250,15 +245,19 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     // === CUSTOM CARD VIEW ===
 
     private JPanel createCardView(Card card, boolean forceVisible) {
+        // Couleur de fond basée sur la valeur de la carte (1-12)
+        final Color cardColor = forceVisible ? getCardColor(card.getValue()) : GRAY_3;
+
         JPanel cardPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(forceVisible ? Color.WHITE : GRAY_3);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                g2.setColor(GRAY_2);
-                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
+                g2.setColor(cardColor);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
+                g2.setColor(cardColor.darker());
+                g2.setStroke(new BasicStroke(2));
+                g2.draw(new RoundRectangle2D.Float(1, 1, getWidth() - 2, getHeight() - 2, 12, 12));
                 g2.dispose();
             }
         };
@@ -267,46 +266,34 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         cardPanel.setMaximumSize(new Dimension(CARD_WIDTH, CARD_HEIGHT));
         cardPanel.setOpaque(false);
         cardPanel.setLayout(new BorderLayout());
-        cardPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        cardPanel.setBorder(new EmptyBorder(6, 6, 6, 6));
 
         if (forceVisible) {
+            // Valeur en haut à gauche avec fond contrasté
             JLabel valueLabel = new JLabel(String.valueOf(card.getValue()));
-            valueLabel.setFont(new Font("SF Pro Display", Font.BOLD, 16));
-            valueLabel.setForeground(TEXT_PRIMARY);
+            valueLabel.setFont(new Font("SF Pro Display", Font.BOLD, 18));
+            valueLabel.setForeground(Color.WHITE);
             valueLabel.setHorizontalAlignment(SwingConstants.LEFT);
             cardPanel.add(valueLabel, BorderLayout.NORTH);
 
-            JLabel imageLabel = new JLabel();
-            imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            try {
-                URL imgUrl = getClass().getResource("/" + card.getPathImage());
-                if (imgUrl != null) {
-                    ImageIcon icon = new ImageIcon(imgUrl);
-                    Image img = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
-                    imageLabel.setIcon(new ImageIcon(img));
-                } else {
-                    String fallback = card.getCoordinate().isEmpty() ? "?" : card.getCoordinate().substring(0, 1);
-                    imageLabel.setText(fallback);
-                    imageLabel.setFont(new Font("Serif", Font.ITALIC, 24));
-                    imageLabel.setForeground(PRIMARY);
-                }
-            } catch (Exception e) {
-                imageLabel.setText("Img?");
-            }
-            cardPanel.add(imageLabel, BorderLayout.CENTER);
+            // Coordonnée au centre - affichage complet avec retour à la ligne
+            JPanel centerPanel = new JPanel();
+            centerPanel.setOpaque(false);
+            centerPanel.setLayout(new GridBagLayout());
 
-            JLabel coordLabel = new JLabel(card.getCoordinate());
-            coordLabel.setFont(new Font("SF Pro Text", Font.PLAIN, 9));
-            coordLabel.setForeground(TEXT_SECONDARY);
+            String coord = card.getCoordinate();
+            JLabel coordLabel = new JLabel(
+                    "<html><div style='text-align:center;width:60px;'>" + coord + "</div></html>");
+            coordLabel.setFont(new Font("SF Pro Text", Font.BOLD, 10));
+            coordLabel.setForeground(Color.WHITE);
             coordLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            if (card.getCoordinate().length() > 12) {
-                coordLabel.setToolTipText(card.getCoordinate());
-            }
-            cardPanel.add(coordLabel, BorderLayout.SOUTH);
+            coordLabel.setVerticalAlignment(SwingConstants.CENTER);
+            centerPanel.add(coordLabel);
+            cardPanel.add(centerPanel, BorderLayout.CENTER);
 
         } else {
             JLabel hiddenLabel = new JLabel("?");
-            hiddenLabel.setFont(new Font("SF Pro Display", Font.BOLD, 28));
+            hiddenLabel.setFont(new Font("SF Pro Display", Font.BOLD, 32));
             hiddenLabel.setForeground(GRAY_1);
             hiddenLabel.setHorizontalAlignment(SwingConstants.CENTER);
             cardPanel.add(hiddenLabel, BorderLayout.CENTER);
@@ -315,12 +302,55 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         return cardPanel;
     }
 
+    /**
+     * Retourne une couleur distincte pour chaque valeur de carte (1-12)
+     */
+    private Color getCardColorByValue(int value) {
+        switch (value) {
+            case 1:
+                return new Color(231, 76, 60); // Rouge
+            case 2:
+                return new Color(230, 126, 34); // Orange
+            case 3:
+                return new Color(241, 196, 15); // Jaune
+            case 4:
+                return new Color(46, 204, 113); // Vert
+            case 5:
+                return new Color(26, 188, 156); // Turquoise
+            case 6:
+                return new Color(52, 152, 219); // Bleu clair
+            case 7:
+                return new Color(41, 128, 185); // Bleu
+            case 8:
+                return new Color(155, 89, 182); // Violet
+            case 9:
+                return new Color(142, 68, 173); // Violet foncé
+            case 10:
+                return new Color(52, 73, 94); // Gris foncé
+            case 11:
+                return new Color(44, 62, 80); // Noir bleuté
+            case 12:
+                return new Color(192, 57, 43); // Rouge foncé
+            default:
+                return PRIMARY;
+        }
+    }
+
+    private Color getCardColor(int value) {
+        return getCardColorByValue(value);
+    }
+
     // === UTILS ===
 
     private static class RoundedBorder extends javax.swing.border.AbstractBorder {
         private final int radius;
         private final Color color;
-        RoundedBorder(int radius, Color color) { this.radius = radius; this.color = color; }
+
+        RoundedBorder(int radius, Color color) {
+            this.radius = radius;
+            this.color = color;
+        }
+
         @Override
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -329,8 +359,11 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             g2.draw(new RoundRectangle2D.Float(x, y, width - 1, height - 1, radius, radius));
             g2.dispose();
         }
+
         @Override
-        public Insets getBorderInsets(Component c) { return new Insets(radius/2, radius/2, radius/2, radius/2); }
+        public Insets getBorderInsets(Component c) {
+            return new Insets(radius / 2, radius / 2, radius / 2, radius / 2);
+        }
     }
 
     private JButton createAppleButton(String text, Color color) {
@@ -339,9 +372,12 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                if (getModel().isPressed()) g2.setColor(color.darker());
-                else if (getModel().isRollover()) g2.setColor(color.brighter());
-                else g2.setColor(color);
+                if (getModel().isPressed())
+                    g2.setColor(color.darker());
+                else if (getModel().isRollover())
+                    g2.setColor(color.brighter());
+                else
+                    g2.setColor(color);
                 g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
                 g2.dispose();
                 super.paintComponent(g);
@@ -361,10 +397,14 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     private Color getTeamColor(int index) {
         switch (index) {
-            case 0: return TEAM_A;
-            case 1: return TEAM_B;
-            case 2: return TEAM_C;
-            default: return GRAY_1;
+            case 0:
+                return TEAM_A;
+            case 1:
+                return TEAM_B;
+            case 2:
+                return TEAM_C;
+            default:
+                return GRAY_1;
         }
     }
 
@@ -385,7 +425,8 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             updateTeamsPanel(teams);
         });
         log("═══ DÉBUT DE LA PARTIE TRIO - MODE ÉQUIPE ═══");
-        for (Team t : teams) log("  " + t.getName() + ": " + t);
+        for (Team t : teams)
+            log("  " + t.getName() + ": " + t);
         log("Objectif: 3 trios pour gagner\n");
     }
 
@@ -401,7 +442,9 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     }
 
     private Team findTeamForPlayer(Player player, List<Team> teams) {
-        for (Team t : teams) if (t.hasPlayer(player)) return t;
+        for (Team t : teams)
+            if (t.hasPlayer(player))
+                return t;
         return null;
     }
 
@@ -422,7 +465,8 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     public void displayTeamScores(List<Team> teams) {
         SwingUtilities.invokeLater(() -> updateTeamsPanel(teams));
         log("📊 Scores:");
-        for (Team t : teams) log("  " + t.getName() + ": " + t.getTrioCount() + " trio(s)");
+        for (Team t : teams)
+            log("  " + t.getName() + ": " + t.getTrioCount() + " trio(s)");
     }
 
     private void updateTeamsPanel(List<Team> teams) {
@@ -486,7 +530,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         p.add(l);
         toast.add(p);
         toast.pack();
-        toast.setLocation(getX() + getWidth()/2 - toast.getWidth()/2, getY() + 100);
+        toast.setLocation(getX() + getWidth() / 2 - toast.getWidth() / 2, getY() + 100);
         toast.setVisible(true);
         new Timer(2000, e -> toast.dispose()).start();
     }
@@ -514,7 +558,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
             JDialog victoryDialog = new JDialog(this, "Stage Trouvé !", true);
             victoryDialog.setUndecorated(true);
-            victoryDialog.setBackground(new Color(0,0,0,0));
+            victoryDialog.setBackground(new Color(0, 0, 0, 0));
 
             JPanel content = new JPanel() {
                 @Override
@@ -525,7 +569,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 30, 30));
                     g2.setColor(SUCCESS);
                     g2.setStroke(new BasicStroke(3));
-                    g2.draw(new RoundRectangle2D.Float(1, 1, getWidth()-3, getHeight()-3, 30, 30));
+                    g2.draw(new RoundRectangle2D.Float(1, 1, getWidth() - 3, getHeight() - 3, 30, 30));
                     g2.dispose();
                 }
             };
@@ -547,8 +591,8 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             teamLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             JTextArea messageArea = new JTextArea(
-                    "Vous avez réussi à trouver un stage\nau sein de l'entreprise\n" + finalCompanyName
-            );
+                    "Après des milliers de candidatures,\nvous avez réussi à obtenir un poste chez\n" + finalCompanyName
+                            + " !");
             messageArea.setFont(new Font("SF Pro Text", Font.PLAIN, 18));
             messageArea.setForeground(TEXT_PRIMARY);
             messageArea.setOpaque(false);
@@ -568,7 +612,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
             if (winningTrios != null && !winningTrios.isEmpty()) {
                 Deck lastTrio = winningTrios.get(winningTrios.size() - 1);
-                for(Card c : lastTrio.getCards()) {
+                for (Card c : lastTrio.getCards()) {
                     JPanel cardView = createCardView(c, true);
                     cardsPanel.add(cardView);
                 }
@@ -630,8 +674,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     @Override
     public void displayVisibleCards(List<Player> players, Deck centerDeck) {
-        this.allPlayers = players;
-        this.currentCenterDeck = centerDeck;
+
         SwingUtilities.invokeLater(() -> {
             centerPanel.removeAll();
             JLabel title = new JLabel("Cartes du Centre");
@@ -654,17 +697,22 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     public void displayRevealedCards(List<RevealedCard> revealedCards) {
         if (!revealedCards.isEmpty()) {
             StringBuilder sb = new StringBuilder("Cartes révélées: ");
-            for (RevealedCard rc : revealedCards) sb.append("[").append(rc.getValue()).append("] ");
+            for (RevealedCard rc : revealedCards)
+                sb.append("[").append(rc.getValue()).append("] ");
             log(sb.toString());
         }
     }
 
     @Override
-    public void displayCardRevealed(Card card, Player owner, int cardIndex, boolean isFirst, boolean isCorrect, int expectedValue) {
+    public void displayCardRevealed(Card card, Player owner, int cardIndex, boolean isFirst, boolean isCorrect,
+            int expectedValue) {
         String source = owner != null ? owner.getPseudo() : "Centre";
-        if (isFirst) log("✓ Première carte: [" + card.getValue() + "] de " + source);
-        else if (isCorrect) log("✓ Bonne carte: [" + card.getValue() + "] de " + source);
-        else log("✗ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue());
+        if (isFirst)
+            log("✓ Première carte: [" + card.getValue() + "] de " + source);
+        else if (isCorrect)
+            log("✓ Bonne carte: [" + card.getValue() + "] de " + source);
+        else
+            log("✗ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue());
     }
 
     @Override
@@ -689,8 +737,10 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     @Override
     public void displayBotAction(Bot bot, String action, Player target) {
-        if (target != null) log(bot.getPseudo() + " " + action + " " + target.getPseudo());
-        else log(bot.getPseudo() + " " + action);
+        if (target != null)
+            log(bot.getPseudo() + " " + action + " " + target.getPseudo());
+        else
+            log(bot.getPseudo() + " " + action);
     }
 
     @Override
@@ -722,7 +772,11 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
         synchronized (inputLock) {
             while (selectedAction == -1) {
-                try { inputLock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                try {
+                    inputLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         return selectedAction;
@@ -769,7 +823,11 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
         synchronized (inputLock) {
             while (selectedPlayer == null) {
-                try { inputLock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                try {
+                    inputLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         return selectedPlayer;
@@ -809,7 +867,11 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
         synchronized (inputLock) {
             while (selectedCenterIndex == -1) {
-                try { inputLock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                try {
+                    inputLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         return selectedCenterIndex;
@@ -848,7 +910,11 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
         synchronized (inputLock) {
             while (selectedCenterIndex == -1) {
-                try { inputLock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                try {
+                    inputLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         return selectedCenterIndex;

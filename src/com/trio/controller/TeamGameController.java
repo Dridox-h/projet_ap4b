@@ -1,6 +1,7 @@
 package com.trio.controller;
 
 import com.trio.model.*;
+import com.trio.services.DataService;
 import com.trio.services.Logs;
 import com.trio.view.TeamGameView;
 import java.util.ArrayList;
@@ -53,7 +54,8 @@ public class TeamGameController {
             Player currentPlayer = game.getCurrentPlayer();
             Team currentTeam = game.getTeamForPlayer(currentPlayer);
 
-            Logs.getInstance().writeLogs("Début du tour de : " + currentPlayer.getPseudo() + " (" + currentTeam.getName() + ")");
+            Logs.getInstance()
+                    .writeLogs("Début du tour de : " + currentPlayer.getPseudo() + " (" + currentTeam.getName() + ")");
 
             // Afficher le début du tour
             view.displayTeamTurnStart(currentPlayer, currentTeam);
@@ -77,7 +79,12 @@ public class TeamGameController {
         if (winner instanceof Team) {
             Team winningTeam = (Team) winner;
             Logs.getInstance().writeLogs("FIN DE PARTIE - Équipe Vainqueur : " + winningTeam.getName());
+
             view.displayTeamWinner(winningTeam);
+
+            // Sauvegarder le résultat et incrémenter les victoires
+            DataService.getInstance().saveTeamGameResult(winningTeam, game.getTeams());
+            DataService.getInstance().incrementTeamVictories(winningTeam);
         }
     }
 
@@ -98,7 +105,8 @@ public class TeamGameController {
             // Choisir une action
             int action = chooseAction(currentPlayer);
 
-            // Log de l'action brute pour debug (sauf Bot qui logue déjà son intention parfois)
+            // Log de l'action brute pour debug (sauf Bot qui logue déjà son intention
+            // parfois)
             if (!(currentPlayer instanceof Bot)) {
                 Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " a choisi l'action n°" + action);
             }
@@ -152,11 +160,13 @@ public class TeamGameController {
                     } else {
                         view.displayError("Action invalide!");
                     }
-                    Logs.getInstance().writeLogs("Erreur : Action invalide ou annulée par " + currentPlayer.getPseudo());
+                    Logs.getInstance()
+                            .writeLogs("Erreur : Action invalide ou annulée par " + currentPlayer.getPseudo());
                     continue;
                 }
 
-                Logs.getInstance().writeLogs("Carte révélée : " + revealedCard.getValue() + " (" + revealedCard.getCoordinate() + ")");
+                Logs.getInstance().writeLogs(
+                        "Carte révélée : " + revealedCard.getValue() + " (" + revealedCard.getCoordinate() + ")");
 
                 // Récupérer les infos de la carte révélée pour affichage
                 List<RevealedCard> revealed = game.getRevealedCards();
@@ -168,18 +178,25 @@ public class TeamGameController {
                 if (revealed.size() > 1) {
                     int expectedValue = revealed.get(0).getValue();
                     if (revealedCard.getValue() != expectedValue) {
-                        Logs.getInstance().writeLogs(">> Mauvaise carte ! Attendu: " + expectedValue + ", Reçu: " + revealedCard.getValue());
+                        Logs.getInstance().writeLogs(
+                                ">> Mauvaise carte ! Attendu: " + expectedValue + ", Reçu: " + revealedCard.getValue());
                         view.displayCardRevealed(revealedCard, cardOwner, cardIndex, false, false, expectedValue);
+                        view.displayVisibleCards(game.getAllPlayers(), null);
+                        pause(); // Pause pour voir la carte
                         turnSuccess = false;
                         turnContinues = false;
                     } else {
                         Logs.getInstance().writeLogs(">> Bonne carte ! La série continue.");
                         view.displayCardRevealed(revealedCard, cardOwner, cardIndex, false, true, expectedValue);
+                        view.displayVisibleCards(game.getAllPlayers(), null);
+                        pause(); // Pause pour voir la carte
                     }
                 } else {
                     // Première carte révélée
                     Logs.getInstance().writeLogs(">> Première carte de la série.");
                     view.displayCardRevealed(revealedCard, cardOwner, cardIndex, true, true, 0);
+                    view.displayVisibleCards(game.getAllPlayers(), null);
+                    pause(); // Pause pour voir la carte
                 }
             }
         }
@@ -255,7 +272,8 @@ public class TeamGameController {
                     if (isBot) {
                         view.displayBotAction(bot, "révèle MIN de", target3);
                     }
-                    Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " demande la carte MIN de " + target3.getPseudo());
+                    Logs.getInstance()
+                            .writeLogs(currentPlayer.getPseudo() + " demande la carte MIN de " + target3.getPseudo());
                     return game.revealLowestCardFromPlayer(target3);
                 }
                 return null;
@@ -268,7 +286,8 @@ public class TeamGameController {
                     if (isBot) {
                         view.displayBotAction(bot, "révèle MAX de", target4);
                     }
-                    Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " demande la carte MAX de " + target4.getPseudo());
+                    Logs.getInstance()
+                            .writeLogs(currentPlayer.getPseudo() + " demande la carte MAX de " + target4.getPseudo());
                     return game.revealHighestCardFromPlayer(target4);
                 }
                 return null;
@@ -292,7 +311,8 @@ public class TeamGameController {
         }
 
         if (mates.isEmpty()) {
-            if (!(currentPlayer instanceof Bot)) view.displayError("Aucun coéquipier disponible.");
+            if (!(currentPlayer instanceof Bot))
+                view.displayError("Aucun coéquipier disponible.");
             return false;
         }
 
@@ -307,7 +327,8 @@ public class TeamGameController {
             Deck deckA = currentPlayer.getDeck();
             Deck deckB = mate.getDeck();
 
-            if (deckA.isEmpty() || deckB.isEmpty()) return false;
+            if (deckA.isEmpty() || deckB.isEmpty())
+                return false;
 
             idxA = rand.nextInt(deckA.getSize());
             idxB = rand.nextInt(deckB.getSize());
@@ -315,13 +336,16 @@ public class TeamGameController {
             view.displayBotAction(bot, "échange une carte avec", mate);
         } else {
             mate = view.promptSelectPlayer(mates);
-            if (mate == null) return false;
+            if (mate == null)
+                return false;
 
             idxA = view.promptSelectHandCard(currentPlayer);
-            if (idxA < 0) return false;
+            if (idxA < 0)
+                return false;
 
             idxB = view.promptSelectHandCard(mate);
-            if (idxB < 0) return false;
+            if (idxB < 0)
+                return false;
         }
 
         // Log détaillé de l'échange
@@ -366,5 +390,19 @@ public class TeamGameController {
             }
         }
         return null;
+    }
+
+    // === Constante de pause ===
+    private static final int PAUSE_MS = 1200; // 1.2 secondes de pause
+
+    /**
+     * Pause pour permettre de voir les cartes révélées
+     */
+    private void pause() {
+        try {
+            Thread.sleep(PAUSE_MS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

@@ -1,22 +1,22 @@
 package com.trio.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Modèle de données pour la configuration du menu.
  * Stocke les préférences de la partie avant son lancement.
- * La logique d'affichage et de contrôle est désormais dans MenuController/MenuView.
  */
 public class Menu {
 
     // Attributs de configuration
     private User currentUser;
     private int nbPlayers;
-    private int gameMode; // 1 = Solo, 2 = Équipe
+    private int nbBots;
+    private String type; // "Individual" ou "Team"
 
-    // Constructeur vide
+    // Constructeur
     public Menu() {
+        this.nbPlayers = 2;
+        this.nbBots = 0;
+        this.type = "Individual";
     }
 
     // === Getters & Setters ===
@@ -37,17 +37,54 @@ public class Menu {
         this.nbPlayers = nbPlayers;
     }
 
-    public int getGameMode() {
-        return gameMode;
+    public int getNbBots() {
+        return nbBots;
     }
 
-    public void setGameMode(int gameMode) {
-        this.gameMode = gameMode;
+    public void setNbBots(int nbBots) {
+        this.nbBots = nbBots;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     // === Helpers ===
 
     public boolean isTeamMode() {
-        return gameMode == 2;
+        return "Team".equals(type);
+    }
+
+    /**
+     * Classe interne pour le résultat de validation
+     */
+    public static class ValidationResult {
+        private boolean valid;
+        private String errorMessage;
+
+        public ValidationResult(boolean valid, String errorMessage) {
+            this.valid = valid;
+            this.errorMessage = errorMessage;
+        }
+
+        public boolean isValid() {
+            return valid;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+
+        public static ValidationResult success() {
+            return new ValidationResult(true, null);
+        }
+
+        public static ValidationResult error(String message) {
+            return new ValidationResult(false, message);
+        }
     }
 }

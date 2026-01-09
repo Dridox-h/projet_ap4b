@@ -2,7 +2,6 @@ package com.trio.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Mode de jeu en équipe.
@@ -21,8 +20,6 @@ public class TeamGame implements Game {
     private boolean gameEnded;
 
     // Pour la version console (si utilisée sans GUI)
-    private Scanner scanner;
-
     // Constructeur
     public TeamGame(List<Team> teams, Deck centerDeck) {
         if (teams.size() < 2 || teams.size() > 3) {
@@ -33,7 +30,6 @@ public class TeamGame implements Game {
         this.currentPlayerIndex = 0;
         this.revealedThisTurn = new ArrayList<>();
         this.gameEnded = false;
-        this.scanner = new Scanner(System.in);
         buildPlayOrder();
     }
 
@@ -121,8 +117,10 @@ public class TeamGame implements Game {
     }
 
     /**
-     * Distribue TOUTES les cartes aux joueurs (pas de centre en mode équipe par défaut,
-     * sauf variante spécifique, ici on suit la règle standard où tout est distribué).
+     * Distribue TOUTES les cartes aux joueurs (pas de centre en mode équipe par
+     * défaut,
+     * sauf variante spécifique, ici on suit la règle standard où tout est
+     * distribué).
      * 4 joueurs = 9 cartes chacun, 6 joueurs = 6 cartes chacun.
      */
     public void distributeCards() {
@@ -210,9 +208,9 @@ public class TeamGame implements Game {
      * Cette méthode est agnostique de l'UI et gère uniquement les données.
      *
      * @param playerA Premier joueur
-     * @param indexA Index de la carte dans le deck de A
+     * @param indexA  Index de la carte dans le deck de A
      * @param playerB Second joueur
-     * @param indexB Index de la carte dans le deck de B
+     * @param indexB  Index de la carte dans le deck de B
      * @return true si l'échange a réussi
      */
     public boolean performExchange(Player playerA, int indexA, Player playerB, int indexB) {
@@ -230,7 +228,8 @@ public class TeamGame implements Game {
         deckA.set(indexA, cardB);
         deckB.set(indexB, cardA);
 
-        // Re-trier les mains est souvent nécessaire après un échange pour maintenir l'ordre
+        // Re-trier les mains est souvent nécessaire après un échange pour maintenir
+        // l'ordre
         // Mais attention : cela changerait les index des cartes.
         // Dans Trio, l'échange se fait "à l'aveugle" ou "en place" ?
         // Si on veut maintenir l'ordre croissant strict de Trio :
@@ -266,7 +265,8 @@ public class TeamGame implements Game {
                 centerDeck.removeCard(card);
             }
 
-            // Ajouter au trio gagné (la carte redevient invisible ou visible selon choix d'affichage)
+            // Ajouter au trio gagné (la carte redevient invisible ou visible selon choix
+            // d'affichage)
             // Généralement on les garde visibles dans la pile des gains
             card.setVisible();
             trio.addCard(card);

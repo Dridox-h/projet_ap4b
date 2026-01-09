@@ -1,10 +1,9 @@
 package com.trio.model;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
-import java.io.InputStream;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -104,42 +103,81 @@ public class DrawPile {
         deck = new Deck();
 
         try {
-            // 1. Lire le fichier depuis le classpath (dossier resources)
-            // Le chemin commence par "/" car il est à la racine des ressources compilées
-            InputStream is = getClass().getResourceAsStream("../../../resources/cards.json");
+            // Essayer plusieurs chemins possibles (resources)
+            InputStream is = getClass().getResourceAsStream("/resources/cards.json");
 
             if (is == null) {
-                System.err.println("Erreur : Impossible de trouver cards.json");
+                is = getClass().getClassLoader().getResourceAsStream("resources/cards.json");
+            }
+            if (is == null) {
+                is = getClass().getResourceAsStream("/cards.json");
+            }
+            if (is == null) {
+                is = getClass().getClassLoader().getResourceAsStream("cards.json");
+            }
+
+            // Essayer depuis le système de fichiers
+            if (is == null) {
+                java.io.File file = new java.io.File("src/resources/cards.json");
+                if (file.exists()) {
+                    is = new java.io.FileInputStream(file);
+                    System.out.println("✓ cards.json chargé depuis: " + file.getAbsolutePath());
+                }
+            }
+
+            if (is == null) {
+                System.out.println("Info: cards.json non trouvé, génération des cartes par défaut...");
+                generateDefaultCards();
                 return;
             }
 
-            // Astuce "One-liner" pour lire tout le stream dans une String (Scanner avec délimiteur \A)
+            // Astuce "One-liner" pour lire tout le stream dans une String (Scanner avec
+            // délimiteur \A)
             Scanner scanner = new Scanner(is, "UTF-8");
             String jsonContent = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
             scanner.close();
             is.close();
 
-            // 2. Parser manuellement avec Regex
-            // On cherche le pattern : "value": X ... "coordinate": "Y" ... "imagePath": "Z"
-            // Le flag DOTALL permet au . de matcher les retours à la ligne
+            // Parser manuellement avec Regex
             String regex = "\"value\"\\s*:\\s*(\\d+).*?\"coordinate\"\\s*:\\s*\"(.*?)\".*?\"imagePath\"\\s*:\\s*\"(.*?)\"";
             Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
             Matcher matcher = pattern.matcher(jsonContent);
 
-            // 3. Boucler sur toutes les correspondances trouvées
             while (matcher.find()) {
-                int value = Integer.parseInt(matcher.group(1)); // Groupe 1 : la valeur numérique
-                String coord = matcher.group(2);               // Groupe 2 : le texte de coordinate
-                String imagePath = matcher.group(3);           // Groupe 3 : le chemin de l'image
-
-                // Créer et ajouter la carte
+                int value = Integer.parseInt(matcher.group(1));
+                String coord = matcher.group(2);
+                String imagePath = matcher.group(3);
                 deck.addCard(new Card(value, coord, imagePath));
             }
 
+            // Vérifier si des cartes ont été chargées
+            if (deck.isEmpty()) {
+                System.out.println("Info: Aucune carte trouvée dans le JSON, génération par défaut...");
+                generateDefaultCards();
+            } else {
+                System.out.println("✓ " + deck.getSize() + " cartes chargées depuis cards.json");
+            }
+
         } catch (Exception e) {
-            e.printStackTrace();
-            // Fallback optionnel : créer des cartes par défaut si le fichier échoue
+            System.out.println("Info: Erreur lors du chargement: " + e.getMessage());
+            generateDefaultCards();
         }
+    }
+
+    /**
+     * Génère les 36 cartes par défaut en mémoire (fallback)
+     * Valeurs de 1 à 12, 3 cartes par valeur
+     */
+    private void generateDefaultCards() {
+        deck = new Deck();
+        for (int value = 1; value <= 12; value++) {
+            for (int copy = 0; copy < 3; copy++) {
+                String coord = value + "-" + (char) ('A' + copy);
+                String imagePath = "cards/" + value + ".png";
+                deck.addCard(new Card(value, coord, imagePath));
+            }
+        }
+        System.out.println("✓ " + deck.getSize() + " cartes générées par défaut");
     }
 
     /**
@@ -164,6 +202,10 @@ public class DrawPile {
 
         // Règles de distribution selon le nombre de joueurs
         switch (nbPlayers) {
+            case 2:
+                cardsPerPlayer = 9;
+                cardsAtCenter = 18;
+                break;
             case 3:
                 cardsPerPlayer = 9;
                 cardsAtCenter = 9;

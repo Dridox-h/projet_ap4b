@@ -1,151 +1,193 @@
 package com.trio.controller;
 
 import com.trio.model.*;
-import com.trio.view.MenuView;
-import com.trio.view.GameView;
-import com.trio.view.TeamGameView;
-import com.trio.view.SwingTeamGameView;
-import com.trio.view.SwingGameView;
+import com.trio.services.Logs;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
 
 /**
- * Contrôleur du menu principal.
+ * Contrôleur du menu GUI.
  * Gère la configuration de la partie avant de la lancer.
  */
 public class MenuController {
 
-    private MenuView menuView;
-    private User currentUser;
-    private int nbPlayers;
-    private int gameMode;
+    private Menu menu;
 
-    public MenuController(MenuView menuView) {
-        this.menuView = menuView;
+    public MenuController(Menu menu) {
+        this.menu = menu;
     }
 
     /**
-     * Lance le processus de configuration.
-     * Cette méthode est généralement bloquante dans une architecture simple,
-     * car les boîtes de dialogue Swing (modales) suspendent l'exécution ici.
+     * Valide la configuration et prépare le lancement du jeu
      */
-    public void configure() {
-        // Afficher bienvenue (titre)
-        menuView.displayWelcome();
-
-        // 1. Demander le pseudo
-        String pseudo = menuView.promptPseudo();
-        this.currentUser = new User(pseudo);
-
-        // 2. Demander le mode de jeu (1=Solo, 2=Équipe)
-        this.gameMode = menuView.promptGameMode();
-
-        // 3. Demander le nombre de joueurs selon le mode
-        this.nbPlayers = menuView.promptPlayerCount(gameMode);
-    }
-
-    /**
-     * Crée la liste des joueurs (1 Humain + N-1 Bots)
-     */
-    public List<Player> createPlayers() {
-        List<Player> players = new ArrayList<>();
-        players.add(currentUser);
-
-        // Créer les bots
-        for (int i = 1; i < nbPlayers; i++) {
-            players.add(new Bot("Bot" + i));
+    public Menu.ValidationResult startGame() {
+        // Vérifier qu'un utilisateur est sélectionné
+        if (menu.getCurrentUser() == null) {
+            return Menu.ValidationResult.error("Please select or create a user first.");
         }
 
-        // Afficher la liste des joueurs pour confirmation visuelle
-        String[] names = new String[players.size()];
-        boolean[] isBot = new boolean[players.size()];
-        for (int i = 0; i < players.size(); i++) {
-            names[i] = players.get(i).getPseudo();
-            isBot[i] = players.get(i) instanceof Bot;
+        // Vérifier le nombre de joueurs
+        if (menu.getNbPlayers() < 2) {
+            return Menu.ValidationResult.error("At least 2 players are required.");
         }
-        menuView.displayPlayersList(names, isBot);
 
-        return players;
+        // Vérifier le mode équipe (nombre pair de joueurs requis)
+        if (menu.isTeamMode() && menu.getNbPlayers() % 2 != 0) {
+            return Menu.ValidationResult.error("Team mode requires an even number of players.");
+        }
+
+        Logs.getInstance().writeLogs("Game starting with " + menu.getNbPlayers() + " players, mode: " + menu.getType());
+        return Menu.ValidationResult.success();
     }
 
     /**
-     * Lance le jeu en fonction du mode choisi.
-     * Si le paramètre gameView est générique, on caste ou on en crée un nouveau si nécessaire.
+     * Configure le nombre de bots pour compléter la partie
      */
-    public void startGame(GameView gameView) {
-        List<Player> players = createPlayers();
+    public void configureBots(int totalPlayers) {
+        // Si un utilisateur existe, on compte 1 humain
+        int humanPlayers = menu.getCurrentUser() != null ? 1 : 0;
+        int botsNeeded = totalPlayers - humanPlayers;
 
-        if (gameMode == 2) {
-            // === MODE ÉQUIPE ===
-            // Nécessite une TeamGameView spécifique
-            TeamGameView teamView;
-            if (gameView instanceof TeamGameView) {
-                teamView = (TeamGameView) gameView;
-            } else {
-                // Fallback si la vue passée n'est pas compatible
-                teamView = new SwingTeamGameView();
+        menu.setNbBots(botsNeeded);
+        menu.setNbPlayers(totalPlayers);
+
+        Logs.getInstance().writeLogs("Configured " + botsNeeded + " bots for the game.");
+    }
+
+    /**
+     * Vérifie si le fichier UserLogs.txt est vide ou n'existe pas
+     */
+    public boolean isUserLogsEmpty() {
+        File file = new File("logs/UserLogs.txt");
+        if (!file.exists()) {
+            return true;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    return false;
+                }
+            }
+        } catch (IOException e) {
+            return true;
+        }
+
+        return true;
+    }
+
+    /**
+     * Sélectionne un utilisateur existant par son ID
+     */
+    public User selectExistingUser(int userId) {
+        File file = new File("logs/UserLogs.txt");
+        if (!file.exists()) {
+            return null;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+
+                // Parse format: "ID: X | Name: Y | Age: Z | Victories: W"
+                User user = parseUserFromLog(line);
+                if (user != null && user.getId() == userId) {
+                    menu.setCurrentUser(user);
+                    Logs.getInstance().writeLogs("User selected: " + user.getName());
+                    return user;
+                }
+            }
+        } catch (IOException e) {
+            Logs.getInstance().writeLogs("Error reading user logs: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Parse une ligne de log pour créer un User
+     */
+    private User parseUserFromLog(String line) {
+        try {
+            // Format attendu: "ID: X | Name: Y | Age: Z | Victories: W"
+            String[] parts = line.split("\\|");
+            if (parts.length < 4) {
+                return null;
             }
 
-            List<Team> teams = createTeams(players);
+            int id = Integer.parseInt(parts[0].replace("ID:", "").trim());
+            String name = parts[1].replace("Name:", "").trim();
+            int age = Integer.parseInt(parts[2].replace("Age:", "").trim());
+            int victories = Integer.parseInt(parts[3].replace("Victories:", "").trim());
 
-            // Création du Model et Controller Équipe
-            TeamGame game = new TeamGame(teams, new Deck());
-            TeamGameController teamController = new TeamGameController(game, teamView);
-
-            teamController.startGame();
-
-        } else {
-            // === MODE SOLO ===
-            // Création du Model et Controller Standard
-            SoloGame game = new SoloGame(players, new Deck());
-            GameController gameController = new GameController(game, gameView);
-
-            gameController.startGame();
+            return new User(id, name, age, victories);
+        } catch (Exception e) {
+            return null;
         }
     }
 
     /**
-     * Surcharge pour faciliter l'appel depuis le Main si on veut lancer un TeamGame spécifiquement
+     * Crée un nouvel utilisateur et le sauvegarde
      */
-    public void startTeamGame(TeamGameView teamView) {
-        this.gameMode = 2; // Force le mode équipe
-        startGame(teamView);
+    public User createNewUser(String name, int age, String avatarPath) {
+        User user = new User(name, age, avatarPath);
+
+        // Sauvegarder dans le fichier logs
+        saveUserToLogs(user);
+
+        // Définir comme utilisateur courant
+        menu.setCurrentUser(user);
+
+        Logs.getInstance().writeLogs("New user created: " + user.getName());
+        return user;
     }
 
     /**
-     * Crée les équipes automatiquement : (J1, J2), (J3, J4)...
+     * Sauvegarde un utilisateur dans le fichier de logs
      */
-    private List<Team> createTeams(List<Player> players) {
-        List<Team> teams = new ArrayList<>();
-        int teamSize = 2;
-        int nbTeams = players.size() / teamSize;
-
-        for (int i = 0; i < nbTeams; i++) {
-            List<Player> teamPlayers = new ArrayList<>();
-            for (int j = 0; j < teamSize; j++) {
-                teamPlayers.add(players.get(i * teamSize + j));
-            }
-            Team team = new Team("Équipe " + (char) ('A' + i), teamPlayers);
-            teams.add(team);
+    private void saveUserToLogs(User user) {
+        // Créer le dossier logs s'il n'existe pas
+        File logsDir = new File("logs");
+        if (!logsDir.exists()) {
+            logsDir.mkdirs();
         }
-        return teams;
+
+        try (FileWriter fw = new FileWriter("logs/UserLogs.txt", true);
+                BufferedWriter bw = new BufferedWriter(fw)) {
+
+            String logLine = String.format("ID: %d | Name: %s | Age: %d | Victories: %d",
+                    user.getId(), user.getName(), user.getAge(), user.getNBVictoire());
+            bw.write(logLine);
+            bw.newLine();
+
+        } catch (IOException e) {
+            Logs.getInstance().writeLogs("Error saving user: " + e.getMessage());
+        }
     }
 
-    // Getters pour que le Main puisse savoir quel mode a été choisi
-    public boolean isTeamMode() {
-        return gameMode == 2;
+    /**
+     * Quitte l'application
+     */
+    public void exitGame() {
+        Logs.getInstance().writeLogs("Exiting game from menu.");
+        System.exit(0);
     }
+
+    // === Getters ===
 
     public User getCurrentUser() {
-        return currentUser;
+        return menu.getCurrentUser();
     }
 
     public int getNbPlayers() {
-        return nbPlayers;
+        return menu.getNbPlayers();
     }
 
-    public int getGameMode() {
-        return gameMode;
+    public boolean isTeamMode() {
+        return menu.isTeamMode();
     }
 }

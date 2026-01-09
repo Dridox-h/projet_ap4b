@@ -1,6 +1,7 @@
 package com.trio.controller;
 
 import com.trio.model.*;
+import com.trio.services.DataService;
 import com.trio.services.Logs;
 import com.trio.view.GameView;
 
@@ -61,6 +62,10 @@ public class GameController {
             Player pWinner = (Player) winner;
             Logs.getInstance().writeLogs("FIN DE PARTIE - Vainqueur : " + pWinner.getPseudo());
             view.displayGameWinner(pWinner);
+
+            // Sauvegarder le résultat et incrémenter les victoires
+            DataService.getInstance().saveGameResult(pWinner, game.getPlayers(), "Solo");
+            DataService.getInstance().incrementVictory(pWinner);
         }
     }
 
@@ -75,7 +80,8 @@ public class GameController {
             // Choisir une action
             int action = chooseAction(currentPlayer);
 
-            // Log de l'action brute (sauf si c'est un bot qui gère ses propres logs d'intention)
+            // Log de l'action brute (sauf si c'est un bot qui gère ses propres logs
+            // d'intention)
             if (!(currentPlayer instanceof Bot)) {
                 Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " a choisi l'action n°" + action);
             }
@@ -95,11 +101,13 @@ public class GameController {
 
                 if (revealedCard == null) {
                     view.displayError("Action invalide!");
-                    Logs.getInstance().writeLogs("Erreur : Action invalide ou annulée par " + currentPlayer.getPseudo());
+                    Logs.getInstance()
+                            .writeLogs("Erreur : Action invalide ou annulée par " + currentPlayer.getPseudo());
                     continue;
                 }
 
-                Logs.getInstance().writeLogs("Carte révélée : " + revealedCard.getValue() + " (" + revealedCard.getCoordinate() + ")");
+                Logs.getInstance().writeLogs(
+                        "Carte révélée : " + revealedCard.getValue() + " (" + revealedCard.getCoordinate() + ")");
 
                 // Récupérer l'owner et l'index de la carte révélée (dernière ajoutée)
                 List<RevealedCard> revealed = game.getRevealedCards();
@@ -111,17 +119,24 @@ public class GameController {
                 if (revealed.size() > 1) {
                     int expectedValue = revealed.get(0).getValue();
                     if (revealedCard.getValue() != expectedValue) {
-                        Logs.getInstance().writeLogs(">> Mauvaise carte ! Attendu: " + expectedValue + ", Reçu: " + revealedCard.getValue());
+                        Logs.getInstance().writeLogs(
+                                ">> Mauvaise carte ! Attendu: " + expectedValue + ", Reçu: " + revealedCard.getValue());
                         view.displayCardRevealed(revealedCard, cardOwner, cardIndex, false, false, expectedValue);
+                        view.displayVisibleCards(game.getPlayers(), game.getCenterDeck());
+                        pause(); // Pause pour voir la carte
                         turnSuccess = false;
                         turnContinues = false;
                     } else {
                         Logs.getInstance().writeLogs(">> Bonne carte ! La série continue.");
                         view.displayCardRevealed(revealedCard, cardOwner, cardIndex, false, true, expectedValue);
+                        view.displayVisibleCards(game.getPlayers(), game.getCenterDeck());
+                        pause(); // Pause pour voir la carte
                     }
                 } else {
                     Logs.getInstance().writeLogs(">> Première carte de la série.");
                     view.displayCardRevealed(revealedCard, cardOwner, cardIndex, true, true, 0);
+                    view.displayVisibleCards(game.getPlayers(), game.getCenterDeck());
+                    pause(); // Pause pour voir la carte
                 }
             }
         }
@@ -193,7 +208,8 @@ public class GameController {
                     if (isBot) {
                         view.displayBotAction(bot, "cible", target3);
                     }
-                    Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " demande la carte MIN de " + target3.getPseudo());
+                    Logs.getInstance()
+                            .writeLogs(currentPlayer.getPseudo() + " demande la carte MIN de " + target3.getPseudo());
                     return game.revealLowestCardFromPlayer(target3);
                 }
                 return null;
@@ -206,7 +222,8 @@ public class GameController {
                     if (isBot) {
                         view.displayBotAction(bot, "cible", target4);
                     }
-                    Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " demande la carte MAX de " + target4.getPseudo());
+                    Logs.getInstance()
+                            .writeLogs(currentPlayer.getPseudo() + " demande la carte MAX de " + target4.getPseudo());
                     return game.revealHighestCardFromPlayer(target4);
                 }
                 return null;
@@ -222,7 +239,8 @@ public class GameController {
                     centerIndex = view.promptSelectCenterCard(game.getCenterDeck());
                 }
                 if (centerIndex >= 0) {
-                    Logs.getInstance().writeLogs(currentPlayer.getPseudo() + " révèle la carte du centre n°" + (centerIndex + 1));
+                    Logs.getInstance()
+                            .writeLogs(currentPlayer.getPseudo() + " révèle la carte du centre n°" + (centerIndex + 1));
                     return game.revealCardFromCenter(centerIndex);
                 }
                 return null;
@@ -262,5 +280,19 @@ public class GameController {
             }
         }
         return null;
+    }
+
+    // === Constante de pause ===
+    private static final int PAUSE_MS = 1200; // 1.2 secondes de pause
+
+    /**
+     * Pause pour permettre de voir les cartes révélées
+     */
+    private void pause() {
+        try {
+            Thread.sleep(PAUSE_MS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

@@ -80,7 +80,7 @@ public class Deck {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Card card : cards) {
-            if (card.isVisible() != false) {
+            if (card.isVisible()) {
                 sb.append(card.toString()).append("\n");
             }
         }

@@ -5,7 +5,4 @@ public interface TrioHolder {
     void addTrio(Deck trio);
 
     int getTrioCount();
-
-
-
 }

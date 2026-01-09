@@ -90,4 +90,6 @@ public interface GameView {
      * Demande au joueur de choisir une carte du centre
      */
     int promptSelectCenterCard(Deck centerDeck);
+
+    void startGame();
 }

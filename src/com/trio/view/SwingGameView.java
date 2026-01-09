@@ -8,27 +8,26 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.RoundRectangle2D;
-import java.net.URL;
 import java.util.List;
 
 /**
- * Interface graphique Swing style Apple pour le jeu Trio (mode Solo).
- * Affiche les cartes avec images, gère la fermeture de fenêtre et une victoire animée.
+ * Interface graphique Swing style sombre premium pour le jeu Trio (mode Solo).
+ * Harmonisée avec le MenuGUI.
  */
 public class SwingGameView extends JFrame implements GameView {
 
-    // === Apple-like Color Palette ===
-    private static final Color BACKGROUND = new Color(248, 248, 248);
-    private static final Color CARD_BG = Color.WHITE;
-    private static final Color PRIMARY = new Color(0, 122, 255);
-    private static final Color SUCCESS = new Color(52, 199, 89);
-    private static final Color WARNING = new Color(255, 149, 0);
-    private static final Color DANGER = new Color(255, 59, 48);
-    private static final Color GRAY_1 = new Color(142, 142, 147);
-    private static final Color GRAY_2 = new Color(174, 174, 178);
-    private static final Color GRAY_3 = new Color(199, 199, 204);
-    private static final Color TEXT_PRIMARY = new Color(0, 0, 0);
-    private static final Color TEXT_SECONDARY = new Color(60, 60, 67, 153);
+    // === Dark Premium Color Palette (harmonisé avec MenuGUI) ===
+    private static final Color BACKGROUND = new Color(26, 26, 46); // Deep navy
+    private static final Color CARD_BG = new Color(40, 45, 75); // Card background
+    private static final Color PRIMARY = new Color(0, 217, 255); // Electric cyan
+    private static final Color SUCCESS = new Color(16, 185, 129); // Success green
+    private static final Color WARNING = new Color(255, 149, 0); // Orange
+    private static final Color DANGER = new Color(239, 68, 68); // Red
+    private static final Color GRAY_1 = new Color(100, 110, 140); // Lighter gray
+    private static final Color GRAY_2 = new Color(80, 90, 130); // Border color
+    private static final Color GRAY_3 = new Color(50, 55, 80); // Dark gray
+    private static final Color TEXT_PRIMARY = new Color(255, 255, 255); // White
+    private static final Color TEXT_SECONDARY = new Color(160, 170, 200); // Light gray-blue
 
     // === Card Dimensions ===
     private static final int CARD_WIDTH = 80;
@@ -110,8 +109,7 @@ public class SwingGameView extends JFrame implements GameView {
                 "Voulez-vous vraiment quitter le jeu ?",
                 "Quitter Trio",
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
+                JOptionPane.QUESTION_MESSAGE);
 
         if (choice == JOptionPane.YES_OPTION) {
             System.exit(0);
@@ -180,10 +178,32 @@ public class SwingGameView extends JFrame implements GameView {
         handContainer.add(scrollPane, BorderLayout.CENTER);
         panel.add(handContainer, BorderLayout.SOUTH);
 
-        // --- CENTER DECK ---
-        centerPanel = createCardPanel("Cartes du Centre");
-        centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        panel.add(centerPanel, BorderLayout.CENTER);
+        // --- CENTER DECK avec défilement ---
+        JPanel centerContainer = createCardPanel("Cartes du Centre");
+        centerContainer.setLayout(new BorderLayout(0, 10));
+        centerContainer.removeAll();
+
+        JLabel centerTitle = new JLabel("Cartes du Centre");
+        centerTitle.setFont(new Font("SF Pro Text", Font.BOLD, 14));
+        centerTitle.setForeground(TEXT_PRIMARY);
+        centerTitle.setBorder(new EmptyBorder(0, 5, 0, 0));
+        centerContainer.add(centerTitle, BorderLayout.NORTH);
+
+        centerPanel = new JPanel();
+        centerPanel.setLayout(new GridLayout(3, 6, 10, 10)); // 3 lignes, 6 colonnes
+        centerPanel.setOpaque(false);
+
+        JScrollPane centerScrollPane = new JScrollPane(centerPanel);
+        centerScrollPane.setOpaque(false);
+        centerScrollPane.getViewport().setOpaque(false);
+        centerScrollPane.setBorder(null);
+        centerScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        centerScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        centerScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        centerScrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+
+        centerContainer.add(centerScrollPane, BorderLayout.CENTER);
+        panel.add(centerContainer, BorderLayout.CENTER);
 
         return panel;
     }
@@ -204,7 +224,7 @@ public class SwingGameView extends JFrame implements GameView {
         logArea.setEditable(false);
         logArea.setFont(new Font("SF Mono", Font.PLAIN, 12));
         logArea.setForeground(TEXT_SECONDARY);
-        logArea.setBackground(Color.WHITE);
+        logArea.setBackground(CARD_BG);
         logArea.setMargin(new Insets(10, 10, 10, 10));
 
         JScrollPane scrollPane = new JScrollPane(logArea);
@@ -242,15 +262,19 @@ public class SwingGameView extends JFrame implements GameView {
     // === CUSTOM CARD VIEW ===
 
     private JPanel createCardView(Card card, boolean forceVisible) {
+        // Couleur de fond basée sur la valeur de la carte (1-12)
+        final Color cardColor = forceVisible ? getCardColor(card.getValue()) : GRAY_3;
+
         JPanel cardPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(forceVisible ? Color.WHITE : GRAY_3);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                g2.setColor(GRAY_2);
-                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
+                g2.setColor(cardColor);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
+                g2.setColor(cardColor.darker());
+                g2.setStroke(new BasicStroke(2));
+                g2.draw(new RoundRectangle2D.Float(1, 1, getWidth() - 2, getHeight() - 2, 12, 12));
                 g2.dispose();
             }
         };
@@ -259,46 +283,34 @@ public class SwingGameView extends JFrame implements GameView {
         cardPanel.setMaximumSize(new Dimension(CARD_WIDTH, CARD_HEIGHT));
         cardPanel.setOpaque(false);
         cardPanel.setLayout(new BorderLayout());
-        cardPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        cardPanel.setBorder(new EmptyBorder(6, 6, 6, 6));
 
         if (forceVisible) {
+            // Valeur en haut à gauche avec fond contrasté
             JLabel valueLabel = new JLabel(String.valueOf(card.getValue()));
-            valueLabel.setFont(new Font("SF Pro Display", Font.BOLD, 16));
-            valueLabel.setForeground(TEXT_PRIMARY);
+            valueLabel.setFont(new Font("SF Pro Display", Font.BOLD, 18));
+            valueLabel.setForeground(Color.WHITE);
             valueLabel.setHorizontalAlignment(SwingConstants.LEFT);
             cardPanel.add(valueLabel, BorderLayout.NORTH);
 
-            JLabel imageLabel = new JLabel();
-            imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            try {
-                URL imgUrl = getClass().getResource("/" + card.getPathImage());
-                if (imgUrl != null) {
-                    ImageIcon originalIcon = new ImageIcon(imgUrl);
-                    Image img = originalIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
-                    imageLabel.setIcon(new ImageIcon(img));
-                } else {
-                    String fallbackText = card.getCoordinate().isEmpty() ? "?" : card.getCoordinate().substring(0, 1);
-                    imageLabel.setText(fallbackText);
-                    imageLabel.setFont(new Font("Serif", Font.ITALIC, 24));
-                    imageLabel.setForeground(PRIMARY);
-                }
-            } catch (Exception e) {
-                imageLabel.setText("Img?");
-            }
-            cardPanel.add(imageLabel, BorderLayout.CENTER);
+            // Coordonnée au centre - affichage complet avec retour à la ligne
+            JPanel centerPanel = new JPanel();
+            centerPanel.setOpaque(false);
+            centerPanel.setLayout(new GridBagLayout());
 
-            JLabel coordLabel = new JLabel(card.getCoordinate());
-            coordLabel.setFont(new Font("SF Pro Text", Font.PLAIN, 9));
-            coordLabel.setForeground(TEXT_SECONDARY);
+            String coord = card.getCoordinate();
+            JLabel coordLabel = new JLabel(
+                    "<html><div style='text-align:center;width:60px;'>" + coord + "</div></html>");
+            coordLabel.setFont(new Font("SF Pro Text", Font.BOLD, 10));
+            coordLabel.setForeground(Color.WHITE);
             coordLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            if (card.getCoordinate().length() > 12) {
-                coordLabel.setToolTipText(card.getCoordinate());
-            }
-            cardPanel.add(coordLabel, BorderLayout.SOUTH);
+            coordLabel.setVerticalAlignment(SwingConstants.CENTER);
+            centerPanel.add(coordLabel);
+            cardPanel.add(centerPanel, BorderLayout.CENTER);
 
         } else {
             JLabel hiddenLabel = new JLabel("?");
-            hiddenLabel.setFont(new Font("SF Pro Display", Font.BOLD, 28));
+            hiddenLabel.setFont(new Font("SF Pro Display", Font.BOLD, 32));
             hiddenLabel.setForeground(GRAY_1);
             hiddenLabel.setHorizontalAlignment(SwingConstants.CENTER);
             cardPanel.add(hiddenLabel, BorderLayout.CENTER);
@@ -307,12 +319,51 @@ public class SwingGameView extends JFrame implements GameView {
         return cardPanel;
     }
 
+    /**
+     * Retourne une couleur distincte pour chaque valeur de carte (1-12)
+     */
+    private Color getCardColor(int value) {
+        switch (value) {
+            case 1:
+                return new Color(231, 76, 60); // Rouge
+            case 2:
+                return new Color(230, 126, 34); // Orange
+            case 3:
+                return new Color(241, 196, 15); // Jaune
+            case 4:
+                return new Color(46, 204, 113); // Vert
+            case 5:
+                return new Color(26, 188, 156); // Turquoise
+            case 6:
+                return new Color(52, 152, 219); // Bleu clair
+            case 7:
+                return new Color(41, 128, 185); // Bleu
+            case 8:
+                return new Color(155, 89, 182); // Violet
+            case 9:
+                return new Color(142, 68, 173); // Violet foncé
+            case 10:
+                return new Color(52, 73, 94); // Gris foncé
+            case 11:
+                return new Color(44, 62, 80); // Noir bleuté
+            case 12:
+                return new Color(192, 57, 43); // Rouge foncé
+            default:
+                return PRIMARY;
+        }
+    }
+
     // === UTILS ===
 
     private static class RoundedBorder extends javax.swing.border.AbstractBorder {
         private final int radius;
         private final Color color;
-        RoundedBorder(int radius, Color color) { this.radius = radius; this.color = color; }
+
+        RoundedBorder(int radius, Color color) {
+            this.radius = radius;
+            this.color = color;
+        }
+
         @Override
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -321,8 +372,11 @@ public class SwingGameView extends JFrame implements GameView {
             g2.draw(new RoundRectangle2D.Float(x, y, width - 1, height - 1, radius, radius));
             g2.dispose();
         }
+
         @Override
-        public Insets getBorderInsets(Component c) { return new Insets(radius/2, radius/2, radius/2, radius/2); }
+        public Insets getBorderInsets(Component c) {
+            return new Insets(radius / 2, radius / 2, radius / 2, radius / 2);
+        }
     }
 
     private JButton createAppleButton(String text, Color color) {
@@ -331,9 +385,12 @@ public class SwingGameView extends JFrame implements GameView {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                if (getModel().isPressed()) g2.setColor(color.darker());
-                else if (getModel().isRollover()) g2.setColor(color.brighter());
-                else g2.setColor(color);
+                if (getModel().isPressed())
+                    g2.setColor(color.darker());
+                else if (getModel().isRollover())
+                    g2.setColor(color.brighter());
+                else
+                    g2.setColor(color);
                 g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
                 g2.dispose();
                 super.paintComponent(g);
@@ -390,10 +447,6 @@ public class SwingGameView extends JFrame implements GameView {
         SwingUtilities.invokeLater(() -> {
             updatePlayersPanel(players);
             centerPanel.removeAll();
-            JLabel title = new JLabel("Cartes du Centre");
-            title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
-            title.setForeground(TEXT_PRIMARY);
-            centerPanel.add(title);
             if (centerDeck != null) {
                 for (Card c : centerDeck.getCards()) {
                     JPanel card = createCardView(c, c.isVisible());
@@ -463,7 +516,7 @@ public class SwingGameView extends JFrame implements GameView {
 
             JDialog victoryDialog = new JDialog(this, "Stage Trouvé !", true);
             victoryDialog.setUndecorated(true);
-            victoryDialog.setBackground(new Color(0,0,0,0));
+            victoryDialog.setBackground(new Color(0, 0, 0, 0));
 
             JPanel content = new JPanel() {
                 @Override
@@ -474,7 +527,7 @@ public class SwingGameView extends JFrame implements GameView {
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 30, 30));
                     g2.setColor(SUCCESS);
                     g2.setStroke(new BasicStroke(3));
-                    g2.draw(new RoundRectangle2D.Float(1, 1, getWidth()-3, getHeight()-3, 30, 30));
+                    g2.draw(new RoundRectangle2D.Float(1, 1, getWidth() - 3, getHeight() - 3, 30, 30));
                     g2.dispose();
                 }
             };
@@ -491,8 +544,8 @@ public class SwingGameView extends JFrame implements GameView {
             titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             JTextArea messageArea = new JTextArea(
-                    "Vous avez réussi à trouver un stage\nau sein de l'entreprise\n" + finalCompanyName
-            );
+                    "Après des milliers de candidatures,\nvous avez réussi à obtenir un poste chez\n" + finalCompanyName
+                            + " !");
             messageArea.setFont(new Font("SF Pro Text", Font.PLAIN, 18));
             messageArea.setForeground(TEXT_PRIMARY);
             messageArea.setOpaque(false);
@@ -512,7 +565,7 @@ public class SwingGameView extends JFrame implements GameView {
 
             if (!winningTrios.isEmpty()) {
                 Deck lastTrio = winningTrios.get(winningTrios.size() - 1);
-                for(Card c : lastTrio.getCards()) {
+                for (Card c : lastTrio.getCards()) {
                     JPanel cardView = createCardView(c, true);
                     cardsPanel.add(cardView);
                 }
@@ -552,17 +605,22 @@ public class SwingGameView extends JFrame implements GameView {
     public void displayRevealedCards(List<RevealedCard> revealedCards) {
         if (!revealedCards.isEmpty()) {
             StringBuilder sb = new StringBuilder("Cartes révélées: ");
-            for (RevealedCard rc : revealedCards) sb.append("[").append(rc.getValue()).append("] ");
+            for (RevealedCard rc : revealedCards)
+                sb.append("[").append(rc.getValue()).append("] ");
             log(sb.toString());
         }
     }
 
     @Override
-    public void displayCardRevealed(Card card, Player owner, int cardIndex, boolean isFirst, boolean isCorrect, int expectedValue) {
+    public void displayCardRevealed(Card card, Player owner, int cardIndex, boolean isFirst, boolean isCorrect,
+            int expectedValue) {
         String source = owner != null ? owner.getPseudo() : "Centre";
-        if (isFirst) log("✓ Première carte: [" + card.getValue() + "] de " + source);
-        else if (isCorrect) log("✓ Bonne carte: [" + card.getValue() + "] de " + source);
-        else log("✗ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue());
+        if (isFirst)
+            log("✓ Première carte: [" + card.getValue() + "] de " + source);
+        else if (isCorrect)
+            log("✓ Bonne carte: [" + card.getValue() + "] de " + source);
+        else
+            log("✗ Mauvaise carte! Attendu: " + expectedValue + ", Reçu: " + card.getValue());
     }
 
     @Override
@@ -581,7 +639,7 @@ public class SwingGameView extends JFrame implements GameView {
         p.add(l);
         toast.add(p);
         toast.pack();
-        toast.setLocation(getX() + getWidth()/2 - toast.getWidth()/2, getY() + 100);
+        toast.setLocation(getX() + getWidth() / 2 - toast.getWidth() / 2, getY() + 100);
         toast.setVisible(true);
 
         new Timer(2000, e -> toast.dispose()).start();
@@ -599,8 +657,10 @@ public class SwingGameView extends JFrame implements GameView {
 
     @Override
     public void displayBotAction(Bot bot, String action, Player target) {
-        if (target != null) log(bot.getPseudo() + " " + action + " " + target.getPseudo());
-        else log(bot.getPseudo() + " " + action);
+        if (target != null)
+            log(bot.getPseudo() + " " + action + " " + target.getPseudo());
+        else
+            log(bot.getPseudo() + " " + action);
     }
 
     // === INPUT ===
@@ -633,7 +693,11 @@ public class SwingGameView extends JFrame implements GameView {
 
         synchronized (inputLock) {
             while (selectedAction == -1) {
-                try { inputLock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                try {
+                    inputLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         return selectedAction;
@@ -678,7 +742,11 @@ public class SwingGameView extends JFrame implements GameView {
         });
         synchronized (inputLock) {
             while (selectedPlayer == null) {
-                try { inputLock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                try {
+                    inputLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         return selectedPlayer;
@@ -689,12 +757,19 @@ public class SwingGameView extends JFrame implements GameView {
         selectedCenterIndex = -1;
         SwingUtilities.invokeLater(() -> {
             actionsPanel.removeAll();
+
             JLabel title = new JLabel("Choisir une carte");
             title.setFont(new Font("SF Pro Text", Font.BOLD, 14));
             title.setForeground(TEXT_PRIMARY);
             title.setAlignmentX(Component.CENTER_ALIGNMENT);
             actionsPanel.add(title);
-            actionsPanel.add(Box.createVerticalStrut(15));
+            actionsPanel.add(Box.createVerticalStrut(10));
+
+            // Panel pour les boutons avec scroll
+            JPanel buttonsPanel = new JPanel();
+            buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
+            buttonsPanel.setOpaque(false);
+
             for (int i = 0; i < centerDeck.getSize(); i++) {
                 Card c = centerDeck.getCard(i);
                 String text = (i + 1) + ". " + (c.isVisible() ? "[" + c.getValue() + "]" : "[?]");
@@ -706,15 +781,31 @@ public class SwingGameView extends JFrame implements GameView {
                         inputLock.notifyAll();
                     }
                 });
-                actionsPanel.add(btn);
-                actionsPanel.add(Box.createVerticalStrut(5));
+                buttonsPanel.add(btn);
+                buttonsPanel.add(Box.createVerticalStrut(5));
             }
+
+            JScrollPane scrollPane = new JScrollPane(buttonsPanel);
+            scrollPane.setOpaque(false);
+            scrollPane.getViewport().setOpaque(false);
+            scrollPane.setBorder(null);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+            scrollPane.setPreferredSize(new Dimension(200, 400));
+            scrollPane.setMaximumSize(new Dimension(200, 400));
+
+            actionsPanel.add(scrollPane);
             actionsPanel.revalidate();
             actionsPanel.repaint();
         });
         synchronized (inputLock) {
             while (selectedCenterIndex == -1) {
-                try { inputLock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                try {
+                    inputLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         return selectedCenterIndex;
