@@ -593,14 +593,16 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             teamLabel.setFont(new Font("SF Pro Text", Font.BOLD, 20));
             teamLabel.setForeground(TEXT_SECONDARY);
             teamLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            
-            String msg = winner.hasSevenTrio() 
-                ? "Incroyable ! Votre équipe a réuni les 7 !\nEmbauche collective immédiate chez\n" + finalCompanyName + " !"
-                : "Après des milliers de candidatures,\nvous avez réussi à obtenir un poste chez\n" + finalCompanyName + " !";
+
+            String msg = winner.hasSevenTrio()
+                    ? "Incroyable ! Votre équipe a réuni les 7 !\nEmbauche collective immédiate chez\n"
+                            + finalCompanyName + " !"
+                    : "Après des milliers de candidatures,\nvous avez réussi à obtenir un poste chez\n"
+                            + finalCompanyName + " !";
 
             JTextArea messageArea = new JTextArea(msg);
             messageArea.setFont(new Font("SF Pro Text", Font.PLAIN, 18));
-            messageArea.setForeground(TEXT_PRIMARY);
+            messageArea.setForeground(new Color(40, 45, 75)); // Dark color for visibility on white background
             messageArea.setOpaque(false);
             messageArea.setEditable(false);
             messageArea.setWrapStyleWord(true);
@@ -625,7 +627,10 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             }
 
             JButton closeBtn = createAppleButton("Célébrer & Quitter", PRIMARY);
-            closeBtn.addActionListener(e -> System.exit(0));
+            closeBtn.addActionListener(e -> {
+                victoryDialog.dispose();
+                System.exit(0);
+            });
             closeBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             content.add(iconLabel);

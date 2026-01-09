@@ -541,13 +541,15 @@ public class SwingGameView extends JFrame implements GameView {
             titleLabel.setForeground(winner.hasSevenTrio() ? WARNING : SUCCESS);
             titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            String msg = winner.hasSevenTrio() 
-                ? "Incroyable ! Vous avez réuni les trois 7 !\nC'est une embauche immédiate chez\n" + finalCompanyName + " !"
-                : "Après des milliers de candidatures,\nvous avez réussi à obtenir un poste chez\n" + finalCompanyName + " !";
+            String msg = winner.hasSevenTrio()
+                    ? "Incroyable ! Vous avez réuni les trois 7 !\nC'est une embauche immédiate chez\n"
+                            + finalCompanyName + " !"
+                    : "Après des milliers de candidatures,\nvous avez réussi à obtenir un poste chez\n"
+                            + finalCompanyName + " !";
 
             JTextArea messageArea = new JTextArea(msg);
             messageArea.setFont(new Font("SF Pro Text", Font.PLAIN, 18));
-            messageArea.setForeground(TEXT_PRIMARY);
+            messageArea.setForeground(new Color(40, 45, 75)); // Dark color for visibility on white background
             messageArea.setOpaque(false);
             messageArea.setEditable(false);
             messageArea.setWrapStyleWord(true);
@@ -572,7 +574,10 @@ public class SwingGameView extends JFrame implements GameView {
             }
 
             JButton closeBtn = createAppleButton("Célébrer & Quitter", PRIMARY);
-            closeBtn.addActionListener(e -> System.exit(0));
+            closeBtn.addActionListener(e -> {
+                victoryDialog.dispose();
+                System.exit(0);
+            });
             closeBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             content.add(iconLabel);
