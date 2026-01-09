@@ -1,20 +1,6 @@
-============================================================
-Game Log - 2025-12-26 05:55:24
-============================================================
-
-Players:
-------------------------------------------------------------
-Player 1:
-  Name: Alice
-  Age: 25
-  Victories: 10
-  Avatar: /avatars/alice.png
-
-Player 2:
-  Name: Bot1
-  Age: 0
-  Victories: 5
-  Avatar: /avatars/bot1.png
-
-============================================================
-
+[2026-01-09 18:37:57] User selected: test
+[2026-01-09 18:38:01] Configured 3 bots for the game.
+[2026-01-09 18:38:02] Game starting with 4 players, mode: Individual
+[2026-01-09 18:38:02] === Démarrage d'une nouvelle partie (Solo) ===
+[2026-01-09 18:38:02] Distribution des cartes effectuée.
+[2026-01-09 18:38:02] Début du tour de : test

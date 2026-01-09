@@ -1,5 +1,6 @@
 package com.trio.services;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -8,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Logs {
     private static Logs instance;
-    private static final String LOG_FILE = "logs.txt";
+    private static final String LOG_FILE = "logs/logs.txt";
 
     private Logs() {
     }
@@ -20,6 +21,12 @@ public class Logs {
     }
 
     public void writeLogs(String message) {
+        // Créer le dossier logs s'il n'existe pas
+        File logsDir = new File("logs");
+        if (!logsDir.exists()) {
+            logsDir.mkdirs();
+        }
+
         try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE, true))) {
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             writer.println("[" + timestamp + "] " + message);
