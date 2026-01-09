@@ -1162,3 +1162,452 @@
 [2026-01-09 22:11:44] FIN DE PARTIE - Vainqueur : JL
 [2026-01-09 22:11:44] Résultat de partie enregistré pour JL
 [2026-01-09 22:11:44] Victoire ajoutée pour JL (Total: 1)
+[2026-01-09 22:15:09] User selected: JL
+[2026-01-09 22:15:11] Game starting with 2 players, mode: Individual
+[2026-01-09 22:15:12] === Démarrage d'une nouvelle partie (Solo) ===
+[2026-01-09 22:15:12] Distribution des cartes effectuée.
+[2026-01-09 22:15:12] Début du tour de : JL
+[2026-01-09 22:15:16] JL a choisi l'action n°4
+[2026-01-09 22:15:17] JL demande la carte MAX de Bot1
+[2026-01-09 22:15:17] Carte révélée : 12 (QuantumSoft)
+[2026-01-09 22:15:17] >> Première carte de la série.
+[2026-01-09 22:15:19] JL a choisi l'action n°2
+[2026-01-09 22:15:19] JL révèle sa carte la plus forte.
+[2026-01-09 22:15:19] Carte révélée : 12 (quantum@qsoft.tech)
+[2026-01-09 22:15:19] >> Bonne carte ! La série continue.
+[2026-01-09 22:15:21] JL a choisi l'action n°2
+[2026-01-09 22:15:21] JL révèle sa carte la plus forte.
+[2026-01-09 22:15:21] Carte révélée : 12 (Julie Simon)
+[2026-01-09 22:15:21] >> Bonne carte ! La série continue.
+[2026-01-09 22:15:22] SUCCÈS ! Trio validé pour JL
+[2026-01-09 22:15:22] Début du tour de : Bot1
+[2026-01-09 22:15:22] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:15:22] Carte révélée : 11 (crypto@blockchain.plus)
+[2026-01-09 22:15:22] >> Première carte de la série.
+[2026-01-09 22:15:23] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:15:23] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:15:23] >> Bonne carte ! La série continue.
+[2026-01-09 22:15:25] Bot1 demande la carte MAX de JL
+[2026-01-09 22:15:25] Carte révélée : 10 (research@ailabs.ai)
+[2026-01-09 22:15:25] >> Mauvaise carte ! Attendu: 11, Reçu: 10
+[2026-01-09 22:15:26] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:15:26] Début du tour de : JL
+[2026-01-09 22:15:56] JL a choisi l'action n°3
+[2026-01-09 22:15:56] JL demande la carte MIN de Bot1
+[2026-01-09 22:15:56] Carte révélée : 1 (Jean Dupont)
+[2026-01-09 22:15:56] >> Première carte de la série.
+[2026-01-09 22:16:04] JL a choisi l'action n°5
+[2026-01-09 22:16:05] JL révèle la carte du centre n°1
+[2026-01-09 22:16:05] Carte révélée : 3 (Pierre Bernard)
+[2026-01-09 22:16:05] >> Mauvaise carte ! Attendu: 1, Reçu: 3
+[2026-01-09 22:16:06] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:06] Début du tour de : Bot1
+[2026-01-09 22:16:06] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:16:06] Carte révélée : 1 (Jean Dupont)
+[2026-01-09 22:16:06] >> Première carte de la série.
+[2026-01-09 22:16:07] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:16:07] Carte révélée : 1 (TechCorp)
+[2026-01-09 22:16:07] >> Bonne carte ! La série continue.
+[2026-01-09 22:16:08] Bot1 demande la carte MIN de JL
+[2026-01-09 22:16:08] Carte révélée : 2 (DataSoft)
+[2026-01-09 22:16:08] >> Mauvaise carte ! Attendu: 1, Reçu: 2
+[2026-01-09 22:16:09] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:09] Début du tour de : JL
+[2026-01-09 22:16:10] JL a choisi l'action n°5
+[2026-01-09 22:16:11] JL révèle la carte du centre n°2
+[2026-01-09 22:16:11] Carte révélée : 8 (sales@innotech.io)
+[2026-01-09 22:16:11] >> Première carte de la série.
+[2026-01-09 22:16:13] JL a choisi l'action n°5
+[2026-01-09 22:16:13] JL révèle la carte du centre n°3
+[2026-01-09 22:16:13] Carte révélée : 7 (DigitalX)
+[2026-01-09 22:16:13] >> Mauvaise carte ! Attendu: 8, Reçu: 7
+[2026-01-09 22:16:15] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:15] Début du tour de : Bot1
+[2026-01-09 22:16:15] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:16:15] Carte révélée : 11 (crypto@blockchain.plus)
+[2026-01-09 22:16:15] >> Première carte de la série.
+[2026-01-09 22:16:16] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:16:16] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:16:16] >> Bonne carte ! La série continue.
+[2026-01-09 22:16:17] Bot1 demande la carte MAX de JL
+[2026-01-09 22:16:17] Carte révélée : 10 (research@ailabs.ai)
+[2026-01-09 22:16:17] >> Mauvaise carte ! Attendu: 11, Reçu: 10
+[2026-01-09 22:16:18] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:18] Début du tour de : JL
+[2026-01-09 22:16:19] JL a choisi l'action n°5
+[2026-01-09 22:16:20] JL révèle la carte du centre n°4
+[2026-01-09 22:16:20] Carte révélée : 8 (Léa Thomas)
+[2026-01-09 22:16:20] >> Première carte de la série.
+[2026-01-09 22:16:22] JL a choisi l'action n°5
+[2026-01-09 22:16:22] JL révèle la carte du centre n°5
+[2026-01-09 22:16:22] Carte révélée : 9 (admin@cybersec.net)
+[2026-01-09 22:16:22] >> Mauvaise carte ! Attendu: 8, Reçu: 9
+[2026-01-09 22:16:24] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:24] Début du tour de : Bot1
+[2026-01-09 22:16:24] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:16:24] Carte révélée : 11 (crypto@blockchain.plus)
+[2026-01-09 22:16:24] >> Première carte de la série.
+[2026-01-09 22:16:25] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:16:25] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:16:25] >> Bonne carte ! La série continue.
+[2026-01-09 22:16:26] Bot1 révèle la carte du centre n°2
+[2026-01-09 22:16:26] Carte révélée : 8 (sales@innotech.io)
+[2026-01-09 22:16:26] >> Mauvaise carte ! Attendu: 11, Reçu: 8
+[2026-01-09 22:16:27] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:27] Début du tour de : JL
+[2026-01-09 22:16:28] JL a choisi l'action n°5
+[2026-01-09 22:16:28] JL révèle la carte du centre n°6
+[2026-01-09 22:16:28] Carte révélée : 7 (support@digitalx.com)
+[2026-01-09 22:16:28] >> Première carte de la série.
+[2026-01-09 22:16:30] JL a choisi l'action n°5
+[2026-01-09 22:16:31] JL révèle la carte du centre n°7
+[2026-01-09 22:16:31] Carte révélée : 4 (Sophie Leroy)
+[2026-01-09 22:16:31] >> Mauvaise carte ! Attendu: 7, Reçu: 4
+[2026-01-09 22:16:32] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:32] Début du tour de : Bot1
+[2026-01-09 22:16:32] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:16:32] Carte révélée : 1 (Jean Dupont)
+[2026-01-09 22:16:32] >> Première carte de la série.
+[2026-01-09 22:16:33] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:16:33] Carte révélée : 1 (TechCorp)
+[2026-01-09 22:16:33] >> Bonne carte ! La série continue.
+[2026-01-09 22:16:34] Bot1 révèle la carte du centre n°7
+[2026-01-09 22:16:34] Carte révélée : 4 (Sophie Leroy)
+[2026-01-09 22:16:34] >> Mauvaise carte ! Attendu: 1, Reçu: 4
+[2026-01-09 22:16:35] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:35] Début du tour de : JL
+[2026-01-09 22:16:36] JL a choisi l'action n°5
+[2026-01-09 22:16:37] JL révèle la carte du centre n°8
+[2026-01-09 22:16:37] Carte révélée : 4 (WebAgency)
+[2026-01-09 22:16:37] >> Première carte de la série.
+[2026-01-09 22:16:39] JL a choisi l'action n°5
+[2026-01-09 22:16:40] JL révèle la carte du centre n°9
+[2026-01-09 22:16:40] Carte révélée : 11 (BlockChain+)
+[2026-01-09 22:16:40] >> Mauvaise carte ! Attendu: 4, Reçu: 11
+[2026-01-09 22:16:41] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:41] Début du tour de : Bot1
+[2026-01-09 22:16:41] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:16:41] Carte révélée : 1 (Jean Dupont)
+[2026-01-09 22:16:41] >> Première carte de la série.
+[2026-01-09 22:16:42] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:16:42] Carte révélée : 1 (TechCorp)
+[2026-01-09 22:16:42] >> Bonne carte ! La série continue.
+[2026-01-09 22:16:43] Bot1 demande la carte MIN de JL
+[2026-01-09 22:16:43] Carte révélée : 2 (DataSoft)
+[2026-01-09 22:16:43] >> Mauvaise carte ! Attendu: 1, Reçu: 2
+[2026-01-09 22:16:44] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:44] Début du tour de : JL
+[2026-01-09 22:16:45] JL a choisi l'action n°4
+[2026-01-09 22:16:46] JL demande la carte MAX de Bot1
+[2026-01-09 22:16:46] Carte révélée : 11 (crypto@blockchain.plus)
+[2026-01-09 22:16:46] >> Première carte de la série.
+[2026-01-09 22:16:48] JL a choisi l'action n°3
+[2026-01-09 22:16:49] JL demande la carte MIN de Bot1
+[2026-01-09 22:16:49] Carte révélée : 1 (Jean Dupont)
+[2026-01-09 22:16:49] >> Mauvaise carte ! Attendu: 11, Reçu: 1
+[2026-01-09 22:16:50] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:50] Début du tour de : Bot1
+[2026-01-09 22:16:50] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:16:50] Carte révélée : 11 (crypto@blockchain.plus)
+[2026-01-09 22:16:50] >> Première carte de la série.
+[2026-01-09 22:16:51] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:16:51] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:16:51] >> Bonne carte ! La série continue.
+[2026-01-09 22:16:52] Bot1 révèle la carte du centre n°1
+[2026-01-09 22:16:52] Carte révélée : 3 (Pierre Bernard)
+[2026-01-09 22:16:52] >> Mauvaise carte ! Attendu: 11, Reçu: 3
+[2026-01-09 22:16:54] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:16:54] Début du tour de : JL
+[2026-01-09 22:16:55] JL a choisi l'action n°5
+[2026-01-09 22:16:57] JL révèle la carte du centre n°18
+[2026-01-09 22:16:57] Carte révélée : 5 (dev@appfactory.io)
+[2026-01-09 22:16:57] >> Première carte de la série.
+[2026-01-09 22:16:58] JL a choisi l'action n°4
+[2026-01-09 22:16:59] JL demande la carte MAX de Bot1
+[2026-01-09 22:16:59] Carte révélée : 11 (crypto@blockchain.plus)
+[2026-01-09 22:16:59] >> Mauvaise carte ! Attendu: 5, Reçu: 11
+[2026-01-09 22:17:00] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:17:00] Début du tour de : Bot1
+[2026-01-09 22:17:00] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:17:00] Carte révélée : 1 (Jean Dupont)
+[2026-01-09 22:17:00] >> Première carte de la série.
+[2026-01-09 22:17:02] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:17:02] Carte révélée : 1 (TechCorp)
+[2026-01-09 22:17:02] >> Bonne carte ! La série continue.
+[2026-01-09 22:17:03] Bot1 révèle la carte du centre n°7
+[2026-01-09 22:17:03] Carte révélée : 4 (Sophie Leroy)
+[2026-01-09 22:17:03] >> Mauvaise carte ! Attendu: 1, Reçu: 4
+[2026-01-09 22:17:04] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:17:04] Début du tour de : JL
+[2026-01-09 22:17:05] JL a choisi l'action n°5
+[2026-01-09 22:17:07] JL révèle la carte du centre n°17
+[2026-01-09 22:17:07] Carte révélée : 10 (AILabs)
+[2026-01-09 22:17:07] >> Première carte de la série.
+[2026-01-09 22:17:09] JL a choisi l'action n°5
+[2026-01-09 22:17:11] JL révèle la carte du centre n°16
+[2026-01-09 22:17:11] Carte révélée : 8 (InnoTech)
+[2026-01-09 22:17:11] >> Mauvaise carte ! Attendu: 10, Reçu: 8
+[2026-01-09 22:17:12] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:17:12] Début du tour de : Bot1
+[2026-01-09 22:17:12] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:17:12] Carte révélée : 11 (crypto@blockchain.plus)
+[2026-01-09 22:17:12] >> Première carte de la série.
+[2026-01-09 22:17:13] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:17:13] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:17:13] >> Bonne carte ! La série continue.
+[2026-01-09 22:17:15] Bot1 révèle la carte du centre n°5
+[2026-01-09 22:17:15] Carte révélée : 9 (admin@cybersec.net)
+[2026-01-09 22:17:15] >> Mauvaise carte ! Attendu: 11, Reçu: 9
+[2026-01-09 22:17:16] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:17:16] Début du tour de : JL
+[2026-01-09 22:17:16] JL a choisi l'action n°5
+[2026-01-09 22:17:18] JL révèle la carte du centre n°16
+[2026-01-09 22:17:18] Carte révélée : 8 (InnoTech)
+[2026-01-09 22:17:18] >> Première carte de la série.
+[2026-01-09 22:17:19] JL a choisi l'action n°5
+[2026-01-09 22:17:21] JL révèle la carte du centre n°15
+[2026-01-09 22:17:21] Carte révélée : 9 (CyberSec)
+[2026-01-09 22:17:21] >> Mauvaise carte ! Attendu: 8, Reçu: 9
+[2026-01-09 22:17:22] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:17:22] Début du tour de : Bot1
+[2026-01-09 22:17:22] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:17:22] Carte révélée : 1 (Jean Dupont)
+[2026-01-09 22:17:22] >> Première carte de la série.
+[2026-01-09 22:17:23] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:17:23] Carte révélée : 1 (TechCorp)
+[2026-01-09 22:17:23] >> Bonne carte ! La série continue.
+[2026-01-09 22:17:24] Bot1 révèle la carte du centre n°8
+[2026-01-09 22:17:24] Carte révélée : 4 (WebAgency)
+[2026-01-09 22:17:24] >> Mauvaise carte ! Attendu: 1, Reçu: 4
+[2026-01-09 22:17:26] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:17:26] Début du tour de : JL
+[2026-01-09 22:17:27] JL a choisi l'action n°5
+[2026-01-09 22:17:27] JL révèle la carte du centre n°5
+[2026-01-09 22:17:27] Carte révélée : 9 (admin@cybersec.net)
+[2026-01-09 22:17:27] >> Première carte de la série.
+[2026-01-09 22:17:29] JL a choisi l'action n°5
+[2026-01-09 22:17:30] JL révèle la carte du centre n°6
+[2026-01-09 22:17:30] Carte révélée : 7 (support@digitalx.com)
+[2026-01-09 22:17:30] >> Mauvaise carte ! Attendu: 9, Reçu: 7
+[2026-01-09 22:17:31] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:17:31] Début du tour de : Bot1
+[2026-01-09 22:17:31] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:17:31] Carte révélée : 1 (Jean Dupont)
+[2026-01-09 22:17:31] >> Première carte de la série.
+[2026-01-09 22:17:32] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:17:32] Carte révélée : 1 (TechCorp)
+[2026-01-09 22:17:32] >> Bonne carte ! La série continue.
+[2026-01-09 22:17:33] Bot1 demande la carte MAX de JL
+[2026-01-09 22:17:33] Carte révélée : 10 (research@ailabs.ai)
+[2026-01-09 22:17:33] >> Mauvaise carte ! Attendu: 1, Reçu: 10
+[2026-01-09 22:17:44] User selected: JL
+[2026-01-09 22:17:45] Game starting with 2 players, mode: Individual
+[2026-01-09 22:17:46] === Démarrage d'une nouvelle partie (Solo) ===
+[2026-01-09 22:17:46] Distribution des cartes effectuée.
+[2026-01-09 22:17:46] Début du tour de : JL
+[2026-01-09 22:18:04] JL a choisi l'action n°3
+[2026-01-09 22:18:06] JL demande la carte MIN de Bot1
+[2026-01-09 22:18:06] Carte révélée : 1 (contact@techcorp.com)
+[2026-01-09 22:18:06] >> Première carte de la série.
+[2026-01-09 22:18:09] JL a choisi l'action n°4
+[2026-01-09 22:18:10] JL demande la carte MAX de Bot1
+[2026-01-09 22:18:10] Carte révélée : 11 (crypto@blockchain.plus)
+[2026-01-09 22:18:10] >> Mauvaise carte ! Attendu: 1, Reçu: 11
+[2026-01-09 22:18:11] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:18:11] Début du tour de : Bot1
+[2026-01-09 22:18:11] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:18:11] Carte révélée : 11 (crypto@blockchain.plus)
+[2026-01-09 22:18:11] >> Première carte de la série.
+[2026-01-09 22:18:12] Bot1 demande la carte MAX de JL
+[2026-01-09 22:18:12] Carte révélée : 12 (Julie Simon)
+[2026-01-09 22:18:12] >> Mauvaise carte ! Attendu: 11, Reçu: 12
+[2026-01-09 22:18:16] User selected: JL
+[2026-01-09 22:18:18] Game starting with 2 players, mode: Individual
+[2026-01-09 22:18:18] === Démarrage d'une nouvelle partie (Solo) ===
+[2026-01-09 22:18:18] Distribution des cartes effectuée.
+[2026-01-09 22:18:18] Début du tour de : JL
+[2026-01-09 22:18:22] JL a choisi l'action n°4
+[2026-01-09 22:18:23] JL demande la carte MAX de Bot1
+[2026-01-09 22:18:23] Carte révélée : 11 (BlockChain+)
+[2026-01-09 22:18:23] >> Première carte de la série.
+[2026-01-09 22:18:25] JL a choisi l'action n°4
+[2026-01-09 22:18:25] JL demande la carte MAX de Bot1
+[2026-01-09 22:18:25] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:18:25] >> Bonne carte ! La série continue.
+[2026-01-09 22:18:28] JL a choisi l'action n°4
+[2026-01-09 22:18:28] JL demande la carte MAX de Bot1
+[2026-01-09 22:18:28] Carte révélée : 9 (Nathan Robert)
+[2026-01-09 22:18:28] >> Mauvaise carte ! Attendu: 11, Reçu: 9
+[2026-01-09 22:18:29] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:18:29] Début du tour de : Bot1
+[2026-01-09 22:18:29] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:18:29] Carte révélée : 3 (Pierre Bernard)
+[2026-01-09 22:18:29] >> Première carte de la série.
+[2026-01-09 22:18:31] Bot1 révèle la carte du centre n°15
+[2026-01-09 22:18:31] Carte révélée : 5 (AppFactory)
+[2026-01-09 22:18:31] >> Mauvaise carte ! Attendu: 3, Reçu: 5
+[2026-01-09 22:18:32] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:18:32] Début du tour de : JL
+[2026-01-09 22:18:33] JL a choisi l'action n°5
+[2026-01-09 22:18:33] JL révèle la carte du centre n°1
+[2026-01-09 22:18:33] Carte révélée : 2 (info@datasoft.fr)
+[2026-01-09 22:18:33] >> Première carte de la série.
+[2026-01-09 22:18:36] JL a choisi l'action n°5
+[2026-01-09 22:18:37] JL révèle la carte du centre n°2
+[2026-01-09 22:18:37] Carte révélée : 5 (dev@appfactory.io)
+[2026-01-09 22:18:37] >> Mauvaise carte ! Attendu: 2, Reçu: 5
+[2026-01-09 22:18:38] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:18:38] Début du tour de : Bot1
+[2026-01-09 22:18:38] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:18:38] Carte révélée : 11 (BlockChain+)
+[2026-01-09 22:18:38] >> Première carte de la série.
+[2026-01-09 22:18:39] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:18:39] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:18:39] >> Bonne carte ! La série continue.
+[2026-01-09 22:18:40] Bot1 demande la carte MIN de JL
+[2026-01-09 22:18:40] Carte révélée : 1 (TechCorp)
+[2026-01-09 22:18:40] >> Mauvaise carte ! Attendu: 11, Reçu: 1
+[2026-01-09 22:18:42] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:18:42] Début du tour de : JL
+[2026-01-09 22:18:43] JL a choisi l'action n°5
+[2026-01-09 22:18:44] JL révèle la carte du centre n°3
+[2026-01-09 22:18:44] Carte révélée : 10 (Chloé Richard)
+[2026-01-09 22:18:44] >> Première carte de la série.
+[2026-01-09 22:18:45] JL a choisi l'action n°5
+[2026-01-09 22:18:46] JL révèle la carte du centre n°4
+[2026-01-09 22:18:46] Carte révélée : 2 (DataSoft)
+[2026-01-09 22:18:46] >> Mauvaise carte ! Attendu: 10, Reçu: 2
+[2026-01-09 22:18:47] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:18:47] Début du tour de : Bot1
+[2026-01-09 22:18:47] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:18:47] Carte révélée : 3 (Pierre Bernard)
+[2026-01-09 22:18:47] >> Première carte de la série.
+[2026-01-09 22:18:48] Bot1 demande la carte MIN de JL
+[2026-01-09 22:18:48] Carte révélée : 1 (TechCorp)
+[2026-01-09 22:18:48] >> Mauvaise carte ! Attendu: 3, Reçu: 1
+[2026-01-09 22:18:49] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:18:49] Début du tour de : JL
+[2026-01-09 22:18:50] JL a choisi l'action n°5
+[2026-01-09 22:18:51] JL révèle la carte du centre n°5
+[2026-01-09 22:18:51] Carte révélée : 12 (Julie Simon)
+[2026-01-09 22:18:51] >> Première carte de la série.
+[2026-01-09 22:18:53] JL a choisi l'action n°5
+[2026-01-09 22:18:53] JL révèle la carte du centre n°6
+[2026-01-09 22:18:53] Carte révélée : 2 (Marie Martin)
+[2026-01-09 22:18:53] >> Mauvaise carte ! Attendu: 12, Reçu: 2
+[2026-01-09 22:18:54] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:18:54] Début du tour de : Bot1
+[2026-01-09 22:18:54] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:18:54] Carte révélée : 11 (BlockChain+)
+[2026-01-09 22:18:54] >> Première carte de la série.
+[2026-01-09 22:18:56] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:18:56] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:18:56] >> Bonne carte ! La série continue.
+[2026-01-09 22:18:57] Bot1 demande la carte MAX de JL
+[2026-01-09 22:18:57] Carte révélée : 12 (QuantumSoft)
+[2026-01-09 22:18:57] >> Mauvaise carte ! Attendu: 11, Reçu: 12
+[2026-01-09 22:18:58] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:18:58] Début du tour de : JL
+[2026-01-09 22:18:59] JL a choisi l'action n°5
+[2026-01-09 22:18:59] JL révèle la carte du centre n°6
+[2026-01-09 22:18:59] Carte révélée : 2 (Marie Martin)
+[2026-01-09 22:18:59] >> Première carte de la série.
+[2026-01-09 22:19:01] JL a choisi l'action n°5
+[2026-01-09 22:19:02] JL révèle la carte du centre n°7
+[2026-01-09 22:19:02] Carte révélée : 7 (DigitalX)
+[2026-01-09 22:19:02] >> Mauvaise carte ! Attendu: 2, Reçu: 7
+[2026-01-09 22:19:03] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:19:03] Début du tour de : Bot1
+[2026-01-09 22:19:03] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:19:03] Carte révélée : 11 (BlockChain+)
+[2026-01-09 22:19:03] >> Première carte de la série.
+[2026-01-09 22:19:04] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:19:04] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:19:04] >> Bonne carte ! La série continue.
+[2026-01-09 22:19:06] Bot1 demande la carte MIN de JL
+[2026-01-09 22:19:06] Carte révélée : 1 (TechCorp)
+[2026-01-09 22:19:06] >> Mauvaise carte ! Attendu: 11, Reçu: 1
+[2026-01-09 22:19:07] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:19:07] Début du tour de : JL
+[2026-01-09 22:19:07] JL a choisi l'action n°5
+[2026-01-09 22:19:08] JL révèle la carte du centre n°7
+[2026-01-09 22:19:08] Carte révélée : 7 (DigitalX)
+[2026-01-09 22:19:08] >> Première carte de la série.
+[2026-01-09 22:19:10] JL a choisi l'action n°0
+[2026-01-09 22:19:11] JL a choisi l'action n°5
+[2026-01-09 22:19:12] JL révèle la carte du centre n°8
+[2026-01-09 22:19:12] Carte révélée : 6 (contact@startuphub.fr)
+[2026-01-09 22:19:12] >> Mauvaise carte ! Attendu: 7, Reçu: 6
+[2026-01-09 22:19:13] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:19:13] Début du tour de : Bot1
+[2026-01-09 22:19:13] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:19:13] Carte révélée : 11 (BlockChain+)
+[2026-01-09 22:19:13] >> Première carte de la série.
+[2026-01-09 22:19:15] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:19:15] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:19:15] >> Bonne carte ! La série continue.
+[2026-01-09 22:19:16] Bot1 demande la carte MAX de JL
+[2026-01-09 22:19:16] Carte révélée : 12 (QuantumSoft)
+[2026-01-09 22:19:16] >> Mauvaise carte ! Attendu: 11, Reçu: 12
+[2026-01-09 22:19:17] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:19:17] Début du tour de : JL
+[2026-01-09 22:19:18] JL a choisi l'action n°5
+[2026-01-09 22:19:20] JL révèle la carte du centre n°18
+[2026-01-09 22:19:20] Carte révélée : 10 (research@ailabs.ai)
+[2026-01-09 22:19:20] >> Première carte de la série.
+[2026-01-09 22:19:21] JL a choisi l'action n°5
+[2026-01-09 22:19:22] JL révèle la carte du centre n°17
+[2026-01-09 22:19:22] Carte révélée : 7 (support@digitalx.com)
+[2026-01-09 22:19:22] >> Mauvaise carte ! Attendu: 10, Reçu: 7
+[2026-01-09 22:19:24] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:19:24] Début du tour de : Bot1
+[2026-01-09 22:19:24] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:19:24] Carte révélée : 11 (BlockChain+)
+[2026-01-09 22:19:24] >> Première carte de la série.
+[2026-01-09 22:19:25] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:19:25] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:19:25] >> Bonne carte ! La série continue.
+[2026-01-09 22:19:26] Bot1 révèle la carte du centre n°4
+[2026-01-09 22:19:26] Carte révélée : 2 (DataSoft)
+[2026-01-09 22:19:26] >> Mauvaise carte ! Attendu: 11, Reçu: 2
+[2026-01-09 22:19:27] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:19:27] Début du tour de : JL
+[2026-01-09 22:19:28] JL a choisi l'action n°5
+[2026-01-09 22:19:29] JL révèle la carte du centre n°16
+[2026-01-09 22:19:29] Carte révélée : 1 (Jean Dupont)
+[2026-01-09 22:19:29] >> Première carte de la série.
+[2026-01-09 22:19:32] JL a choisi l'action n°3
+[2026-01-09 22:19:32] JL demande la carte MIN de Bot1
+[2026-01-09 22:19:32] Carte révélée : 3 (Pierre Bernard)
+[2026-01-09 22:19:32] >> Mauvaise carte ! Attendu: 1, Reçu: 3
+[2026-01-09 22:19:34] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:19:34] Début du tour de : Bot1
+[2026-01-09 22:19:34] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:19:34] Carte révélée : 11 (BlockChain+)
+[2026-01-09 22:19:34] >> Première carte de la série.
+[2026-01-09 22:19:35] Bot1 révèle sa carte la plus forte.
+[2026-01-09 22:19:35] Carte révélée : 11 (Maxime Durand)
+[2026-01-09 22:19:35] >> Bonne carte ! La série continue.
+[2026-01-09 22:19:36] Bot1 révèle la carte du centre n°14
+[2026-01-09 22:19:36] Carte révélée : 8 (InnoTech)
+[2026-01-09 22:19:36] >> Mauvaise carte ! Attendu: 11, Reçu: 8
+[2026-01-09 22:19:37] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:19:37] Début du tour de : JL
+[2026-01-09 22:19:45] JL a choisi l'action n°5
+[2026-01-09 22:19:46] JL révèle la carte du centre n°1
+[2026-01-09 22:19:46] Carte révélée : 2 (info@datasoft.fr)
+[2026-01-09 22:19:46] >> Première carte de la série.
+[2026-01-09 22:20:15] JL a choisi l'action n°4
+[2026-01-09 22:20:15] JL demande la carte MAX de Bot1
+[2026-01-09 22:20:15] Carte révélée : 11 (BlockChain+)
+[2026-01-09 22:20:15] >> Mauvaise carte ! Attendu: 2, Reçu: 11
+[2026-01-09 22:20:17] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:20:17] Début du tour de : Bot1
+[2026-01-09 22:20:17] Bot1 révèle sa carte la plus faible.
+[2026-01-09 22:20:17] Carte révélée : 3 (Pierre Bernard)
+[2026-01-09 22:20:17] >> Première carte de la série.
+[2026-01-09 22:20:18] Bot1 révèle la carte du centre n°5
+[2026-01-09 22:20:18] Carte révélée : 12 (Julie Simon)
+[2026-01-09 22:20:18] >> Mauvaise carte ! Attendu: 3, Reçu: 12
+[2026-01-09 22:20:19] Échec du tour. Les cartes sont remises face cachée.
+[2026-01-09 22:20:19] Début du tour de : JL

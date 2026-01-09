@@ -48,9 +48,9 @@ public class GameController {
             // Afficher les cartes visibles au début du tour
             view.displayVisibleCards(game.getPlayers(), game.getCenterDeck());
 
-            playTurn(currentPlayer);
+            boolean trioWon = playTurn(currentPlayer);
 
-            if (!game.isFinished()) {
+            if (!game.isFinished() && !trioWon) {
                 game.nextTurn();
             }
         }
@@ -70,8 +70,10 @@ public class GameController {
 
     /**
      * Gère un tour de jeu pour un joueur
+     * 
+     * @return true si un trio a été gagné, false sinon
      */
-    private void playTurn(Player currentPlayer) {
+    private boolean playTurn(Player currentPlayer) {
         boolean turnContinues = true;
         boolean turnSuccess = true;
 
@@ -145,6 +147,7 @@ public class GameController {
             Logs.getInstance().writeLogs("SUCCÈS ! Trio validé pour " + currentPlayer.getPseudo());
             game.awardTrioToWinner(currentPlayer);
             view.displayTrioSuccess(currentPlayer, currentPlayer.getTrioCount());
+            return true; // Trio gagné, le joueur rejoue
         } else if (!turnSuccess || !game.getRevealedCards().isEmpty()) {
             Logs.getInstance().writeLogs("Échec du tour. Les cartes sont remises face cachée.");
             view.displayTurnFailed();
@@ -157,6 +160,7 @@ public class GameController {
             }
             view.displayVisibleCards(game.getPlayers(), game.getCenterDeck());
         }
+        return false; // Pas de trio, passer au joueur suivant
     }
 
     /**

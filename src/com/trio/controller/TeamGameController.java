@@ -62,12 +62,12 @@ public class TeamGameController {
             view.displayVisibleCards(game.getAllPlayers(), game.getCenterDeck());
 
             // Jouer le tour
-            playTurn(currentPlayer, currentTeam);
+            boolean trioWon = playTurn(currentPlayer, currentTeam);
 
             // Afficher les scores mis à jour
             view.displayTeamScores(game.getTeams());
 
-            if (!game.isFinished()) {
+            if (!game.isFinished() && !trioWon) {
                 game.nextTurn();
             }
         }
@@ -88,8 +88,10 @@ public class TeamGameController {
 
     /**
      * Gère un tour de jeu pour un joueur
+     * 
+     * @return true si un trio a été gagné, false sinon
      */
-    private void playTurn(Player currentPlayer, Team currentTeam) {
+    private boolean playTurn(Player currentPlayer, Team currentTeam) {
         boolean turnContinues = true;
         boolean turnSuccess = true;
 
@@ -204,6 +206,7 @@ public class TeamGameController {
             Logs.getInstance().writeLogs("SUCCÈS ! Trio validé pour l'équipe " + currentTeam.getName());
             game.awardTrioToTeam(currentTeam);
             view.displayTeamTrioSuccess(currentTeam, currentTeam.getTrioCount());
+            return true; // Trio gagné, le joueur continue
         } else if (!turnSuccess || (!game.getRevealedCards().isEmpty() && game.getRevealedCards().size() < 3)) {
             // Échec ou arrêt volontaire
             Logs.getInstance().writeLogs("Échec du tour. Les cartes sont remises face cachée.");
@@ -214,6 +217,7 @@ public class TeamGameController {
             refreshHumanView();
             view.displayVisibleCards(game.getAllPlayers(), game.getCenterDeck());
         }
+        return false; // Pas de trio, passer au joueur suivant
     }
 
     /**
