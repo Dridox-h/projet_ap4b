@@ -4,3 +4,4 @@
 [2026-01-09 18:38:02] === Démarrage d'une nouvelle partie (Solo) ===
 [2026-01-09 18:38:02] Distribution des cartes effectuée.
 [2026-01-09 18:38:02] Début du tour de : test
+[2026-01-09 20:46:19] Exiting game from menu.

@@ -1,4 +1,4 @@
-package com.trio.services;
+package com.trio.model;
 
 import java.io.File;
 import java.io.FileWriter;

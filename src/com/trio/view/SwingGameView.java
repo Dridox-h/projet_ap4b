@@ -492,7 +492,11 @@ public class SwingGameView extends JFrame implements GameView {
 
     @Override
     public void displayGameWinner(Player winner) {
-        log("\n🏆 " + winner.getPseudo() + " GAGNE avec " + winner.getTrioCount() + " trios!");
+        if (winner.hasSevenTrio()) {
+            log("\n🏆 " + winner.getPseudo() + " GAGNE IMMÉDIATEMENT avec le LEGENDAIRE TRIO DE 7 !");
+        } else {
+            log("\n🏆 " + winner.getPseudo() + " GAGNE avec " + winner.getTrioCount() + " trios!");
+        }
 
         String companyName = "Inconnue";
         List<Deck> winningTrios = winner.getTrios();
@@ -519,7 +523,7 @@ public class SwingGameView extends JFrame implements GameView {
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     g2.setColor(Color.WHITE);
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 30, 30));
-                    g2.setColor(SUCCESS);
+                    g2.setColor(winner.hasSevenTrio() ? WARNING : SUCCESS); // Or / Special color for 7 trio
                     g2.setStroke(new BasicStroke(3));
                     g2.draw(new RoundRectangle2D.Float(1, 1, getWidth() - 3, getHeight() - 3, 30, 30));
                     g2.dispose();
@@ -532,14 +536,16 @@ public class SwingGameView extends JFrame implements GameView {
             iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 70));
             iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            JLabel titleLabel = new JLabel("Bien joué !");
+            JLabel titleLabel = new JLabel(winner.hasSevenTrio() ? "LEGENDARY WIN !" : "Bien joué !");
             titleLabel.setFont(new Font("SF Pro Display", Font.BOLD, 32));
-            titleLabel.setForeground(SUCCESS);
+            titleLabel.setForeground(winner.hasSevenTrio() ? WARNING : SUCCESS);
             titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            JTextArea messageArea = new JTextArea(
-                    "Après des milliers de candidatures,\nvous avez réussi à obtenir un poste chez\n" + finalCompanyName
-                            + " !");
+            String msg = winner.hasSevenTrio() 
+                ? "Incroyable ! Vous avez réuni les trois 7 !\nC'est une embauche immédiate chez\n" + finalCompanyName + " !"
+                : "Après des milliers de candidatures,\nvous avez réussi à obtenir un poste chez\n" + finalCompanyName + " !";
+
+            JTextArea messageArea = new JTextArea(msg);
             messageArea.setFont(new Font("SF Pro Text", Font.PLAIN, 18));
             messageArea.setForeground(TEXT_PRIMARY);
             messageArea.setOpaque(false);

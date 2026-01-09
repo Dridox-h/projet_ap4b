@@ -1,4 +1,4 @@
-package com.trio.services;
+package com.trio.controller;
 
 import com.trio.model.*;
 

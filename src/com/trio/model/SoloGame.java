@@ -51,7 +51,7 @@ public class SoloGame implements Game {
     public void startGame() {
         System.out.println("=== DÉBUT DE LA PARTIE TRIO ===");
         System.out.println("Nombre de joueurs: " + players.size());
-        System.out.println("Objectif: 3 trios pour gagner\n");
+        System.out.println("Objectif: 3 trios pour gagner OU le trio de 7\n");
 
         // Distribuer les cartes
         distributeCards();
@@ -78,7 +78,10 @@ public class SoloGame implements Game {
 
         // Afficher le gagnant
         TrioHolder winner = getWinner();
-        if (winner instanceof Player) {
+        if (winner.hasSevenTrio()) {
+            System.out.println(
+                    "\n🎉 " + ((Player) winner).getPseudo() + " GAGNE IMMÉDIATEMENT avec le TRIO DE 7 !");
+        } else {
             System.out.println(
                     "\n🎉 " + ((Player) winner).getPseudo() + " GAGNE avec " + winner.getTrioCount() + " trios!");
         }
@@ -370,7 +373,7 @@ public class SoloGame implements Game {
     @Override
     public boolean isFinished() {
         for (Player p : players) {
-            if (p.getTrioCount() >= 3) {
+            if (p.getTrioCount() >= 3 || p.hasSevenTrio()) {
                 return true;
             }
         }
@@ -380,7 +383,7 @@ public class SoloGame implements Game {
     @Override
     public TrioHolder getWinner() {
         for (Player p : players) {
-            if (p.getTrioCount() >= 3) {
+            if (p.getTrioCount() >= 3 || p.hasSevenTrio()) {
                 return p;
             }
         }

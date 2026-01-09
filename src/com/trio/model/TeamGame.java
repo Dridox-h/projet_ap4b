@@ -146,15 +146,12 @@ public class TeamGame implements Game {
 
     @Override
     public void playTurn() {
-        // En architecture MVC, cette méthode est souvent pilotée par le Controller.
-        // Voir TeamGameController.playTurn() pour la logique d'orchestration.
     }
 
     @Override
     public boolean isFinished() {
         for (Team team : teams) {
-            if (team.getTrioCount() >= 3) { // Condition de victoire standard (3 trios)
-                // Note: La règle du "7" (trio de 7 gagne immédiatement) peut être ajoutée ici
+            if (team.getTrioCount() >= 3 || team.hasSevenTrio()) {
                 return true;
             }
         }
@@ -164,7 +161,7 @@ public class TeamGame implements Game {
     @Override
     public TrioHolder getWinner() {
         for (Team team : teams) {
-            if (team.getTrioCount() >= 3) {
+            if (team.getTrioCount() >= 3 || team.hasSevenTrio()) {
                 return team;
             }
         }

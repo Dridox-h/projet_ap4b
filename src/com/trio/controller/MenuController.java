@@ -1,7 +1,6 @@
 package com.trio.controller;
 
 import com.trio.model.*;
-import com.trio.services.Logs;
 
 import java.io.*;
 

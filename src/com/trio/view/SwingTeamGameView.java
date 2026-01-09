@@ -539,7 +539,11 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
 
     @Override
     public void displayTeamWinner(Team winner) {
-        log("\n🏆 " + winner.getName() + " GAGNE avec " + winner.getTrioCount() + " trios!");
+        if (winner.hasSevenTrio()) {
+            log("\n🏆 " + winner.getName() + " GAGNE IMMÉDIATEMENT avec le LEGENDAIRE TRIO DE 7 !");
+        } else {
+            log("\n🏆 " + winner.getName() + " GAGNE avec " + winner.getTrioCount() + " trios!");
+        }
 
         String companyName = "Inconnue";
         List<Deck> winningTrios = winner.getTrios();
@@ -567,7 +571,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     g2.setColor(Color.WHITE);
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 30, 30));
-                    g2.setColor(SUCCESS);
+                    g2.setColor(winner.hasSevenTrio() ? WARNING : SUCCESS);
                     g2.setStroke(new BasicStroke(3));
                     g2.draw(new RoundRectangle2D.Float(1, 1, getWidth() - 3, getHeight() - 3, 30, 30));
                     g2.dispose();
@@ -580,19 +584,21 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 70));
             iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            JLabel titleLabel = new JLabel("L'Équipe gagne !");
+            JLabel titleLabel = new JLabel(winner.hasSevenTrio() ? "LEGENDARY WIN !" : "L'Équipe gagne !");
             titleLabel.setFont(new Font("SF Pro Display", Font.BOLD, 32));
-            titleLabel.setForeground(SUCCESS);
+            titleLabel.setForeground(winner.hasSevenTrio() ? WARNING : SUCCESS);
             titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             JLabel teamLabel = new JLabel(winner.getName());
             teamLabel.setFont(new Font("SF Pro Text", Font.BOLD, 20));
             teamLabel.setForeground(TEXT_SECONDARY);
             teamLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            
+            String msg = winner.hasSevenTrio() 
+                ? "Incroyable ! Votre équipe a réuni les 7 !\nEmbauche collective immédiate chez\n" + finalCompanyName + " !"
+                : "Après des milliers de candidatures,\nvous avez réussi à obtenir un poste chez\n" + finalCompanyName + " !";
 
-            JTextArea messageArea = new JTextArea(
-                    "Après des milliers de candidatures,\nvous avez réussi à obtenir un poste chez\n" + finalCompanyName
-                            + " !");
+            JTextArea messageArea = new JTextArea(msg);
             messageArea.setFont(new Font("SF Pro Text", Font.PLAIN, 18));
             messageArea.setForeground(TEXT_PRIMARY);
             messageArea.setOpaque(false);
