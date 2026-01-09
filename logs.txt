@@ -1,0 +1,13 @@
+[2026-01-09 18:15:18] User selected: aa
+[2026-01-09 18:15:22] Game starting with 2 players, mode: Individual
+[2026-01-09 18:15:22] === Démarrage d'une nouvelle partie (Solo) ===
+[2026-01-09 18:15:22] Distribution des cartes effectuée.
+[2026-01-09 18:15:22] Début du tour de : aa
+[2026-01-09 18:16:37] User selected: aa
+[2026-01-09 18:16:40] Game starting with 2 players, mode: Individual
+[2026-01-09 18:16:40] === Démarrage d'une nouvelle partie (Solo) ===
+[2026-01-09 18:16:40] Distribution des cartes effectuée.
+[2026-01-09 18:16:40] Début du tour de : aa
+[2026-01-09 18:16:56] New user created: leonard
+[2026-01-09 18:22:31] User ID conflict detected. Assigned new ID: 2
+[2026-01-09 18:22:31] New user created: qDRFTYUIOP

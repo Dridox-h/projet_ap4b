@@ -919,4 +919,9 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
         }
         return selectedCenterIndex;
     }
+
+    @Override
+    public void startGame() {
+        setVisible(true);
+    }
 }

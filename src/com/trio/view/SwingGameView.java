@@ -49,10 +49,6 @@ public class SwingGameView extends JFrame implements GameView {
     private int selectedCenterIndex = -1;
     private final Object inputLock = new Object();
 
-    // State
-    private List<Player> currentPlayers;
-    private Deck currentCenterDeck;
-
     public SwingGameView() {
         initializeUI();
     }
@@ -442,8 +438,6 @@ public class SwingGameView extends JFrame implements GameView {
 
     @Override
     public void displayVisibleCards(List<Player> players, Deck centerDeck) {
-        this.currentPlayers = players;
-        this.currentCenterDeck = centerDeck;
         SwingUtilities.invokeLater(() -> {
             updatePlayersPanel(players);
             centerPanel.removeAll();
@@ -809,5 +803,10 @@ public class SwingGameView extends JFrame implements GameView {
             }
         }
         return selectedCenterIndex;
+    }
+
+    @Override
+    public void startGame() {
+        setVisible(true);
     }
 }

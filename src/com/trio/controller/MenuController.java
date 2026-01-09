@@ -148,6 +148,7 @@ public class MenuController {
 
     /**
      * Sauvegarde un utilisateur dans le fichier de logs
+     * Vérifie que l'ID n'existe pas déjà, sinon attribue un nouvel ID unique
      */
     private void saveUserToLogs(User user) {
         // Créer le dossier logs s'il n'existe pas
@@ -156,7 +157,43 @@ public class MenuController {
             logsDir.mkdirs();
         }
 
-        try (FileWriter fw = new FileWriter("logs/UserLogs.txt", true);
+        File logFile = new File("logs/UserLogs.txt");
+        int maxId = 0;
+        boolean idExists = false;
+
+        // Lire le fichier pour trouver l'ID max et vérifier les doublons
+        if (logFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.trim().isEmpty()) {
+                        continue;
+                    }
+                    User existingUser = parseUserFromLog(line);
+                    if (existingUser != null) {
+                        int existingId = existingUser.getId();
+                        if (existingId > maxId) {
+                            maxId = existingId;
+                        }
+                        if (existingId == user.getId()) {
+                            idExists = true;
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                Logs.getInstance().writeLogs("Error reading user logs: " + e.getMessage());
+            }
+        }
+
+        // Si l'ID existe déjà, attribuer un nouvel ID unique
+        if (idExists) {
+            int newId = maxId + 1;
+            user.setId(newId);
+            Logs.getInstance().writeLogs("User ID conflict detected. Assigned new ID: " + newId);
+        }
+
+        // Écrire l'utilisateur dans le fichier
+        try (FileWriter fw = new FileWriter(logFile, true);
                 BufferedWriter bw = new BufferedWriter(fw)) {
 
             String logLine = String.format("ID: %d | Name: %s | Age: %d | Victories: %d",

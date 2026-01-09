@@ -51,6 +51,13 @@ public class User extends Player {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+        if (id >= nextId) {
+            nextId = id + 1;
+        }
+    }
+
     public String getName() {
         return pseudo;
     }

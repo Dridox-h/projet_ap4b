@@ -1,7 +1,14 @@
 package com.trio.services;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Logs {
     private static Logs instance;
+    private static final String LOG_FILE = "logs.txt";
 
     private Logs() {
     }
@@ -12,8 +19,12 @@ public class Logs {
         return instance;
     }
 
-    public void writeLogs(String string) {
-        throw new UnsupportedOperationException("Unimplemented method 'writeLogs'");
+    public void writeLogs(String message) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE, true))) {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            writer.println("[" + timestamp + "] " + message);
+        } catch (IOException e) {
+            System.err.println("Error writing to log file: " + e.getMessage());
+        }
     }
-
 }
