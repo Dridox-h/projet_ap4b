@@ -1,3 +1,0 @@
-ID: 1 | Name: Jean-luc | Age: 18 | Victories: 1
-ID: 2 | Name: leonard | Age: 2 | Victories: 0
-ID: 3 | Name: test | Age: 14 | Victories: 0

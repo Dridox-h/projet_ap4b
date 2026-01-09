@@ -27,3 +27,15 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Logs ###
+logs/
+*.log
+src/trio_game.log
+
+### IDE Files ###
+.idea/
+*.iml
+
+### Fichiers temporaires ###
+sources.txt
