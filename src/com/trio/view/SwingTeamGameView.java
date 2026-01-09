@@ -626,6 +626,16 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
                 }
             }
 
+            // Envelopper le panneau de cartes dans un JScrollPane
+            JScrollPane cardsScrollPane = new JScrollPane(cardsPanel);
+            cardsScrollPane.setOpaque(false);
+            cardsScrollPane.getViewport().setOpaque(false);
+            cardsScrollPane.setBorder(null);
+            cardsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            cardsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+            cardsScrollPane.setPreferredSize(new Dimension(450, 130));
+            cardsScrollPane.setMaximumSize(new Dimension(450, 130));
+
             JButton closeBtn = createAppleButton("Célébrer & Quitter", PRIMARY);
             closeBtn.addActionListener(e -> {
                 victoryDialog.dispose();
@@ -641,7 +651,7 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
             content.add(Box.createVerticalStrut(20));
             content.add(msgContainer);
             content.add(Box.createVerticalStrut(20));
-            content.add(cardsPanel);
+            content.add(cardsScrollPane);
             content.add(Box.createVerticalStrut(30));
             content.add(closeBtn);
 
@@ -934,5 +944,80 @@ public class SwingTeamGameView extends JFrame implements TeamGameView {
     @Override
     public void startGame() {
         setVisible(true);
+    }
+
+    /**
+     * Affiche l'écran de défaite quand l'équipe adverse gagne
+     */
+    public void displayDefeat(String winningTeamName) {
+        SwingUtilities.invokeLater(() -> {
+            statusLabel.setText("😢 Défaite");
+            statusLabel.setForeground(DANGER);
+
+            JDialog defeatDialog = new JDialog(this, "Défaite", true);
+            defeatDialog.setUndecorated(true);
+            defeatDialog.setBackground(new Color(0, 0, 0, 0));
+
+            JPanel content = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(Color.WHITE);
+                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 30, 30));
+                    g2.setColor(DANGER);
+                    g2.setStroke(new BasicStroke(3));
+                    g2.draw(new RoundRectangle2D.Float(1, 1, getWidth() - 3, getHeight() - 3, 30, 30));
+                    g2.dispose();
+                }
+            };
+            content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+            content.setBorder(new EmptyBorder(40, 50, 40, 50));
+
+            JLabel iconLabel = new JLabel("😢");
+            iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 70));
+            iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel titleLabel = new JLabel("Dommage !");
+            titleLabel.setFont(new Font("SF Pro Display", Font.BOLD, 32));
+            titleLabel.setForeground(DANGER);
+            titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            String msg = "Le Bot vous a volé votre stage,\nl'IA va nous remplacer !";
+            
+            JTextArea messageArea = new JTextArea(msg);
+            messageArea.setFont(new Font("SF Pro Text", Font.PLAIN, 18));
+            messageArea.setForeground(new Color(40, 45, 75));
+            messageArea.setOpaque(false);
+            messageArea.setEditable(false);
+            messageArea.setWrapStyleWord(true);
+            messageArea.setLineWrap(true);
+            messageArea.setHighlighter(null);
+            messageArea.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JPanel msgContainer = new JPanel();
+            msgContainer.setOpaque(false);
+            msgContainer.add(messageArea);
+
+            JButton closeBtn = createAppleButton("Réessayer", PRIMARY);
+            closeBtn.addActionListener(e -> {
+                defeatDialog.dispose();
+                System.exit(0);
+            });
+            closeBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            content.add(iconLabel);
+            content.add(Box.createVerticalStrut(10));
+            content.add(titleLabel);
+            content.add(Box.createVerticalStrut(20));
+            content.add(msgContainer);
+            content.add(Box.createVerticalStrut(30));
+            content.add(closeBtn);
+
+            defeatDialog.add(content);
+            defeatDialog.pack();
+            defeatDialog.setLocationRelativeTo(this);
+            defeatDialog.setVisible(true);
+        });
     }
 }

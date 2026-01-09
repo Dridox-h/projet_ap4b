@@ -60,7 +60,15 @@ public class GameController {
         if (winner instanceof Player) {
             Player pWinner = (Player) winner;
             Logs.getInstance().writeLogs("FIN DE PARTIE - Vainqueur : " + pWinner.getPseudo());
-            view.displayGameWinner(pWinner);
+
+            // Vérifier si le gagnant est un User (joueur humain) ou un Bot
+            if (pWinner instanceof User) {
+                // Le joueur humain a gagné
+                view.displayGameWinner(pWinner);
+            } else {
+                // Un bot a gagné, afficher l'écran de défaite
+                view.displayDefeat(pWinner.getPseudo());
+            }
 
             // Sauvegarder le résultat et incrémenter les victoires
             DataService.getInstance().saveGameResult(pWinner, game.getPlayers(), "Solo");

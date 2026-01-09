@@ -65,6 +65,11 @@ public interface GameView {
     void displayGameWinner(Player winner);
 
     /**
+     * Affiche l'écran de défaite quand un bot gagne
+     */
+    void displayDefeat(String winnerName);
+
+    /**
      * Affiche un message d'erreur
      */
     void displayError(String message);

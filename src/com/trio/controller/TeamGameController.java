@@ -78,7 +78,22 @@ public class TeamGameController {
             Team winningTeam = (Team) winner;
             Logs.getInstance().writeLogs("FIN DE PARTIE - Équipe Vainqueur : " + winningTeam.getName());
 
-            view.displayTeamWinner(winningTeam);
+            // Vérifier si l'équipe gagnante contient un User (joueur humain)
+            boolean humanInWinningTeam = false;
+            for (Player p : winningTeam.getPlayers()) {
+                if (p instanceof User) {
+                    humanInWinningTeam = true;
+                    break;
+                }
+            }
+
+            if (humanInWinningTeam) {
+                // L'équipe du joueur humain a gagné
+                view.displayTeamWinner(winningTeam);
+            } else {
+                // L'équipe adverse a gagné
+                view.displayDefeat(winningTeam.getName());
+            }
 
             // Sauvegarder le résultat et incrémenter les victoires
             DataService.getInstance().saveTeamGameResult(winningTeam, game.getTeams());
