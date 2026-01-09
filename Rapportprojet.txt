@@ -1,0 +1,378 @@
+
+Rapport de projet AP4B
+Sujet : Jeu du Trio
+Semestre d’automne
+
+Réalisé par 
+Bastien HEITZMANN 
+Léonard GOETZ
+Jean-Luc CHUMONT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sommaire
+
+Introduction
+1. Contexte et Organisation du Projet
+1.1. Objectif du Projet
+1.2. Équipe Projet
+2. Analyse et Adaptation du Jeu
+2.1. Règles Adaptées
+3. Conception et Modélisation (UML)
+3.1. Diagramme de Cas d’Utilisation
+3.2. Diagramme de Classe
+3.3. Diagramme de Séquence
+3.4. Fonctionnalités Implémentées
+3.4.1. Interface Utilisateur Moderne (MenuGUI)
+3.4.2. Modes de Jeu
+3.4.3. Intelligence Artificielle (Bot)
+3.4.4. Système de Cartes
+3.4.5. Mécaniques de Jeu
+3.4.6. Système de Logging et Persistance
+3.4.7. Architecture MVC
+4. Outils et Technologies
+4.1. Gestion du Code Source
+5. Bilan et Perspectives
+5.1. Bilan du Projet
+5.2. Améliorations Futures
+
+
+
+
+
+
+
+
+Introduction
+Ce document présente le rapport final du projet réalisé dans le cadre de l'unité d'enseignement AP4B, un projet centré sur la conception et le développement d'un jeu vidéo en Java basé sur le jeu de cartes "Trio", adapté à une thématique étudiante (recherche de stage à l'UTBM). Le projet vise à appliquer les notions vues en cours pour le langage Java ainsi que la pré-implémentation avec les diagrammes UML. 
+
+Ce rapport détaille le contexte du projet, l'analyse du besoin, la modélisation UML (Cas d'utilisation, Classes, Séquence), les outils et technologies employés, ainsi qu'un bilan des réalisations et des perspectives d'amélioration.
+1. Contexte et Organisation du Projet
+1.1. Objectif du Projet
+L'objectif principal était de développer un jeu de cartes numérique, le "Trio", en utilisant le langage Java et en s'appuyant sur les principes de la Modélisation Orientée Objet (UML), tout en y intégrant une adaptation thématique liée à l'environnement de l'UTBM.
+1.2. Équipe Projet
+Le projet a été mené par l'équipe suivante :
+
+Bastien Heitzmann
+Léonard Goetz
+Jean-Luc Chumont
+2. Analyse et Adaptation du Jeu
+Le jeu original "Trio" a été adapté pour coller à la thématique de la recherche de stage à l'UTBM.
+2.1. Règles Adaptées
+Les cartes traditionnelles ont été remplacées par des "Contacts d'entreprises fictives" (ex: GoofleCode). L'objectif du jeu est de collecter des "Trios de Contacts" pour symboliser l'envoi d'une candidature de stage. Le joueur qui obtient trois candidatures (trois trios) est déclaré gagnant, ayant ainsi décroché son stage.
+3. Conception et Modélisation (UML)
+La phase de conception a été formalisée par des diagrammes UML détaillés, garantissant une architecture logicielle robuste. Les diagrammes peuvent être retrouvés dans le rapport avec les diagrammes précédemment rendu. 
+3.1. Diagramme de Cas d’Utilisation
+Ce diagramme a défini le périmètre fonctionnel du jeu, distinguant clairement les phases de configuration (Système de Menu) et la mécanique de jeu (Système de Tour de Jeu). Il a notamment mis en lumière l'action obligatoire de révéler des cartes et l'extension conditionnelle des règles pour le Mode Équipe.
+3.2. Diagramme de Classe
+L'architecture statique du jeu a suivi le patron de conception Modèle-Vue-Contrôleur (MVC).
+
+╔═══════════════════════════════════════════════════════════════════════════════════════════════╗
+║ Composant              │ Classes Principales                    │ Rôle Principal              ║
+╠═══════════════════════════════════════════════════════════════════════════════════════════════╣
+║ Modèle (Logique)       │ • SoloGame                            │ Gestion complète du jeu en  ║
+║                        │ • TeamGame                            │ mode individual et équipe.  ║
+║                        │ • Card                                │ Représentation des cartes   ║
+║                        │ • Deck                                │ et gestion du deck.         ║
+║                        │ • DrawPile                            │ Gestion de la pioche et     ║
+║                        │ • RevealedCard                        │ des cartes révélées.        ║
+║                        │ • Team                                │ Gestion des équipes.        ║
+║                        │ • Menu                                │ Configuration de partie.    ║
+╠═══════════════════════════════════════════════════════════════════════════════════════════════╣
+║ Joueurs (Héritage)     │ • Player (abstraite)                  │ Classe abstraite de base    ║
+║                        │ • User                                │ pour tous les joueurs.      ║
+║                        │ • Bot                                 │ User : joueur humain avec   ║
+║                        │                                       │ ID, âge, victoires, avatar. ║
+║                        │                                       │ Bot : IA avec stratégies.   ║
+╠═══════════════════════════════════════════════════════════════════════════════════════════════╣
+║ Vue (Interface)        │ • MenuGUI                             │ Interface moderne du menu   ║
+║                        │ • SwingGameView                       │ principal avec design Apple.║
+║                        │ • SwingTeamGameView                   │ Affichage du jeu en mode    ║
+║                        │ • ConsoleView                         │ individual et équipe.       ║
+║                        │ • GameView (interface)                │ Vue console pour debug.     ║
+║                        │ • TeamGameView (interface)            │ Interfaces pour les vues.   ║
+╠═══════════════════════════════════════════════════════════════════════════════════════════════╣
+║ Contrôleur             │ • MenuController                      │ Gestion des interactions    ║
+║                        │ • GameController                      │ du menu et validation.      ║
+║                        │ • TeamGameController                  │ Orchestration du jeu en     ║
+║                        │                                       │ mode individual et équipe.  ║
+╠═══════════════════════════════════════════════════════════════════════════════════════════════╣
+║ Services               │ • GameLogger                          │ Logging des parties dans    ║
+║                        │                                       │ GameLogs.txt.               ║
+║                        │                                       │ Persistance des données     ║
+║                        │                                       │ utilisateurs (UserLogs.txt).║
+╠═══════════════════════════════════════════════════════════════════════════════════════════════╣
+║ Interfaces             │ • Game                                │ Contrat pour les classes    ║
+║                        │ • TrioHolder                          │ de jeu et gestion des trios.║
+╚═══════════════════════════════════════════════════════════════════════════════════════════════╝
+
+Note : L'architecture MVC permet une séparation claire des responsabilités, facilitant la maintenance 
+et l'évolution du code. Le modèle gère la logique métier, la vue s'occupe de l'affichage, et le 
+contrôleur orchestre les interactions entre les deux.
+
+--- VERSION POUR COPIER-COLLER DANS GOOGLE DOCS (Case par case) ---
+
+Composant | Classes Principales | Rôle Principal
+
+Modèle (Logique) | • SoloGame
+• TeamGame
+• Card
+• Deck
+• DrawPile
+• RevealedCard
+• Team
+• Menu | Gestion complète du jeu en mode individual et équipe. Représentation des cartes et gestion du deck. Gestion de la pioche et des cartes révélées. Gestion des équipes. Configuration de partie.
+
+Joueurs (Héritage) | • Player (abstraite)
+• User
+• Bot | Classe abstraite de base pour tous les joueurs. User : joueur humain avec ID, âge, victoires, avatar. Bot : IA avec stratégies.
+
+Vue (Interface) | • MenuGUI
+• SwingGameView
+• SwingTeamGameView
+• ConsoleView
+• GameView (interface)
+• TeamGameView (interface) | Interface moderne du menu principal avec design Apple. Affichage du jeu en mode individual et équipe. Vue console pour debug. Interfaces pour les vues.
+
+Contrôleur | • MenuController
+• GameController
+• TeamGameController | Gestion des interactions du menu et validation. Orchestration du jeu en mode individual et équipe.
+
+Services | • GameLogger | Logging des parties dans GameLogs.txt. Persistance des données utilisateurs (UserLogs.txt).
+
+Interfaces | • Game
+• TrioHolder | Contrat pour les classes de jeu et gestion des trios.
+
+--- FIN DE LA VERSION COPIER-COLLER ---
+
+
+3.3. Diagramme de Séquence
+Le diagramme de séquence a modélisé le processus d'initialisation d'une partie en Mode Individuel. Il a illustré le flux allant de la saisie des configurations par l'utilisateur (via le Menu) jusqu'à l'instanciation de la partie (Game, Deck, User, Bot), la distribution des mains et la mise en place de la pioche.
+
+3.4. Fonctionnalités Implémentées
+Le projet a été développé avec un ensemble complet de fonctionnalités offrant une expérience de jeu riche et moderne.
+
+3.4.1. Interface Utilisateur Moderne (MenuGUI)
+Le menu principal du jeu a été conçu avec une interface graphique moderne inspirée du design Apple/Chess.com :
+
+• Design Moderne et Élégant
+  - Palette de couleurs harmonieuse (gris clair, blanc, bleu Apple)
+  - Boutons arrondis avec effets de survol
+  - Sliders personnalisés avec design moderne
+  - Cartes d'information avec bordures arrondies
+  - Interface responsive et intuitive
+
+• Gestion des Utilisateurs
+  - Création de nouveaux utilisateurs avec saisie de :
+    * Nom du joueur
+    * Âge
+    * Chemin vers l'avatar (optionnel)
+  - Sélection d'utilisateurs existants par ID
+  - Affichage des statistiques utilisateur (victoires)
+  - Système d'ID auto-incrémenté pour chaque utilisateur
+
+• Configuration de Partie
+  - Sélection du nombre de joueurs (2-6) via slider interactif
+  - Choix du type de jeu (Individual/Team) via menu déroulant
+  - Configuration automatique des bots pour compléter la partie
+  - Affichage en temps réel des paramètres sélectionnés
+  - Validation des paramètres avant le lancement
+
+3.4.2. Modes de Jeu
+Le jeu propose deux modes de jeu distincts avec leurs règles spécifiques :
+
+• Mode Individual (Solo)
+  - 2 à 6 joueurs
+  - Chaque joueur joue pour lui-même
+  - Objectif : Être le premier à collecter 3 trios
+  - Distribution équitable des cartes entre joueurs et centre
+  - Gestion des tours de jeu séquentielle
+
+• Mode Team (Équipe)
+  - 4 ou 6 joueurs uniquement
+  - Formation automatique d'équipes de 2 joueurs
+  - Objectif : L'équipe doit collecter 3 trios en commun
+  - Coordination entre coéquipiers
+  - Affichage spécifique des scores par équipe
+
+3.4.3. Intelligence Artificielle (Bot)
+Les bots disposent d'une IA stratégique capable de :
+
+• Analyse du Jeu
+  - Évaluation des cartes visibles de tous les joueurs
+  - Détection des opportunités de trio
+  - Analyse des cartes du centre
+
+• Stratégies de Jeu
+  - Révélation de la carte la plus haute de sa main
+  - Révélation de la carte la plus basse de sa main
+  - Sélection stratégique des cartes du centre
+  - Ciblage intelligent des cartes des adversaires
+  - Prise de décision basée sur l'état actuel du jeu
+
+3.4.4. Système de Cartes
+Le jeu utilise un système de cartes complet et flexible :
+
+• Gestion du Deck
+  - Deck de 60 cartes (valeurs de 1 à 20, 3 exemplaires chacune)
+  - Mélange aléatoire des cartes
+  - Distribution automatique aux joueurs et au centre
+  - Gestion de la pioche centrale
+
+• Cartes Révélées
+  - Système de visibilité des cartes (visible/cachée)
+  - Traçabilité du propriétaire de chaque carte
+  - Gestion des cartes révélées pendant le tour
+  - Validation automatique des trios (3 cartes identiques)
+
+3.4.5. Mécaniques de Jeu
+Le jeu implémente toutes les règles du Trio original :
+
+• Actions de Jeu
+  - Révéler sa carte la plus haute
+  - Révéler sa carte la plus basse
+  - Révéler une carte du centre (choix par index)
+  - Révéler la carte la plus haute d'un adversaire
+  - Révéler la carte la plus basse d'un adversaire
+
+• Validation de Trio
+  - Détection automatique des trios valides
+  - Attribution des trios au joueur actif
+  - Gestion des échecs (cartes retournées face cachée)
+  - Passage automatique au tour suivant
+
+• Conditions de Victoire
+  - Détection automatique de la fin de partie (3 trios)
+  - Identification du gagnant
+  - Mise à jour des statistiques utilisateur
+
+3.4.6. Système de Logging et Persistance
+Un système complet de logging assure la traçabilité et la persistance des données :
+
+• Logs Utilisateurs (UserLogs.txt)
+  - Enregistrement de chaque utilisateur créé ou sélectionné
+  - Horodatage de chaque action
+  - Stockage des informations : ID, nom, âge, victoires, avatar
+  - Format structuré pour faciliter la lecture et le parsing
+
+• Logs de Partie (GameLogs.txt)
+  - Enregistrement de chaque partie lancée
+  - Informations stockées :
+    * Date et heure de la partie
+    * Nom du joueur principal
+    * Nombre total de joueurs
+    * Nombre de bots
+    * Type de jeu (Individual/Team)
+  - Historique complet des parties jouées
+
+3.4.7. Architecture MVC
+Le projet suit rigoureusement le pattern MVC :
+
+• Modèle (Model)
+  - SoloGame : Logique du jeu en mode individual
+  - TeamGame : Logique du jeu en mode équipe
+  - Player, User, Bot : Hiérarchie des joueurs
+  - Card, Deck, DrawPile : Gestion des cartes
+  - Team : Gestion des équipes
+  - Menu : Configuration de la partie
+
+• Vue (View)
+  - MenuGUI : Interface moderne du menu principal
+  - SwingGameView : Interface de jeu pour le mode individual
+  - SwingTeamGameView : Interface de jeu pour le mode équipe
+  - ConsoleView : Vue console (mode debug)
+
+• Contrôleur (Controller)
+  - MenuController : Gestion des interactions du menu
+  - GameController : Orchestration du jeu en mode individual
+  - TeamGameController : Orchestration du jeu en mode équipe
+
+• Services
+  - GameLogger : Service de logging des parties
+  - Gestion de la persistance des données
+
+4. Outils et Technologies
+Voici les principaux outils et technologies utilisés pour la réalisation du projet :
+
+Catégorie
+Détails
+Usage
+Langage de programmation
+Java
+Cœur de la logique métier et du développement.
+Format de données
+JSON
+Persistance et exportation des statistiques et des logs du jeu.
+Environnements (IDE)
+IntelliJ IDEA / VS Code
+Environnement de développement principal.
+Interface Graphique
+Swing / JavaFX
+Construction de l'interface utilisateur graphique (GUI).
+Gestion de version
+Git / GitHub
+Collaboration, gestion de l'historique et archivage du code source.
+
+4.1. Gestion du Code Source
+Le code source complet du projet est hébergé sur GitHub, assurant la traçabilité des contributions et facilitant la gestion des versions.
+
+Lien vers le dépôt distant : [https://github.com/Dridox-h/projet_ap4b](https://www.google.com/search?q=https://github.com/Dridox-h/projet_ap4b)
+5. Bilan et Perspectives
+5.1. Bilan du Projet
+Le projet a été un succès technique et pédagogique, permettant de consolider nos acquis en POO et modélisation UML.
+
+Réalisation Technique : L'architecture MVC a été mise en œuvre avec succès, permettant une séparation propre des préoccupations. Le jeu est pleinement fonctionnel en mode local.
+Modélisation : La phase de conception UML a permis d'anticiper les structures de données (gestion des decks et des mains de joueurs) et les interactions complexes.
+Adaptation : La thématique "recherche de stage" a été intégrée avec cohérence dans les règles et l'interface graphique.
+5.2. Améliorations Futures
+Les pistes d'évolution principales pour enrichir le jeu sont les suivantes :
+
+• Mode Multijoueur en Ligne
+  - Implémentation d'un système client-serveur
+  - Matchmaking automatique entre joueurs
+  - Chat en temps réel pendant les parties
+  - Classement global des joueurs
+
+• Amélioration de l'Intelligence Artificielle
+  - Niveaux de difficulté (Facile, Moyen, Difficile)
+  - IA avancée avec apprentissage automatique
+  - Stratégies adaptatives basées sur le comportement des joueurs
+  - Analyse prédictive des coups adverses
+
+• Personnalisation et Progression
+  - Système de niveaux et d'expérience
+  - Déblocage de nouveaux avatars et thèmes
+  - Succès et trophées
+  - Statistiques détaillées (taux de victoire, temps de jeu, etc.)
+
+• Interface et Expérience Utilisateur
+  - Animations fluides pour les actions de jeu
+  - Effets sonores et musique d'ambiance
+  - Tutoriel interactif pour les nouveaux joueurs
+  - Mode spectateur pour observer les parties
+
+• Fonctionnalités Sociales
+  - Système d'amis
+  - Partage de parties sur les réseaux sociaux
+  - Replay des parties jouées
+  - Tournois et compétitions
+
+• Optimisation Technique
+  - Migration vers JavaFX pour une interface plus moderne
+  - Optimisation des performances pour les grandes parties
+  - Support multiplateforme (Windows, macOS, Linux)
+  - Application mobile (Android/iOS)
+
+Conclusion
+Ce projet a permis de mettre en pratique l'ensemble des concepts de programmation orientée objet et de modélisation UML vus en cours. Le résultat est un jeu complet, fonctionnel et agréable à utiliser, avec une architecture solide permettant des évolutions futures. L'expérience acquise lors de ce projet sera précieuse pour nos futurs développements logiciels.

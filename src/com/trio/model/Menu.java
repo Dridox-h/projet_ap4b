@@ -70,6 +70,10 @@ public class Menu {
         if (nbPlayers > 6) {
             return new ValidationResult(false, "Please select a number of players equal or less than 6.");
         }
+
+        if (currentUser == null) {
+            return new ValidationResult(false, "Please select a user or Create a new user.");
+        }
         return new ValidationResult(true, "");
     }
 
